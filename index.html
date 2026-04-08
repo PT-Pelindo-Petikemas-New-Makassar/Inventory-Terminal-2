@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PELINDO INVENTORY - TERMINAL 2</title>
     
+    <!-- PWA & Mobile Optimization -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#004a99">
@@ -21,17 +22,52 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        :root { --pelindo-blue-dark: #004a99; --pelindo-blue-light: #00aeef; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; text-transform: uppercase; overscroll-behavior-y: contain; }
-        .pelindo-gradient { background: linear-gradient(135deg, var(--pelindo-blue-dark) 0%, #003366 100%); }
-        .form-input { @apply mt-1 block w-full rounded-2xl border-gray-200 shadow-sm focus:border-[#00aeef] focus:ring-[#00aeef] text-sm p-3 border transition-all uppercase font-bold; }
-        .btn-circle { @apply w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 active:scale-90 hover:-translate-y-1; }
-        .card-pelindo { @apply bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden; }
-        .status-badge { @apply px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-wider; }
-        .loading-overlay { @apply fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center transition-opacity duration-500; }
+        
+        :root { 
+            --pelindo-blue-dark: #004a99; 
+            --pelindo-blue-light: #00aeef; 
+            --pelindo-accent: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc; 
+            text-transform: uppercase; 
+            overscroll-behavior-y: contain;
+        }
+
+        .pelindo-gradient { 
+            background: linear-gradient(135deg, var(--pelindo-blue-dark) 0%, #003366 100%); 
+        }
+
+        .form-input { 
+            @apply mt-1 block w-full rounded-2xl border-gray-200 shadow-sm focus:border-[#00aeef] focus:ring-[#00aeef] text-sm p-4 border transition-all uppercase font-bold bg-white; 
+        }
+
+        .btn-circle { 
+            @apply w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 active:scale-90 hover:-translate-y-1 hover:shadow-xl; 
+        }
+
+        .card-pelindo { 
+            @apply bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden transition-all duration-300; 
+        }
+
+        .status-badge { 
+            @apply px-3 py-1.5 rounded-full text-[9px] font-black border uppercase tracking-wider shadow-sm; 
+        }
+
+        .loading-overlay { 
+            @apply fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center transition-opacity duration-500; 
+        }
+
         .color-excel { @apply bg-emerald-600 ring-4 ring-emerald-50; }
         .color-word { @apply bg-blue-600 ring-4 ring-blue-50; }
         .color-pdf { @apply bg-red-600 ring-4 ring-red-50; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 
     <script type="module">
@@ -39,7 +75,6 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi Database Real-Time Pelindo T2
         const firebaseConfig = {
             apiKey: "AIzaSyAIwAX6CaRy-PLa_KUhMyl_b5CnNia1DxM",
             authDomain: "inventaris-pelindo-t2.firebaseapp.com",
@@ -59,126 +94,201 @@
 </head>
 <body class="min-h-screen text-slate-800 pb-20 text-left">
 
-    <!-- Loading Screen -->
     <div id="loader" class="loading-overlay">
-        <div class="w-12 h-12 border-4 border-[#00aeef] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="font-black text-[10px] tracking-widest text-[#004a99]">MENGHUBUNGKAN CLOUD PELINDO...</p>
+        <div class="relative">
+            <div class="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
+            <div class="w-20 h-20 border-4 border-[#00aeef] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+        </div>
+        <p class="font-black text-[10px] tracking-[0.3em] text-[#004a99] mt-8 animate-pulse">SINKRONISASI DATA...</p>
     </div>
 
-    <!-- Navigation -->
-    <nav class="pelindo-gradient text-white shadow-2xl sticky top-0 z-[100]">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-4 text-left">
-                <div class="bg-white p-1 rounded-xl shadow-inner flex items-center w-10 h-10 overflow-hidden text-[#004a99]">
-                    <i data-lucide="anchor" class="mx-auto"></i>
+    <nav class="pelindo-gradient text-white shadow-2xl sticky top-0 z-[100] border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-5">
+                <div class="bg-white p-2 rounded-2xl shadow-inner flex items-center justify-center w-12 h-12 overflow-hidden text-[#004a99]">
+                    <i data-lucide="anchor" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 class="text-base font-extrabold tracking-wider leading-tight">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
-                    <p class="text-[8px] opacity-70 font-black tracking-widest uppercase">TEKNIK TERMINAL 2</p>
+                    <h1 class="text-lg font-extrabold tracking-tight leading-none text-white uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
+                    <p class="text-[9px] mt-1 opacity-80 font-black tracking-[0.2em] uppercase text-white">TEKNIK TERMINAL 2</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full border border-white/20">
-                <div id="syncDot" class="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
-                <span id="syncText" class="text-[8px] font-black uppercase">MENGHUBUNGKAN...</span>
+            <div class="flex items-center gap-3">
+                <div id="syncIndicator" class="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                    <div id="syncDot" class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></div>
+                    <span id="syncText" class="text-[8px] font-black uppercase tracking-wider text-white">SINKRON OTOMATIS</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5 text-white opacity-70"></i>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <!-- Header Dashboard -->
-        <div class="mb-12">
-            <h2 class="text-2xl font-black text-slate-900 tracking-tight uppercase">MANAJEMEN INVENTARIS</h2>
-            <div class="h-1.5 w-20 bg-[#00aeef] mt-1 rounded-full mb-10"></div>
-            
-            <div class="flex flex-col lg:flex-row gap-8 items-end justify-between">
-                <!-- Box Impor Data -->
-                <div class="w-full lg:max-w-md bg-white p-5 rounded-[2.5rem] border border-dashed border-slate-200 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-green-50 p-3 rounded-2xl text-green-600"><i data-lucide="file-up" class="w-5 h-5"></i></div>
-                        <div><h4 class="text-[9px] font-black text-slate-400 uppercase mb-1">IMPOR DATA</h4><p class="text-[8px] font-bold text-slate-400 normal-case leading-tight italic">Excel (.xlsx)</p></div>
-                    </div>
-                    <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 px-6 py-3 rounded-full text-[9px] font-black uppercase transition-all border border-slate-200 active:scale-95 shadow-sm">
-                        PILIH FILE
-                        <input type="file" id="excelInput" accept=".xlsx, .xls" class="hidden" onchange="importFromExcel(event)">
-                    </label>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <div class="mb-14">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Manajemen Inventaris</h2>
+                    <div class="h-1.5 w-24 bg-[#00aeef] mt-3 rounded-full mb-8"></div>
                 </div>
+                
+                <div class="flex flex-col sm:flex-row gap-6 items-center">
+                    <div class="bg-white px-6 py-4 rounded-[2rem] border border-slate-200 flex items-center gap-6 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-emerald-50 p-3 rounded-2xl text-emerald-600"><i data-lucide="file-up" class="w-5 h-5"></i></div>
+                            <div class="hidden lg:block text-left">
+                                <h4 class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Upload Data</h4>
+                                <p class="text-[8px] font-bold text-slate-400 normal-case italic">Format .xlsx</p>
+                            </div>
+                        </div>
+                        <label class="cursor-pointer bg-[#004a99] text-white px-6 py-3 rounded-full text-[9px] font-black uppercase transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                            PILIH FILE
+                            <input type="file" id="excelInput" accept=".xlsx, .xls" class="hidden" onchange="importFromExcel(event)">
+                        </label>
+                    </div>
 
-                <!-- Box Laporan (Tombol Bulat) -->
-                <div class="bg-white/50 p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center gap-5">
-                    <h4 class="text-[10px] font-black text-[#004a99] uppercase tracking-[0.2em] leading-none">UNDUH LAPORAN</h4>
-                    <div class="flex gap-8 px-4">
-                        <div class="flex flex-col items-center gap-2"><button onclick="exportToExcel()" class="btn-circle color-excel"><i data-lucide="sheet"></i></button><span class="text-[8px] font-black text-slate-400 uppercase">EXCEL</span></div>
-                        <div class="flex flex-col items-center gap-2"><button onclick="exportToWord()" class="btn-circle color-word"><i data-lucide="file-text"></i></button><span class="text-[8px] font-black text-slate-400 uppercase">WORD</span></div>
-                        <div class="flex flex-col items-center gap-2"><button onclick="exportToPDF()" class="btn-circle color-pdf"><i data-lucide="file-type-2"></i></button><span class="text-[8px] font-black text-slate-400 uppercase">PDF</span></div>
+                    <div class="bg-white/60 p-4 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 px-8">
+                        <!-- UPDATE: Mengganti teks Download Lap menjadi Unduh Laporan -->
+                        <span class="text-[10px] font-black text-[#004a99] uppercase tracking-widest hidden lg:block italic">Unduh Laporan:</span>
+                        <div class="flex gap-5">
+                            <div class="flex flex-col items-center gap-2"><button onclick="exportToExcel()" class="btn-circle color-excel"><i data-lucide="sheet"></i></button></div>
+                            <div class="flex flex-col items-center gap-2"><button onclick="exportToWord()" class="btn-circle color-word"><i data-lucide="file-text"></i></button></div>
+                            <div class="flex flex-col items-center gap-2"><button onclick="exportToPDF()" class="btn-circle color-pdf"><i data-lucide="file-type-2"></i></button></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Summary Bar -->
-        <div id="stockSummary" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10 font-bold"></div>
+        <div id="stockSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"></div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Form Input -->
-            <div class="lg:col-span-4 text-left">
-                <div class="card-pelindo">
-                    <div class="bg-slate-50 px-6 py-5 border-b flex items-center gap-2">
-                        <i data-lucide="plus-circle" class="w-4 h-4 text-[#004a99]"></i>
-                        <h3 class="font-black text-slate-800 text-[10px] uppercase tracking-widest">INPUT BARANG</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-4">
+                <div class="card-pelindo sticky top-28">
+                    <div class="bg-slate-50 px-8 py-6 border-b flex items-center gap-3">
+                        <div class="bg-[#004a99] p-2 rounded-xl text-white"><i data-lucide="plus" class="w-4 h-4 text-white"></i></div>
+                        <h3 class="font-black text-slate-800 text-[11px] uppercase tracking-widest">Input Aktivitas Barang</h3>
                     </div>
-                    <form id="inventoryForm" class="p-6 space-y-5">
+                    <form id="inventoryForm" class="p-8 space-y-6">
                         <div>
-                            <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">KATEGORI</label>
-                            <select id="itemCategory" required class="form-input bg-white font-bold">
+                            <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Pilih Kategori</label>
+                            <select id="itemCategory" required class="form-input font-black text-slate-700">
                                 <option value="ELECTRICAL">ELECTRICAL</option>
                                 <option value="PLUMBING">PLUMBING</option>
                                 <option value="MECHANICAL">MECHANICAL</option>
+                                <option value="IT DEVICE">IT DEVICE</option>
+                                <option value="CONSUMABLES">CONSUMABLES</option>
                             </select>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div><label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">NAMA BARANG</label><input type="text" id="itemName" required class="form-input" placeholder="..."></div>
-                            <div><label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">TIPE (OPT)</label><input type="text" id="itemType" class="form-input" placeholder="..."></div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Nama Barang</label><input type="text" id="itemName" required class="form-input" placeholder="CONTOH: KABEL NYY 3X4"></div>
+                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Tipe / Merk (Opt)</label><input type="text" id="itemType" class="form-input" placeholder="CONTOH: SUPREME / 100M"></div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div><label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">JUMLAH</label><input type="number" id="itemQty" required min="1" class="form-input" placeholder="0"></div>
-                            <div><label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">SATUAN</label><select id="itemUnit" class="form-input bg-white font-bold text-xs"><option value="PCS">PCS</option><option value="ROL">ROL</option><option value="MTR">MTR</option><option value="DOS">DOS</option><option value="UNT">UNT</option></select></div>
-                        </div>
-                        <select id="itemStatus" onchange="handleStatusChange()" class="form-input bg-slate-50 text-[#004a99]"><option value="MASUK">BARANG MASUK</option><option value="KELUAR">BARANG KELUAR</option></select>
-                        <div id="outOptions" class="hidden p-4 bg-blue-50/50 rounded-[2rem] border border-blue-100 border-dashed space-y-4">
-                            <div class="grid grid-cols-2 gap-2">
-                                <label class="cursor-pointer"><input type="radio" name="subStatus" value="DIPINJAM" onchange="handleSubStatusChange()" checked class="peer hidden"><div class="text-center py-2 bg-white rounded-full border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[9px] shadow-sm uppercase">PINJAM</div></label>
-                                <label class="cursor-pointer"><input type="radio" name="subStatus" value="INSTALASI" onchange="handleSubStatusChange()" class="peer hidden"><div class="text-center py-2 bg-white rounded-full border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[9px] shadow-sm uppercase">INSTAL</div></label>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Qty</label><input type="number" id="itemQty" required min="1" class="form-input" placeholder="0"></div>
+                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Satuan</label>
+                                <select id="itemUnit" class="form-input font-bold text-xs uppercase">
+                                    <option value="PCS">PCS</option>
+                                    <option value="ROL">ROL</option>
+                                    <option value="BTG">BTG</option>
+                                    <option value="KLG">KLG</option>
+                                    <option value="BKS">BKS</option>
+                                    <option value="KTK">KTK</option>
+                                    <option value="DOS">DOS</option>
+                                    <option value="UNT">UNT</option>
+                                    <option value="MTR">MTR</option>
+                                </select>
                             </div>
-                            <div id="borrowFields" class="space-y-3"><input type="text" id="borrowerName" class="form-input" placeholder="PEMINJAM"><input type="date" id="borrowDate" class="form-input"></div>
-                            <div id="installFields" class="hidden space-y-3"><input type="text" id="installTech" class="form-input" placeholder="PELAKSANA"><input type="text" id="installLoc" class="form-input" placeholder="LOKASI"></div>
-                            <textarea id="extraNote" class="form-input" placeholder="CATATAN TAMBAHAN..."></textarea>
                         </div>
-                        <button type="submit" id="submitBtn" class="w-full bg-[#004a99] text-white py-4 rounded-full font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all tracking-widest">SIMPAN DATA</button>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Aliran Barang</label>
+                            <select id="itemStatus" onchange="handleStatusChange()" class="form-input bg-slate-50 text-[#004a99] border-[#00aeef]/20">
+                                <option value="MASUK">BARANG MASUK (+)</option>
+                                <option value="KELUAR">BARANG KELUAR (-)</option>
+                            </select>
+                        </div>
+
+                        <div id="outOptions" class="hidden p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100 border-dashed space-y-6 animate-in fade-in duration-300">
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="subStatus" value="DIPINJAM" onchange="handleSubStatusChange()" checked class="peer hidden">
+                                    <div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase transition-all group-active:scale-95">PINJAM</div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="subStatus" value="INSTALASI" onchange="handleSubStatusChange()" class="peer hidden">
+                                    <div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase transition-all group-active:scale-95">INSTALASI</div>
+                                </label>
+                            </div>
+                            <div id="borrowFields" class="space-y-4">
+                                <input type="text" id="borrowerName" class="form-input shadow-none text-xs" placeholder="NAMA PEMINJAM / DIVISI">
+                                <input type="date" id="borrowDate" class="form-input shadow-none text-xs">
+                            </div>
+                            <div id="installFields" class="hidden space-y-4">
+                                <input type="text" id="installTech" class="form-input shadow-none text-xs" placeholder="TEKNISI PELAKSANA">
+                                <input type="text" id="installLoc" class="form-input shadow-none text-xs" placeholder="LOKASI (MISAL: LT. 3)">
+                            </div>
+                            <textarea id="extraNote" class="form-input shadow-none text-xs h-20" placeholder="CATATAN TAMBAHAN..."></textarea>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-[#004a99] text-white py-5 rounded-full font-black text-xs uppercase shadow-xl hover:bg-[#003366] active:scale-95 transition-all tracking-[0.2em] flex items-center justify-center gap-3 shadow-blue-900/30">
+                            <i data-lucide="check-circle-2" class="text-white"></i> SIMPAN AKTIVITAS
+                        </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Tabel Riwayat -->
             <div class="lg:col-span-8">
                 <div class="card-pelindo">
-                    <div class="px-6 py-5 border-b flex justify-between items-center bg-white sticky top-0 z-10"><h3 class="font-black text-[10px] uppercase tracking-widest">RIWAYAT AKTIVITAS</h3><span id="counter" class="text-[9px] bg-[#004a99] text-white px-3 py-1.5 rounded-full font-black uppercase">0 ENTRI</span></div>
-                    <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><tbody id="inventoryList" class="text-[10px] divide-y divide-slate-100 font-bold uppercase tracking-tight"></tbody></table></div>
-                    <div id="emptyState" class="hidden py-20 text-center"><p class="text-slate-300 font-black text-[10px] uppercase">Database Kosong</p></div>
+                    <div class="px-10 py-8 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+                        <div class="text-left">
+                            <h3 class="font-black text-slate-800 text-lg uppercase tracking-tight">Riwayat Aktivitas</h3>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Data Terpusat Cloud Pelindo</p>
+                        </div>
+                        <span id="counter" class="text-[10px] bg-[#004a99] text-white px-5 py-2 rounded-full font-black uppercase shadow-lg shadow-blue-900/10">0 ENTRI</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <tbody id="inventoryList" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-tight"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="hidden py-32 text-center">
+                        <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="database-backup" class="text-slate-200 w-10 h-10"></i>
+                        </div>
+                        <p class="text-slate-300 font-black text-[11px] uppercase tracking-[0.3em]">Cloud Database Kosong</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Kembali -->
-    <div id="returnModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-4">
-        <div class="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl uppercase text-center">
-            <h3 class="text-lg font-black mb-2 text-[#004a99]">KONFIRMASI KEMBALI</h3>
-            <input type="date" id="actualReturnDate" class="form-input mb-8">
-            <div class="flex gap-2"><button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 rounded-full font-bold text-[9px]">BATAL</button><button onclick="saveReturn()" class="flex-1 py-4 bg-[#004a99] text-white rounded-full text-[9px]">SIMPAN</button></div>
+    <!-- Modal Konfirmasi Kembali -->
+    <div id="returnModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[3rem] p-12 max-w-sm w-full shadow-2xl uppercase text-center border border-white/20 animate-in zoom-in duration-300">
+            <div class="bg-blue-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 text-[#00aeef]">
+                <i data-lucide="undo-2" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-2xl font-black mb-2 text-[#004a99]">Konfirmasi Balik</h3>
+            <p class="text-[10px] text-slate-400 font-bold mb-10 tracking-widest leading-loose">Pilih tanggal barang diterima kembali di gudang terminal 2.</p>
+            <div class="space-y-4">
+                <input type="date" id="actualReturnDate" class="form-input mb-8 text-center border-blue-100 bg-blue-50/30">
+                <div class="flex gap-3">
+                    <button onclick="closeModal()" class="flex-1 py-5 bg-slate-100 rounded-full font-black text-[10px] tracking-widest">BATAL</button>
+                    <button onclick="saveReturn()" class="flex-1 py-5 bg-[#004a99] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-blue-900/20">SIMPAN</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 transform translate-y-32 opacity-0 transition-all duration-500 bg-[#004a99] text-white px-12 py-5 rounded-full shadow-2xl z-[200] border border-white/20 font-black text-[10px] uppercase italic text-center">OPERASI BERHASIL</div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 transform translate-y-32 opacity-0 transition-all duration-500 bg-[#004a99] text-white px-12 py-6 rounded-full shadow-[0_20px_50px_rgba(0,51,102,0.3)] z-[200] border border-white/20 flex items-center gap-4 text-white">
+        <div id="toastIcon" class="bg-white/20 p-2 rounded-full text-white"><i data-lucide="check" class="w-5 h-5 text-white"></i></div>
+        <span id="toastMessage" class="font-black text-[11px] tracking-[0.2em] uppercase italic text-white">Operasi Berhasil</span>
+    </div>
 
     <script>
         let dbList = [];
@@ -195,13 +305,14 @@
                     isSyncActive = true;
                     updateSyncUI(true);
                     renderUI();
-                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('loader').classList.add('opacity-0');
+                    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
                 }, (err) => {
-                    console.error(err);
+                    console.error("Firestore error:", err);
                     document.getElementById('loader').classList.add('hidden');
                 });
             } catch(e) {
-                console.error(e);
+                console.error("Auth error:", e);
                 document.getElementById('loader').classList.add('hidden');
             }
         };
@@ -229,12 +340,12 @@
             const status = document.getElementById('itemStatus').value;
             const sub = status === 'KELUAR' ? document.querySelector('input[name="subStatus"]:checked').value : null;
             let detail = "-";
-            if(sub === 'DIPINJAM') detail = `PEMINJAM: ${document.getElementById('borrowerName').value.toUpperCase() || 'STAF'} | TGL: ${document.getElementById('borrowDate').value}`;
+            if(sub === 'DIPINJAM') detail = `PEMINJAM: ${document.getElementById('borrowerName').value.toUpperCase() || 'STAF'} | PINJAM: ${document.getElementById('borrowDate').value}`;
             else if(sub === 'INSTALASI') detail = `PELAKSANA: ${document.getElementById('installTech').value.toUpperCase()} | LOKASI: ${document.getElementById('installLoc').value.toUpperCase()}`;
             const ext = document.getElementById('extraNote').value;
             if(ext) detail += ` | CAT: ${ext}`;
 
-            if (!isSyncActive) return alert("Belum terhubung ke Cloud.");
+            if (!isSyncActive) return alert("Belum terhubung ke Cloud. Periksa koneksi.");
 
             await addDoc(collection(db, "pelindo_inventory"), {
                 name: document.getElementById('itemName').value.toUpperCase(),
@@ -242,12 +353,12 @@
                 type: document.getElementById('itemType').value.toUpperCase() || "-",
                 qty: parseInt(document.getElementById('itemQty').value),
                 unit: document.getElementById('itemUnit').value,
-                statusText: status === 'MASUK' ? 'MASUK' : `KELUAR (${sub})`,
+                statusText: status === 'MASUK' ? 'BARANG MASUK' : `BARANG KELUAR (${sub})`,
                 mainStatus: status, subType: sub, detail, returnDate: null,
                 createdAt: Date.now(),
-                timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}).toUpperCase()
+                timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).toUpperCase()
             });
-            e.target.reset(); handleStatusChange(); showToast("DATA TERSINKRON");
+            e.target.reset(); handleStatusChange(); showToast("DATA TERSIMPAN DI CLOUD");
         });
 
         async function importFromExcel(event) {
@@ -260,44 +371,55 @@
                     const name = (row['NAMA BARANG'] || row['BARANG'] || '').toString().toUpperCase();
                     if(!name) continue;
                     await window.pelindoSync.addDoc(window.pelindoSync.collection(window.pelindoSync.db, "pelindo_inventory"), {
-                        name, cat: (row['KATEGORI'] || 'ELECTRICAL').toUpperCase(),
-                        type: (row['TIPE'] || '-').toUpperCase(), qty: parseInt(row['JUMLAH'] || 0), unit: (row['SATUAN'] || 'PCS').toUpperCase(),
-                        statusText: 'MASUK (IMPOR)', mainStatus: 'MASUK', detail: "IMPOR DATA", 
+                        name, cat: (row['KATEGORI'] || 'MISC').toUpperCase(),
+                        type: (row['TIPE'] || '-').toUpperCase(), qty: parseInt(row['JUMLAH'] || row['QTY'] || 0), unit: (row['SATUAN'] || 'PCS').toUpperCase(),
+                        statusText: 'BARANG MASUK (IMPOR)', mainStatus: 'MASUK', detail: "IMPOR DARI EXCEL", 
                         createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID').toUpperCase()
                     });
                 }
-                showToast("DATA DIIMPOR");
+                showToast("DATA DIIMPOR KE CLOUD");
                 event.target.value = '';
             };
             reader.readAsArrayBuffer(file);
         }
 
-        async function deleteItem(id) { if(confirm('HAPUS DATA INI DARI CLOUD?')) await window.pelindoSync.deleteDoc(window.pelindoSync.doc(window.pelindoSync.db, "pelindo_inventory", id)); }
+        async function deleteItem(id) { if(confirm('HAPUS DATA INI DARI SELURUH PERANGKAT?')) await window.pelindoSync.deleteDoc(window.pelindoSync.doc(window.pelindoSync.db, "pelindo_inventory", id)); }
         function openModal(id) { curId = id; document.getElementById('returnModal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('returnModal').classList.add('hidden'); }
         async function saveReturn() {
             const date = document.getElementById('actualReturnDate').value; if(!date) return;
             const item = dbList.find(x => x.id === curId);
             await window.pelindoSync.updateDoc(window.pelindoSync.doc(window.pelindoSync.db, "pelindo_inventory", curId), {
-                returnDate: date, detail: item.detail + ` | KEMBALI: ${date}`, statusText: 'KELUAR (KEMBALI)'
+                returnDate: date, detail: item.detail + ` | KEMBALI: ${date}`, statusText: 'BARANG KELUAR (DIPENGEMBALIKAN)'
             });
-            closeModal(); showToast("STATUS DIPERBARUI");
+            closeModal(); showToast("DATA PENGEMBALIAN DICATAT");
         }
 
         function renderUI() {
             const list = document.getElementById('inventoryList'); list.innerHTML = '';
             document.getElementById('emptyState').classList.toggle('hidden', dbList.length > 0);
             dbList.forEach(i => {
-                let badge = i.mainStatus === 'MASUK' ? 'bg-green-50 text-green-700' : 'bg-slate-50 text-slate-500';
-                if(i.subType === 'DIPINJAM') badge = 'bg-blue-50 text-blue-600';
-                if(i.subType === 'INSTALASI') badge = 'bg-orange-50 text-orange-600';
-                list.innerHTML += `<tr>
-                    <td class="px-6 py-5"><b>${i.timestamp}</b><br><span class="text-[#00aeef] text-[8px] tracking-widest">${i.cat}</span></td>
-                    <td class="px-6 py-4"><b>${i.name}</b><br><span class="text-[8px] text-slate-300 font-bold">${i.type}</span><br><span class="text-xs text-slate-600">${i.qty} ${i.unit}</span><br><span class="status-badge ${badge} mt-1 inline-block">${i.statusText}</span><br>
-                        <div class="text-[9px] text-slate-400 lowercase mt-2 italic font-bold leading-tight">${i.detail}</div>
-                        ${i.subType === 'DIPINJAM' && !i.returnDate ? `<button onclick="openModal('${i.id}')" class="text-[8px] text-[#00aeef] border border-blue-100 px-3 py-1 rounded-full mt-2 uppercase transition-all shadow-sm">Tandai Kembali</button>` : ''}
+                let badge = i.mainStatus === 'MASUK' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-200';
+                if(i.subType === 'DIPINJAM') badge = 'bg-blue-50 text-blue-600 border-blue-100';
+                if(i.subType === 'INSTALASI') badge = 'bg-indigo-50 text-indigo-600 border-indigo-100';
+                
+                list.innerHTML += `<tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-10 py-6">
+                        <div class="text-slate-400 text-[9px] font-black">${i.timestamp}</div>
+                        <div class="text-[#00aeef] text-[8px] font-black tracking-widest mt-1">${i.cat}</div>
                     </td>
-                    <td class="px-6 py-4 text-right align-top"><button onclick="deleteItem('${i.id}')" class="text-slate-200 mt-1 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                    <td class="px-10 py-6">
+                        <div class="text-slate-800 font-extrabold text-[12px] tracking-tight">${i.name}</div>
+                        <div class="text-[8px] text-slate-300 font-bold">${i.type}</div>
+                    </td>
+                    <td class="px-10 py-6"><span class="text-slate-900 font-black text-xs">${i.qty}</span> <small class="text-[9px] text-slate-400 ml-1 font-bold">${i.unit}</small></td>
+                    <td class="px-10 py-6"><span class="status-badge ${badge}">${i.statusText}</span></td>
+                    <td class="px-10 py-6">
+                        <div class="text-slate-500 text-[10px] lowercase leading-relaxed font-bold max-w-xs italic">${i.detail}</div>
+                        ${i.subType === 'DIPINJAM' && !i.returnDate ? `<button onclick="openModal('${i.id}')" class="mt-3 text-[9px] font-black text-[#00aeef] flex items-center gap-2 border border-[#00aeef]/20 px-3 py-1.5 rounded-lg bg-white shadow-sm hover:bg-blue-50 transition-all uppercase"><i data-lucide="corner-up-left" class="w-3 h-3"></i> Tandai Kembali</button>` : ''}
+                        ${i.returnDate ? `<span class="inline-flex items-center gap-1 text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg mt-3 border border-emerald-100 tracking-tighter uppercase"><i data-lucide="check" class="w-2.5 h-2.5"></i> Sudah Kembali</span>` : ''}
+                    </td>
+                    <td class="px-10 py-6 text-right"><button onclick="deleteItem('${i.id}')" class="text-slate-200 hover:text-red-500 transition-all p-3 rounded-2xl hover:bg-red-50"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td>
                 </tr>`;
             });
             updateStats(); document.getElementById('counter').innerText = `${dbList.length} ENTRI`; lucide.createIcons();
@@ -311,23 +433,38 @@
             const cont = document.getElementById('stockSummary'); cont.innerHTML = '';
             Object.keys(s).slice(0, 4).forEach(k => {
                 const bal = s[k].in - s[k].out;
-                cont.innerHTML += `<div class="bg-white p-4 rounded-[2.5rem] border border-slate-100 flex flex-col justify-between shadow-sm min-h-[90px]">
-                    <span class="text-[7px] text-slate-300 font-black tracking-widest uppercase truncate">${s[k].cat}</span>
-                    <div><div class="text-[10px] font-black truncate uppercase">${k}</div><div class="text-lg font-black text-[#004a99] mt-1">${bal} <small class="text-[8px] font-bold text-slate-400 uppercase">${s[k].unit}</small></div></div>
+                cont.innerHTML += `<div class="card-pelindo p-8 flex flex-col justify-between h-44 hover:-translate-y-2">
+                    <div class="flex justify-between items-start">
+                        <div class="bg-blue-50 p-3 rounded-2xl text-[#004a99] border border-blue-100"><i data-lucide="package" class="w-5 h-5"></i></div>
+                        <span class="text-[8px] text-slate-300 font-black tracking-[0.2em] uppercase truncate max-w-[100px]">${s[k].cat}</span>
+                    </div>
+                    <div>
+                        <div class="text-[12px] font-extrabold truncate uppercase text-slate-600 tracking-tight">${k}</div>
+                        <div class="text-3xl font-black text-[#004a99] mt-2">${bal} <small class="text-[10px] font-black text-slate-300 uppercase">${s[k].unit}</small></div>
+                    </div>
                 </div>`;
             });
         }
 
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.classList.replace('translate-y-32', 'translate-y-0'); t.classList.replace('opacity-0', 'opacity-100'); setTimeout(() => { t.classList.replace('translate-y-0', 'translate-y-32'); t.classList.replace('opacity-100', 'opacity-0'); }, 3000); }
+        function showToast(m) { 
+            const t = document.getElementById('toast'); 
+            document.getElementById('toastMessage').innerText = m; 
+            t.classList.replace('translate-y-32', 'translate-y-0'); 
+            t.classList.replace('opacity-0', 'opacity-100'); 
+            setTimeout(() => { 
+                t.classList.replace('translate-y-0', 'translate-y-32'); 
+                t.classList.replace('opacity-100', 'opacity-0'); 
+            }, 3000); 
+        }
 
-        function exportToExcel() { const ws = XLSX.utils.json_to_sheet(dbList.map(i => ({ 'WAKTU': i.timestamp, 'KATEGORI': i.cat, 'BARANG': i.name, 'QTY': i.qty, 'SATUAN': i.unit, 'STATUS': i.statusText, 'DETAIL': i.detail }))); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Stok"); XLSX.writeFile(wb, `PELINDO_REPORT.xlsx`); }
-        async function exportToPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'mm', 'a4'); doc.text("LAPORAN INVENTARIS", 14, 15); doc.autoTable({ head: [['WAKTU', 'KAT', 'BARANG', 'QTY', 'STATUS', 'DETAIL']], body: dbList.map(i => [i.timestamp, i.cat, i.name, `${i.qty} ${i.unit}`, i.statusText, i.detail]), startY: 25 }); doc.save("PELINDO_REPORT.pdf"); }
+        function exportToExcel() { const ws = XLSX.utils.json_to_sheet(dbList.map(i => ({ 'WAKTU': i.timestamp, 'KATEGORI': i.cat, 'BARANG': i.name, 'QTY': i.qty, 'SATUAN': i.unit, 'STATUS': i.statusText, 'DETAIL': i.detail }))); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Stok"); XLSX.writeFile(wb, `PELINDO_T2_INVENTORY.xlsx`); }
+        async function exportToPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'mm', 'a4'); doc.text("LAPORAN INVENTARIS TERMINAL 2 - PELINDO", 14, 15); doc.autoTable({ head: [['WAKTU', 'KAT', 'BARANG', 'QTY', 'STATUS', 'DETAIL']], body: dbList.map(i => [i.timestamp, i.cat, i.name, `${i.qty} ${i.unit}`, i.statusText, i.detail]), startY: 25, theme: 'grid', headStyles: {fillColor: [0, 74, 153]} }); doc.save("PELINDO_T2_INVENTORY.pdf"); }
         async function exportToWord() { 
-            const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType } = docx; 
-            const rows = [new TableRow({ children: ["WAKTU", "BARANG", "QTY", "STATUS"].map(t => new TableCell({ children: [new Paragraph({ text: t, bold: true })] })) })]; 
-            dbList.forEach(i => rows.push(new TableRow({ children: [i.timestamp, i.name, i.qty.toString(), i.statusText].map(t => new TableCell({ children: [new Paragraph(t)] })) }))); 
-            const docX = new Document({ sections: [{ children: [new Paragraph({ text: "LAPORAN INVENTARIS", bold: true, size: 28 }), new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows })] }] }); 
-            saveAs(await Packer.toBlob(docX), "WORD_PELINDO.docx"); 
+            const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, AlignmentType } = docx; 
+            const rows = [new TableRow({ children: ["WAKTU", "KATEGORI", "BARANG", "QTY", "STATUS"].map(t => new TableCell({ children: [new Paragraph({ text: t, bold: true })] })) })]; 
+            dbList.forEach(i => rows.push(new TableRow({ children: [i.timestamp, i.cat, i.name, `${i.qty} ${i.unit}`, i.statusText].map(t => new TableCell({ children: [new Paragraph(t)] })) }))); 
+            const docX = new Document({ sections: [{ children: [new Paragraph({ text: "LAPORAN INVENTARIS TERMINAL 2", bold: true, size: 32, alignment: AlignmentType.CENTER }), new Paragraph({ text: "\n" }), new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows })] }] }); 
+            saveAs(await Packer.toBlob(docX), "MANAJEMEN_INVENTARIS_PELINDO.docx"); 
         }
 
         window.onload = init;
