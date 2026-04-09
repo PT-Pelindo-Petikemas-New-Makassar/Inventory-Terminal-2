@@ -67,12 +67,13 @@
 </head>
 <body class="min-h-screen text-slate-800 pb-20 text-left">
 
-    <div id="loader" class="loading-overlay text-left">
+    <!-- Loading Screen -->
+    <div id="loader" class="loading-overlay">
         <div class="relative"><div class="w-20 h-20 border-4 border-slate-100 rounded-full"></div><div class="w-20 h-20 border-4 border-[#00aeef] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div></div>
         <p class="font-black text-[10px] tracking-[0.4em] text-[#004a99] mt-8 animate-pulse uppercase text-center">SINKRONISASI PELINDO...</p>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- Top Bar -->
     <nav class="pelindo-gradient text-white shadow-2xl sticky top-0 z-[100] border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center text-left">
             <div class="flex items-center gap-5 cursor-pointer text-left" onclick="switchView('dashboard')">
@@ -96,32 +97,32 @@
         </div>
     </nav>
 
-    <!-- Overlay Menu Modul -->
+    <!-- Sidebar Menu -->
     <div id="menuOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150]" onclick="toggleMenu()">
         <div class="absolute right-6 top-24 w-80 bg-white rounded-[2.5rem] shadow-2xl p-6 space-y-3" onclick="event.stopPropagation()">
             <h4 class="text-[10px] font-black text-slate-400 mb-4 px-4 tracking-[0.4em]">MODUL SISTEM</h4>
-            <button onclick="switchView('dashboard')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all text-left">
+            <button onclick="switchView('dashboard')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
                 <div class="p-2.5 rounded-xl bg-blue-100 text-[#004a99] group-hover:bg-[#004a99] group-hover:text-white transition-all"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
-                <span class="text-xs font-black text-slate-700 uppercase tracking-widest text-left">Input & Riwayat</span>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Input & Riwayat</span>
             </button>
-            <button onclick="switchView('fullStock')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all text-left">
+            <button onclick="switchView('fullStock')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
                 <div class="p-2.5 rounded-xl bg-orange-100 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all"><i data-lucide="package-search" class="w-5 h-5"></i></div>
-                <span class="text-xs font-black text-slate-700 uppercase tracking-widest text-left">Informasi Stok</span>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Informasi Stok</span>
             </button>
-            <button onclick="switchView('loanMonitor')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all text-left">
+            <button onclick="switchView('loanMonitor')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
                 <div class="p-2.5 rounded-xl bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all"><i data-lucide="clipboard-list" class="w-5 h-5"></i></div>
-                <span class="text-xs font-black text-slate-700 uppercase tracking-widest text-left">Monitor Pinjaman</span>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Monitor Pinjaman</span>
             </button>
-            <button onclick="switchView('budgetView')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all text-left">
+            <button onclick="switchView('budgetView')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
                 <div class="p-2.5 rounded-xl bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all"><i data-lucide="wallet-cards" class="w-5 h-5"></i></div>
-                <span class="text-xs font-black text-slate-700 uppercase tracking-widest text-left">Anggaran Stok</span>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Anggaran Stok</span>
             </button>
         </div>
     </div>
 
-    <!-- Template Tombol Laporan -->
+    <!-- Report Buttons Template -->
     <template id="report-buttons-template">
-        <div class="bg-white/60 p-4 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 px-8 shadow-sm text-left">
+        <div class="bg-white/60 p-4 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 px-8 shadow-sm">
             <span class="text-[10px] font-black text-[#004a99] uppercase tracking-widest hidden lg:block text-left">LAPORAN:</span>
             <div class="flex gap-5">
                 <button onclick="exportToExcel()" class="btn-circle color-excel shadow-md"><i data-lucide="sheet" class="w-5 h-5"></i></button>
@@ -140,13 +141,13 @@
             </div>
             
             <div class="flex flex-col sm:flex-row gap-6 items-center text-left">
-                <!-- FITUR IMPOR EXCEL (Logika Baru: Skema Pelindo) -->
+                <!-- FITUR IMPOR EXCEL (OTOMATIS BACA SEMUA SHEET) -->
                 <div class="bg-white px-6 py-4 rounded-[2rem] border border-slate-200 flex items-center gap-6 shadow-sm hover:shadow-md transition-all text-left">
                     <div class="flex items-center gap-3 text-left">
                         <div class="bg-emerald-50 p-3 rounded-2xl text-emerald-600"><i data-lucide="file-up" class="w-5 h-5"></i></div>
                         <div class="hidden lg:block text-left">
-                            <h4 class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1 text-left">Impor Stok Awal</h4>
-                            <p class="text-[8px] font-bold text-slate-300 normal-case italic text-left">Otomatis Per Kategori</p>
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1 text-left">Impor Excel</h4>
+                            <p class="text-[8px] font-bold text-slate-300 normal-case italic text-left">Baca Semua Kategori</p>
                         </div>
                     </div>
                     <label class="cursor-pointer bg-[#004a99] text-white px-6 py-3 rounded-full text-[9px] font-black uppercase transition-all active:scale-95 shadow-lg">
@@ -196,89 +197,90 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="text-left"><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest text-left">Harga Satuan (Rp)</label><input type="number" id="itemPrice" class="form-input" placeholder="0"></div>
-                        <div class="text-left"><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest text-left text-left text-left">Aliran Barang</label><select id="itemStatus" onchange="handleStatusChange()" class="form-input bg-slate-50 text-[#004a99] tracking-widest"><option value="MASUK">BARANG MASUK (+)</option><option value="KELUAR">BARANG KELUAR (-)</option></select></div>
+                        <div class="text-left"><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest text-left text-left">Harga Satuan (Rp)</label><input type="number" id="itemPrice" class="form-input" placeholder="0"></div>
+                        <div class="text-left"><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest text-left text-left text-left text-left">Aliran Barang</label><select id="itemStatus" onchange="handleStatusChange()" class="form-input bg-slate-50 text-[#004a99] tracking-widest"><option value="MASUK">BARANG MASUK (+)</option><option value="KELUAR">BARANG KELUAR (-)</option></select></div>
                         
                         <div id="outOptions" class="hidden p-6 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 border-dashed space-y-8 animate-in fade-in duration-300 text-left">
                             <div class="grid grid-cols-2 gap-3 text-left">
-                                <label class="cursor-pointer group text-left text-left"><input type="radio" name="subStatus" value="DIPINJAM" onchange="handleSubStatusChange()" checked class="peer hidden text-left text-left"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase tracking-widest transition-all">PINJAM</div></label>
-                                <label class="cursor-pointer group text-left text-left"><input type="radio" name="subStatus" value="INSTALASI" onchange="handleSubStatusChange()" class="peer hidden text-left text-left"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase tracking-widest transition-all">INSTALASI</div></label>
+                                <label class="cursor-pointer group text-left text-left text-left"><input type="radio" name="subStatus" value="DIPINJAM" onchange="handleSubStatusChange()" checked class="peer hidden text-left text-left text-left"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase tracking-widest transition-all">PINJAM</div></label>
+                                <label class="cursor-pointer group text-left text-left text-left"><input type="radio" name="subStatus" value="INSTALASI" onchange="handleSubStatusChange()" class="peer hidden text-left text-left text-left"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase tracking-widest transition-all">INSTALASI</div></label>
                             </div>
-                            <div id="borrowFields" class="space-y-6 text-left text-left">
-                                <div class="text-left text-left text-left"><label class="block text-[8px] font-black text-blue-800 tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left">Peminjam</label><input type="text" id="borrowerName" class="form-input shadow-none text-xs tracking-wider" placeholder="NAMA..."></div>
-                                <div class="grid grid-cols-1 gap-6 text-left text-left">
-                                    <div class="text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left">Tanggal Pinjam</label><input type="date" id="borrowDate" class="form-input shadow-none text-xs"></div>
-                                    <div class="text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left">Rencana Kembali</label><input type="date" id="plannedReturnDate" class="form-input shadow-none text-xs"></div>
+                            <div id="borrowFields" class="space-y-6 text-left">
+                                <div class="text-left text-left text-left text-left"><label class="block text-[8px] font-black text-blue-800 tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left">Peminjam</label><input type="text" id="borrowerName" class="form-input shadow-none text-xs tracking-wider" placeholder="NAMA..."></div>
+                                <div class="grid grid-cols-1 gap-6 text-left text-left text-left">
+                                    <div class="text-left text-left text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left">Tanggal Pinjam</label><input type="date" id="borrowDate" class="form-input shadow-none text-xs"></div>
+                                    <div class="text-left text-left text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left">Rencana Kembali</label><input type="date" id="plannedReturnDate" class="form-input shadow-none text-xs"></div>
                                 </div>
                             </div>
-                            <div id="installFields" class="hidden space-y-6 text-left text-left">
-                                <div class="text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left">Teknisi Pelaksana</label><input type="text" id="installTech" class="form-input shadow-none text-xs tracking-wider" placeholder="NAMA TEKNISI..."></div>
-                                <div class="text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left">Lokasi Penempatan</label><input type="text" id="installLoc" class="form-input shadow-none text-xs tracking-wider" placeholder="LOKASI..."></div>
+                            <div id="installFields" class="hidden space-y-6 text-left">
+                                <div class="text-left text-left text-left text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left text-left">Teknisi Pelaksana</label><input type="text" id="installTech" class="form-input shadow-none text-xs tracking-wider" placeholder="NAMA TEKNISI..."></div>
+                                <div class="text-left text-left text-left text-left text-left"><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left text-left">Lokasi Penempatan</label><input type="text" id="installLoc" class="form-input shadow-none text-xs tracking-wider" placeholder="LOKASI..."></div>
                             </div>
-                            <div class="pt-2 text-left text-left text-left"><label class="block text-[8px] font-black text-blue-800 tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left text-left text-left text-left">Catatan</label><textarea id="extraNote" class="form-input shadow-none text-xs h-24 tracking-wider" placeholder="INFORMASI..."></textarea></div>
+                            <div class="pt-2 text-left text-left text-left text-left text-left text-left text-left"><label class="block text-[8px] font-black text-blue-800 tracking-[0.2em] mb-1.5 ml-2 uppercase text-left text-left text-left text-left text-left text-left text-left text-left">Catatan</label><textarea id="extraNote" class="form-input shadow-none text-xs h-24 tracking-wider" placeholder="INFORMASI..."></textarea></div>
                         </div>
                         <button type="submit" id="submitBtn" class="w-full bg-[#004a99] text-white py-5 rounded-full font-black text-xs uppercase shadow-xl hover:bg-[#003366] active:scale-95 transition-all tracking-[0.3em] flex items-center justify-center gap-3 text-left">Simpan Aktivitas</button>
                     </form>
                 </div>
             </div>
-            <!-- History Side -->
+            <!-- Riwayat -->
             <div class="lg:col-span-8 text-left">
                 <div class="card-pelindo text-left">
                     <div class="px-10 py-8 border-b flex justify-between items-center bg-white sticky top-0 z-10 text-left">
-                        <div class="text-left uppercase text-left text-left"><h3 class="font-black text-slate-800 text-lg uppercase tracking-widest leading-none text-left">Riwayat Aktivitas</h3><p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-2 text-left text-left">Sinkronisasi Cloud Aktif</p></div>
-                        <div class="flex items-center gap-3 uppercase text-left text-left"><button onclick="showConfirmReset()" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-full text-[9px] font-black border border-red-200 uppercase tracking-widest flex items-center gap-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> RESET</button><span id="counter" class="text-[10px] bg-[#004a99] text-white px-5 py-2 rounded-full font-black uppercase tracking-widest">0 ENTRI</span></div>
+                        <div class="text-left uppercase text-left text-left text-left text-left"><h3 class="font-black text-slate-800 text-lg uppercase tracking-widest leading-none text-left">Riwayat Aktivitas</h3><p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-2 text-left text-left text-left">Sinkronisasi Cloud Aktif</p></div>
+                        <div class="flex items-center gap-3 uppercase text-left text-left text-left"><button onclick="showConfirmReset()" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-full text-[9px] font-black border border-red-200 uppercase tracking-widest flex items-center gap-2 text-left"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> RESET</button><span id="counter" class="text-[10px] bg-[#004a99] text-white px-5 py-2 rounded-full font-black uppercase tracking-widest text-left">0 ENTRI</span></div>
                     </div>
-                    <div class="overflow-x-auto text-left uppercase text-left text-left"><table class="w-full border-collapse uppercase text-left text-left text-left"><tbody id="inventoryList" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider text-left text-left text-left"></tbody></table></div>
-                    <div id="emptyState" class="hidden py-32 text-center text-left uppercase text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><i data-lucide="database-backup" class="text-slate-200 w-12 h-12 mx-auto mb-4 uppercase"></i><p class="text-slate-300 font-black text-[11px] uppercase tracking-[0.4em] uppercase uppercase text-center text-left">Database Kosong</p></div>
+                    <div class="overflow-x-auto text-left uppercase text-left text-left text-left text-left"><table class="w-full border-collapse uppercase text-left text-left text-left text-left"><tbody id="inventoryList" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider text-left text-left text-left text-left"></tbody></table></div>
+                    <div id="emptyState" class="hidden py-32 text-center text-left uppercase text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><i data-lucide="database-backup" class="text-slate-200 w-12 h-12 mx-auto mb-4 uppercase text-left"></i><p class="text-slate-300 font-black text-[11px] uppercase tracking-[0.4em] uppercase uppercase text-center text-left text-left">Database Kosong</p></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODUL LAINNYA -->
-    <div id="view-fullStock" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase text-left text-left text-left">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 text-left gap-8 text-left text-left text-left text-left">
-            <div class="flex items-center gap-6 text-left text-left text-left text-left text-left text-left text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all text-left text-left text-left"><i data-lucide="arrow-left" class="w-6 h-6 text-slate-600"></i></button><div class="text-left text-left text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left">Informasi Stok</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left text-left">Kelola Kuantitas Langsung</p><div class="h-1.5 w-20 bg-orange-500 mt-4 rounded-full text-left text-left text-left text-left"></div></div></div>
-            <div id="report-target-fullStock" class="text-left text-left text-left"></div>
+    <!-- Other Views (hidden) -->
+    <div id="view-fullStock" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase text-left text-left text-left text-left">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 text-left gap-8 text-left text-left text-left text-left text-left">
+            <div class="flex items-center gap-6 text-left text-left text-left text-left text-left text-left text-left text-left text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all text-left text-left text-left text-left"><i data-lucide="arrow-left" class="w-6 h-6 text-slate-600 text-left"></i></button><div class="text-left text-left text-left text-left text-left text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left text-left">Informasi Stok</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left text-left text-left">Kelola Kuantitas Langsung</p><div class="h-1.5 w-20 bg-orange-500 mt-4 rounded-full text-left text-left text-left text-left text-left"></div></div></div>
+            <div id="report-target-fullStock" class="text-left text-left text-left text-left"></div>
         </div>
-        <div id="stockGroupedContent" class="space-y-14 uppercase text-left text-left text-left text-left text-left"></div>
+        <div id="stockGroupedContent" class="space-y-14 uppercase text-left text-left text-left text-left text-left text-left"></div>
     </div>
 
-    <!-- VIEW LAINNYA -->
-    <div id="view-loanMonitor" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase text-left text-left text-left text-left text-left">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-8 text-left text-left text-left text-left text-left">
-            <div class="flex items-center gap-6 text-left text-left text-left text-left text-left text-left text-left text-left text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all text-left text-left text-left text-left text-left"><i data-lucide="arrow-left" class="w-6 h-6 text-left text-left text-left text-left"></i></button><div class="text-left text-left text-left text-left text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left text-left text-left text-left">Monitor Pinjaman</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left text-left text-left text-left text-left">Daftar Belum Kembali</p><div class="h-1.5 w-20 bg-purple-500 mt-4 rounded-full text-left text-left text-left text-left text-left text-left text-left text-left text-left"></div></div></div>
-            <div id="report-target-loanMonitor" class="text-left text-left text-left text-left"></div>
+    <!-- Loan View -->
+    <div id="view-loanMonitor" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase text-left text-left text-left text-left text-left text-left">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-8 text-left text-left text-left text-left text-left text-left">
+            <div class="flex items-center gap-6 text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all text-left text-left text-left text-left text-left"><i data-lucide="arrow-left" class="w-6 h-6 text-left text-left text-left text-left text-left"></i></button><div class="text-left text-left text-left text-left text-left text-left text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left text-left text-left text-left text-left">Monitor Pinjaman</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left text-left text-left text-left text-left text-left">Daftar Belum Kembali</p><div class="h-1.5 w-20 bg-purple-500 mt-4 rounded-full text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"></div></div></div>
+            <div id="report-target-loanMonitor" class="text-left text-left text-left text-left text-left"></div>
         </div>
-        <div class="card-pelindo overflow-hidden text-left text-left text-left text-left text-left"><div class="overflow-x-auto text-left text-left text-left text-left text-left text-left text-left"><table class="w-full border-collapse text-left text-left text-left text-left text-left text-left text-left text-left text-left"><tbody id="borrowListBody" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider text-left text-left text-left text-left text-left text-left text-left text-left text-left"></tbody></table></div></div>
+        <div class="card-pelindo overflow-hidden text-left text-left text-left text-left text-left text-left"><div class="overflow-x-auto text-left text-left text-left text-left text-left text-left text-left text-left"><table class="w-full border-collapse text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><tbody id="borrowListBody" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"></tbody></table></div></div>
     </div>
 
-    <div id="view-budgetView" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase text-left text-left text-left text-left text-left text-left">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-8 text-left text-left text-left text-left text-left text-left text-left">
-            <div class="flex items-center gap-6 text-left uppercase text-left text-left text-left text-left text-left text-left text-left text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all text-left text-left text-left text-left text-left text-left"><i data-lucide="arrow-left" class="w-6 h-6 text-left text-left text-left text-left text-left"></i></button><div class="text-left text-left text-left text-left text-left text-left text-left text-left text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left text-left text-left text-left text-left uppercase text-left text-left text-left text-left">Anggaran</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left text-left text-left text-left text-left text-left text-left text-left text-left">Estimasi Biaya Pengadaan</p><div class="h-1.5 w-20 bg-emerald-500 mt-4 rounded-full text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"></div></div></div>
-            <div id="report-target-budgetView" class="text-left text-left text-left text-left text-left"></div>
+    <!-- Budget View -->
+    <div id="view-budgetView" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase text-left text-left text-left text-left text-left text-left text-left">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-8 text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+            <div class="flex items-center gap-6 text-left uppercase text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all text-left text-left text-left text-left text-left text-left text-left"><i data-lucide="arrow-left" class="w-6 h-6 text-left text-left text-left text-left text-left text-left"></i></button><div class="text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left text-left text-left text-left text-left text-left uppercase text-left text-left text-left text-left text-left">Anggaran</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">Estimasi Biaya Pengadaan</p><div class="h-1.5 w-20 bg-emerald-500 mt-4 rounded-full text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"></div></div></div>
+            <div id="report-target-budgetView" class="text-left text-left text-left text-left text-left text-left"></div>
         </div>
-        <div id="budgetMetrics" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 uppercase text-left text-left text-left text-left text-left text-left text-left text-left"></div>
-        <div class="card-pelindo p-10 uppercase text-left text-left text-left text-left text-left text-left text-left text-left text-left"><h3 class="text-xs font-black text-slate-400 mb-6 tracking-[0.4em] text-left text-left text-left text-left text-left text-left text-left text-left">RINCIAN BARANG MASUK</h3><div class="overflow-x-auto text-left text-left text-left text-left text-left text-left text-left text-left text-left"><table class="w-full border-collapse text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"> <tbody id="budgetListBody" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"></tbody></table></div></div>
+        <div id="budgetMetrics" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 uppercase text-left text-left text-left text-left text-left text-left text-left text-left text-left"></div>
+        <div class="card-pelindo p-10 uppercase text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><h3 class="text-xs font-black text-slate-400 mb-6 tracking-[0.4em] text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">RINCIAN BARANG MASUK</h3><div class="overflow-x-auto text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"><table class="w-full border-collapse text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"> <tbody id="budgetListBody" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left"></tbody></table></div></div>
     </div>
 
     <!-- MODAL CUSTOM -->
-    <div id="customModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[300] flex items-center justify-center p-6 text-left">
-        <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-2xl border border-white/20 text-center">
-            <div id="modalIcon" class="w-16 h-16 rounded-3xl flex items-center justify-center mb-6 mx-auto"></div>
-            <h3 id="modalTitle" class="text-xl font-black mb-2 text-[#004a99] tracking-widest uppercase"></h3>
-            <p id="modalMsg" class="text-[10px] text-slate-400 font-bold mb-8 tracking-widest leading-loose uppercase"></p>
-            <div id="modalInputArea" class="hidden mb-6"><input type="text" id="modalTextEntry" class="form-input text-center"></div>
-            <div id="modalDateArea" class="hidden mb-6"><input type="date" id="modalDateEntry" class="form-input text-center"></div>
-            <div class="flex gap-3 uppercase">
-                <button onclick="closeCustomModal()" class="flex-1 py-4 bg-slate-100 rounded-full font-black text-[10px] tracking-widest text-slate-500">BATAL</button>
-                <button id="modalConfirmBtn" class="flex-1 py-4 bg-[#004a99] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg">OK</button>
+    <div id="customModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[300] flex items-center justify-center p-6 text-left text-left text-left text-left text-left">
+        <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-2xl border border-white/20 text-center text-left text-left text-left text-left text-left">
+            <div id="modalIcon" class="w-16 h-16 rounded-3xl flex items-center justify-center mb-6 mx-auto text-left text-left text-left text-left text-left text-left"></div>
+            <h3 id="modalTitle" class="text-xl font-black mb-2 text-[#004a99] tracking-widest uppercase text-left text-left text-left text-left text-left text-left text-left"></h3>
+            <p id="modalMsg" class="text-[10px] text-slate-400 font-bold mb-8 tracking-widest leading-loose uppercase text-left text-left text-left text-left text-left text-left text-left text-left"></p>
+            <div id="modalInputArea" class="hidden mb-6 text-left text-left text-left text-left text-left text-left"><input type="text" id="modalTextEntry" class="form-input text-center text-left text-left text-left text-left text-left text-left text-left"></div>
+            <div id="modalDateArea" class="hidden mb-6 text-left text-left text-left text-left text-left text-left text-left"><input type="date" id="modalDateEntry" class="form-input text-center text-left text-left text-left text-left text-left text-left text-left text-left"></div>
+            <div class="flex gap-3 uppercase text-left text-left text-left text-left text-left">
+                <button onclick="closeCustomModal()" class="flex-1 py-4 bg-slate-100 rounded-full font-black text-[10px] tracking-widest text-slate-500 text-left text-left text-left text-left text-left text-left text-left">BATAL</button>
+                <button id="modalConfirmBtn" class="flex-1 py-4 bg-[#004a99] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg text-left text-left text-left text-left text-left text-left text-left text-left">OK</button>
             </div>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 transform translate-y-32 opacity-0 transition-all duration-500 bg-[#004a99] text-white px-12 py-6 rounded-full shadow-2xl z-[250] flex items-center gap-4 font-black text-[11px] tracking-[0.4em] uppercase italic text-white text-left"><span id="toastMessage">OPERASI BERHASIL</span></div>
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 transform translate-y-32 opacity-0 transition-all duration-500 bg-[#004a99] text-white px-12 py-6 rounded-full shadow-2xl z-[250] flex items-center gap-4 font-black text-[11px] tracking-[0.4em] uppercase italic text-white text-left text-left text-left text-left text-left text-left"><span id="toastMessage" class="text-left text-left text-left text-left text-left text-left text-left text-left">OPERASI BERHASIL</span></div>
 
     <script>
         let dbList = []; let isSyncActive = false; let curId = null; let chartInstances = {};
@@ -317,64 +319,69 @@
             if (dot) { dot.classList.replace('bg-slate-400', 'bg-green-400'); dot.classList.add('animate-pulse'); }
         }
 
-        // --- Logika Impor Baru: Deteksi Otomatis ---
+        // --- Logika Impor BARU: Looping Semua Sheet & Deteksi Cerdas ---
         async function importFromExcel(event) {
             const file = event.target.files[0]; if(!file) return;
-            showToast("Membaca file Pelindo...");
+            showToast("MEMPROSES SEMUA KATEGORI...");
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    let totalImported = 0;
 
-                    // 1. Deteksi Kategori dari Nama File
-                    let category = "ELECTRICAL";
-                    const fileNameUpper = file.name.toUpperCase();
-                    if(fileNameUpper.includes("MECHANICAL")) category = "MECHANICAL";
-                    else if(fileNameUpper.includes("PLUMBING")) category = "PLUMBING";
+                    // Loop melalui SEMUA Sheet di Excel
+                    for (let sheetName of workbook.SheetNames) {
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                    // 2. Cari Baris Judul Secara Dinamis
-                    let startIndex = -1;
-                    for(let i=0; i < jsonData.length; i++) {
-                        if(jsonData[i] && jsonData[i].some(c => c && c.toString().toLowerCase().includes("nama barang"))) {
-                            startIndex = i + 1; break;
+                        // 1. Deteksi Kategori dari Nama Sheet atau Nama File
+                        let category = "ELECTRICAL";
+                        const checkStr = (sheetName + " " + file.name).toUpperCase();
+                        if(checkStr.includes("MECHANICAL")) category = "MECHANICAL";
+                        else if(checkStr.includes("PLUMBING")) category = "PLUMBING";
+                        else if(checkStr.includes("ELECTRICAL")) category = "ELECTRICAL";
+
+                        // 2. Cari baris mulai (dimana ada teks "Nama Barang")
+                        let startIndex = -1;
+                        for(let i=0; i < jsonData.length; i++) {
+                            if(jsonData[i] && jsonData[i].some(c => c && c.toString().toLowerCase().includes("nama barang"))) {
+                                startIndex = i + 1; break;
+                            }
+                        }
+
+                        if(startIndex === -1) continue; // Lewati jika sheet tidak sesuai format
+
+                        for(let i = startIndex; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (!row || row.length < 2) continue;
+                            
+                            const name = (row[1] || '').toString().trim().toUpperCase(); 
+                            if(!name || name === "NAMA BARANG") continue;
+                            
+                            const tipe = (row[2] || '').toString().trim();
+                            const merk = (row[3] || '').toString().trim();
+                            const mergedType = (merk && tipe) ? `${merk} - ${tipe}` : (merk || tipe || "-");
+                            const qty = parseInt(row[4] || 0);
+                            const unit = (row[5] || 'PCS').toString().trim().toUpperCase();
+                            const priceRaw = row[6] ? row[6].toString().replace(/[^\d]/g, '') : "0";
+                            const price = parseFloat(priceRaw) || 0;
+
+                            await window.pelindoSync.addDoc(window.pelindoSync.collection(window.pelindoSync.db, "pelindo_inventory"), {
+                                name, cat: category, type: mergedType.toUpperCase(), qty, price, unit,
+                                statusText: 'BARANG MASUK (IMPOR)', mainStatus: 'MASUK', detail: `STOK AWAL (${category})`, 
+                                createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).toUpperCase()
+                            });
+                            totalImported++;
                         }
                     }
-
-                    if(startIndex === -1) { showToast("Format Excel tidak sesuai", "bg-red-600"); return; }
-
-                    let importCount = 0;
-                    for(let i = startIndex; i < jsonData.length; i++) {
-                        const row = jsonData[i];
-                        const name = (row[1] || '').toString().trim().toUpperCase(); // Kolom B
-                        if(!name) continue;
-                        
-                        const tipe = (row[2] || '').toString().trim(); // Kolom C
-                        const merk = (row[3] || '').toString().trim(); // Kolom D
-                        const mergedType = (merk && tipe) ? `${merk} - ${tipe}` : (merk || tipe || "-");
-                        const qty = parseInt(row[4] || 0); // Kolom E
-                        const unit = (row[5] || 'PCS').toString().trim().toUpperCase(); // Kolom F
-                        
-                        // Pembersihan teks harga (hapus simbol Rp)
-                        const priceRaw = row[6] ? row[6].toString().replace(/[^\d]/g, '') : "0";
-                        const price = parseFloat(priceRaw) || 0;
-
-                        await window.pelindoSync.addDoc(window.pelindoSync.collection(window.pelindoSync.db, "pelindo_inventory"), {
-                            name, cat: category, type: mergedType.toUpperCase(), qty, price, unit,
-                            statusText: 'BARANG MASUK (IMPOR)', mainStatus: 'MASUK', detail: `IMPORT STOK AWAL (${category})`, 
-                            createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).toUpperCase()
-                        });
-                        importCount++;
-                    }
-                    showToast(`${importCount} DATA MASUK KE ${category}`);
-                } catch(err) { console.error(err); showToast("Gagal impor", "bg-red-600"); }
+                    showToast(`${totalImported} DATA BERHASIL DIIMPOR`);
+                } catch(err) { console.error(err); showToast("Gagal memproses", "bg-red-600"); }
                 event.target.value = ""; 
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- Core UI & Logic Functions ---
+        // --- Core UI Functions ---
         function showConfirmReset() {
             const action = async () => {
                 const k = document.getElementById('modalTextEntry').value;
@@ -530,15 +537,15 @@
                 const items = Object.keys(stockMap).filter(k => stockMap[k].cat === c);
                 let itemsHtml = items.map(k => {
                     const balance = stockMap[k].in - stockMap[k].out;
-                    return `<div class="bg-white p-6 rounded-[2rem] border border-slate-50 shadow-sm flex items-center justify-between group transition-all uppercase text-left text-left"><div class="text-left text-left"><span class="text-[8px] font-black text-[#00aeef] tracking-[0.3em] block mb-1 uppercase text-left text-left">${stockMap[k].cat}</span><h4 class="text-xs font-black text-slate-700 uppercase tracking-widest text-left text-left">${k}</h4><p class="text-[9px] text-slate-400 font-bold uppercase text-left text-left">${stockMap[k].type}</p></div><div class="flex flex-col items-end gap-3 uppercase text-left text-left"><div class="text-right text-left text-left"><span class="text-2xl font-black text-[#004a99] uppercase tracking-widest text-left text-left">${balance}</span><span class="text-[10px] text-slate-500 font-black ml-1 uppercase tracking-widest text-left text-left">${stockMap[k].unit}</span></div><div class="flex items-center gap-1 uppercase text-left text-left"><button onclick="adjustStock('${k}','${stockMap[k].cat}','${stockMap[k].type}','${stockMap[k].unit}', -1)" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all shadow-sm active:scale-90 uppercase text-left text-left"><i data-lucide="minus" class="w-4 h-4 text-left text-left text-left"></i></button><button onclick="adjustStock('${k}','${stockMap[k].cat}','${stockMap[k].type}','${stockMap[k].unit}', 1)" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm active:scale-90 uppercase text-left text-left"><i data-lucide="plus" class="w-4 h-4 text-left text-left text-left"></i></button></div></div></div>`;
+                    return `<div class="bg-white p-6 rounded-[2rem] border border-slate-50 shadow-sm flex items-center justify-between group transition-all uppercase text-left text-left"><div class="text-left text-left"><span class="text-[8px] font-black text-[#00aeef] tracking-[0.3em] block mb-1 uppercase text-left text-left">${stockMap[k].cat}</span><h4 class="text-xs font-black text-slate-700 uppercase tracking-widest text-left text-left">${k}</h4><p class="text-[9px] text-slate-400 font-bold uppercase text-left text-left">${stockMap[k].type}</p></div><div class="flex flex-col items-end gap-3 uppercase text-left text-left"><div class="text-right text-left text-left"><span class="text-2xl font-black text-[#004a99] uppercase tracking-widest text-left text-left">${balance}</span><span class="text-[10px] text-slate-500 font-black ml-1 uppercase tracking-widest text-left text-left">${stockMap[k].unit}</span></div><div class="flex items-center gap-1 uppercase text-left text-left"><button onclick="adjustStock('${k}','${stockMap[k].cat}','${stockMap[k].type}','${stockMap[k].unit}', -1)" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all shadow-sm active:scale-90 uppercase text-left text-left text-left"><i data-lucide="minus" class="w-4 h-4 text-left text-left text-left"></i></button><button onclick="adjustStock('${k}','${stockMap[k].cat}','${stockMap[k].type}','${stockMap[k].unit}', 1)" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm active:scale-90 uppercase text-left text-left text-left"><i data-lucide="plus" class="w-4 h-4 text-left text-left text-left"></i></button></div></div></div>`;
                 }).join('');
-                cont.innerHTML += `<div class="space-y-6 uppercase text-left text-left"><div class="flex items-center gap-4 px-4 uppercase text-left text-left"><h3 class="text-xs font-black text-[#004a99] tracking-[0.4em] whitespace-nowrap uppercase text-left text-left">${c} UNIT</h3><div class="h-0.5 w-full bg-slate-100 rounded-full uppercase text-left text-left"></div></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-2 uppercase text-left text-left text-left">${itemsHtml || '<p class="text-[9px] text-slate-300 px-4 italic tracking-widest uppercase text-left text-left">BELUM ADA DATA</p>'}</div></div>`;
+                cont.innerHTML += `<div class="space-y-6 uppercase text-left text-left"><div class="flex items-center gap-4 px-4 uppercase text-left text-left"><h3 class="text-xs font-black text-[#004a99] tracking-[0.4em] whitespace-nowrap uppercase text-left text-left">${c} UNIT</h3><div class="h-0.5 w-full bg-slate-100 rounded-full uppercase text-left text-left"></div></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-2 uppercase text-left text-left text-left text-left">${itemsHtml || '<p class="text-[9px] text-slate-300 px-4 italic tracking-widest uppercase text-left text-left text-left">BELUM ADA DATA</p>'}</div></div>`;
             });
         }
 
         function renderBudgetMetrics(total, map) {
             const cont = document.getElementById('budgetMetrics'); if (!cont) return;
-            cont.innerHTML = `<div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-emerald-500 shadow-sm uppercase text-left text-left"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase text-left text-left text-left">Total Pengadaan</p><h4 class="text-2xl font-black text-emerald-600 mt-2 tracking-widest uppercase text-left text-left text-left">Rp ${total.toLocaleString()}</h4></div><div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-blue-500 shadow-sm uppercase text-left text-left text-left"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase text-left text-left text-left">Electrical Cost</p><h4 class="text-xl font-black text-blue-600 mt-2 tracking-widest uppercase text-left text-left text-left">Rp ${map.ELECTRICAL.toLocaleString()}</h4></div><div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-orange-500 shadow-sm uppercase text-left text-left text-left"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase text-left text-left text-left">Mechanical Cost</p><h4 class="text-xl font-black text-orange-600 mt-2 tracking-widest uppercase text-left text-left text-left">Rp ${map.MECHANICAL.toLocaleString()}</h4></div>`;
+            cont.innerHTML = `<div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-emerald-500 shadow-sm uppercase text-left text-left text-left"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase text-left text-left text-left text-left">Total Pengadaan</p><h4 class="text-2xl font-black text-emerald-600 mt-2 tracking-widest uppercase text-left text-left text-left text-left">Rp ${total.toLocaleString()}</h4></div><div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-blue-500 shadow-sm uppercase text-left text-left text-left text-left"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase text-left text-left text-left text-left">Electrical Cost</p><h4 class="text-xl font-black text-blue-600 mt-2 tracking-widest uppercase text-left text-left text-left text-left">Rp ${map.ELECTRICAL.toLocaleString()}</h4></div><div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-orange-500 shadow-sm uppercase text-left text-left text-left text-left"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase text-left text-left text-left text-left text-left">Mechanical Cost</p><h4 class="text-xl font-black text-orange-600 mt-2 tracking-widest uppercase text-left text-left text-left text-left text-left">Rp ${map.MECHANICAL.toLocaleString()}</h4></div>`;
         }
 
         function showToast(m, bg = "bg-[#004a99]") { 
