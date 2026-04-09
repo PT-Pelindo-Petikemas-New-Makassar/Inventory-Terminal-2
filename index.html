@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PELINDO INVENTORY - TERMINAL 2</title>
     
-    <!-- PWA & Mobile Optimization -->
+    <!-- PWA & Optimization -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#004a99">
@@ -14,6 +14,7 @@
     <!-- Framework & Library -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -22,54 +23,32 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        :root { --pelindo-blue-dark: #004a99; --pelindo-blue-light: #00aeef; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; text-transform: uppercase; overscroll-behavior-y: contain; }
+        .pelindo-gradient { background: linear-gradient(135deg, var(--pelindo-blue-dark) 0%, #003366 100%); }
+        .form-input { @apply mt-1 block w-full rounded-2xl border-gray-200 shadow-sm focus:border-[#00aeef] focus:ring-[#00aeef] text-sm p-4 border transition-all uppercase font-bold bg-white; }
+        .btn-circle { @apply w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 active:scale-90 hover:-translate-y-1; }
+        .card-pelindo { @apply bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden transition-all duration-300; }
+        .status-badge { @apply px-3 py-1.5 rounded-full text-[9px] font-black border uppercase tracking-wider shadow-sm; }
+        .loading-overlay { @apply fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center transition-opacity duration-500; }
         
-        :root { 
-            --pelindo-blue-dark: #004a99; 
-            --pelindo-blue-light: #00aeef; 
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc; 
-            text-transform: uppercase; 
-            overscroll-behavior-y: contain;
-        }
-
-        .pelindo-gradient { 
-            background: linear-gradient(135deg, var(--pelindo-blue-dark) 0%, #003366 100%); 
-        }
-
-        .form-input { 
-            @apply mt-1 block w-full rounded-2xl border-gray-200 shadow-sm focus:border-[#00aeef] focus:ring-[#00aeef] text-sm p-4 border transition-all uppercase font-bold bg-white; 
-        }
-
-        .btn-circle { 
-            @apply w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 active:scale-90 hover:-translate-y-1 hover:shadow-xl; 
-        }
-
-        .card-pelindo { 
-            @apply bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden transition-all duration-300; 
-        }
-
-        .status-badge { 
-            @apply px-3 py-1.5 rounded-full text-[9px] font-black border uppercase tracking-wider shadow-sm; 
-        }
-
-        .loading-overlay { 
-            @apply fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center transition-opacity duration-500; 
-        }
-
+        .view-section { display: none; }
+        .active-view { display: block; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         .color-excel { @apply bg-emerald-600 ring-4 ring-emerald-50; }
         .color-word { @apply bg-blue-600 ring-4 ring-blue-50; }
         .color-pdf { @apply bg-red-600 ring-4 ring-red-50; }
+
+        .chart-card { @apply cursor-pointer hover:shadow-2xl hover:border-[#00aeef]/30 transition-all relative overflow-visible; }
+        .crit-badge { @apply absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg animate-bounce border-2 border-white z-20; }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi Database Real-Time Pelindo T2
         const firebaseConfig = {
             apiKey: "AIzaSyAIwAX6CaRy-PLa_KUhMyl_b5CnNia1DxM",
             authDomain: "inventaris-pelindo-t2.firebaseapp.com",
@@ -83,193 +62,220 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        window.pelindoSync = { db, auth, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, signInAnonymously };
+        window.pelindoSync = { db, auth, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, signInAnonymously, getDocs };
     </script>
 </head>
 <body class="min-h-screen text-slate-800 pb-20 text-left">
 
+    <!-- Screen Loading -->
     <div id="loader" class="loading-overlay">
-        <div class="relative">
-            <div class="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
-            <div class="w-20 h-20 border-4 border-[#00aeef] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-        </div>
-        <p class="font-black text-[10px] tracking-[0.3em] text-[#004a99] mt-8 animate-pulse uppercase">Sinkronisasi Cloud...</p>
+        <div class="relative"><div class="w-20 h-20 border-4 border-slate-100 rounded-full"></div><div class="w-20 h-20 border-4 border-[#00aeef] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div></div>
+        <p class="font-black text-[10px] tracking-[0.4em] text-[#004a99] mt-8 animate-pulse uppercase text-center">SINKRONISASI PELINDO...</p>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- Navigasi Atas -->
     <nav class="pelindo-gradient text-white shadow-2xl sticky top-0 z-[100] border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-            <div class="flex items-center gap-5">
-                <!-- Logo Pelindo dari File GitHub -->
+            <div class="flex items-center gap-5 cursor-pointer text-left" onclick="switchView('dashboard')">
                 <div class="bg-white p-1 rounded-2xl shadow-inner flex items-center justify-center w-12 h-12 overflow-hidden">
-                    <img src="logo pelindo.jpg" alt="Logo" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<span class=\'font-black text-[#004a99] text-xs\'>PLD</span>'">
+                    <img src="logo pelindo.jpg" alt="Logo Pelindo" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<span class=\'font-black text-[#004a99] text-xs\'>PLD</span>'">
                 </div>
-                <div>
-                    <h1 class="text-lg font-extrabold tracking-tight leading-none text-white uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
-                    <p class="text-[9px] mt-1 opacity-80 font-black tracking-[0.2em] uppercase text-white">TEKNIK TERMINAL 2</p>
+                <div class="flex flex-col">
+                    <h1 class="text-base md:text-lg font-extrabold tracking-widest leading-none text-white uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
+                    <p class="text-[9px] mt-1.5 opacity-80 font-black tracking-[0.3em] uppercase text-white">TEKNIK TERMINAL 2</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <div id="syncIndicator" class="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
-                    <div id="syncDot" class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></div>
-                    <span id="syncText" class="text-[8px] font-black uppercase tracking-wider text-white">SINKRON OTOMATIS</span>
+            <div class="flex items-center gap-4">
+                <div id="syncIndicator" class="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 text-white">
+                    <div id="syncDot" class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-[8px] font-black uppercase tracking-widest">SINKRON</span>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
+                <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/30 transition-all text-white">
+                    <i data-lucide="more-vertical"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div class="mb-14 text-left">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                <div>
-                    <h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Manajemen Inventaris</h2>
-                    <div class="h-1.5 w-24 bg-[#00aeef] mt-3 rounded-full mb-8"></div>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-6 items-center">
-                    <!-- Tombol Impor -->
-                    <div class="bg-white px-6 py-4 rounded-[2rem] border border-slate-200 flex items-center gap-6 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex items-center gap-3 text-left">
-                            <div class="bg-emerald-50 p-3 rounded-2xl text-emerald-600"><i data-lucide="file-up" class="w-5 h-5"></i></div>
-                            <div class="hidden lg:block">
-                                <h4 class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Upload Data</h4>
-                                <p class="text-[8px] font-bold text-slate-400 normal-case italic">Format .xlsx</p>
-                            </div>
-                        </div>
-                        <label class="cursor-pointer bg-[#004a99] text-white px-6 py-3 rounded-full text-[9px] font-black uppercase transition-all active:scale-95 shadow-lg">
-                            PILIH FILE
-                            <input type="file" id="excelInput" accept=".xlsx, .xls" class="hidden" onchange="importFromExcel(event)">
-                        </label>
-                    </div>
+    <!-- Overlay Menu Modul -->
+    <div id="menuOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150]" onclick="toggleMenu()">
+        <div class="absolute right-6 top-24 w-80 bg-white rounded-[2.5rem] shadow-2xl p-6 space-y-3" onclick="event.stopPropagation()">
+            <h4 class="text-[10px] font-black text-slate-400 mb-4 px-4 tracking-[0.4em]">MODUL SISTEM</h4>
+            <button onclick="switchView('dashboard')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
+                <div class="p-2.5 rounded-xl bg-blue-100 text-[#004a99] group-hover:bg-[#004a99] group-hover:text-white transition-all"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Input & Riwayat</span>
+            </button>
+            <button onclick="switchView('fullStock')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
+                <div class="p-2.5 rounded-xl bg-orange-100 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all"><i data-lucide="package-search" class="w-5 h-5"></i></div>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Informasi Stok</span>
+            </button>
+            <button onclick="switchView('loanMonitor')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
+                <div class="p-2.5 rounded-xl bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all"><i data-lucide="clipboard-list" class="w-5 h-5"></i></div>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Monitor Pinjaman</span>
+            </button>
+            <button onclick="switchView('budgetView')" class="w-full text-left p-4 rounded-3xl hover:bg-blue-50 flex items-center gap-4 group transition-all">
+                <div class="p-2.5 rounded-xl bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all"><i data-lucide="wallet-cards" class="w-5 h-5"></i></div>
+                <span class="text-xs font-black text-slate-700 uppercase tracking-widest">Anggaran Stok</span>
+            </button>
+        </div>
+    </div>
 
-                    <!-- Tombol Laporan -->
-                    <div class="bg-white/60 p-4 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 px-8">
-                        <span class="text-[10px] font-black text-[#004a99] uppercase tracking-widest hidden lg:block">Unduh Laporan:</span>
-                        <div class="flex gap-5">
-                            <div class="flex flex-col items-center gap-2">
-                                <button onclick="exportToExcel()" class="btn-circle color-excel"><i data-lucide="sheet"></i></button>
-                                <span class="text-[8px] font-black text-slate-400 uppercase">EXCEL</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2">
-                                <button onclick="exportToWord()" class="btn-circle color-word"><i data-lucide="file-text"></i></button>
-                                <span class="text-[8px] font-black text-slate-400 uppercase">WORD</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2">
-                                <button onclick="exportToPDF()" class="btn-circle color-pdf"><i data-lucide="file-type-2"></i></button>
-                                <span class="text-[8px] font-black text-slate-400 uppercase">PDF</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Template Tombol Laporan -->
+    <template id="report-buttons-template">
+        <div class="bg-white/60 p-4 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 px-8 shadow-sm">
+            <span class="text-[10px] font-black text-[#004a99] uppercase tracking-widest hidden lg:block">LAPORAN:</span>
+            <div class="flex gap-5">
+                <button onclick="exportToExcel()" class="btn-circle color-excel shadow-md"><i data-lucide="sheet" class="w-5 h-5"></i></button>
+                <button onclick="exportToWord()" class="btn-circle color-word shadow-md"><i data-lucide="file-text" class="w-5 h-5"></i></button>
+                <button onclick="exportToPDF()" class="btn-circle color-pdf shadow-md"><i data-lucide="file-type-2" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+    </template>
+
+    <!-- VIEW 1: DASHBOARD UTAMA -->
+    <div id="view-dashboard" class="view-section active-view max-w-7xl mx-auto px-4 sm:px-6 py-10 text-left">
+        <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-[0.2em] uppercase leading-none text-left">Inventaris Workshop</h2>
+                <div class="h-1.5 w-24 bg-[#00aeef] mt-4 rounded-full"></div>
+            </div>
+            <div id="report-target-dashboard"></div>
+        </div>
+
+        <!-- DIAGRAM DASHBOARD INTERAKTIF -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div onclick="switchView('fullStock')" class="card-pelindo p-8 chart-card">
+                <div id="badge-ELECTRICAL" class="crit-badge hidden">0 LOW</div>
+                <h3 class="text-[9px] font-black text-[#0ea5e9] tracking-[0.3em] mb-6 text-center uppercase">ELECTRICAL STOCK</h3>
+                <div class="h-56"><canvas id="chartElectrical"></canvas></div>
+            </div>
+            <div onclick="switchView('fullStock')" class="card-pelindo p-8 chart-card">
+                <div id="badge-MECHANICAL" class="crit-badge hidden">0 LOW</div>
+                <h3 class="text-[9px] font-black text-[#f97316] tracking-[0.3em] mb-6 text-center uppercase">MECHANICAL STOCK</h3>
+                <div class="h-56"><canvas id="chartMechanical"></canvas></div>
+            </div>
+            <div onclick="switchView('fullStock')" class="card-pelindo p-8 chart-card">
+                <div id="badge-PLUMBING" class="crit-badge hidden">0 LOW</div>
+                <h3 class="text-[9px] font-black text-[#10b981] tracking-[0.3em] mb-6 text-center uppercase">PLUMBING STOCK</h3>
+                <div class="h-56"><canvas id="chartPlumbing"></canvas></div>
             </div>
         </div>
 
-        <div id="stockSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"></div>
-
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div class="lg:col-span-4 text-left">
+            <!-- Form Input -->
+            <div class="lg:col-span-4">
                 <div class="card-pelindo sticky top-28">
-                    <div class="bg-slate-50 px-8 py-6 border-b flex items-center gap-3">
-                        <div class="bg-[#004a99] p-2 rounded-xl text-white"><i data-lucide="plus" class="w-4 h-4 text-white"></i></div>
-                        <h3 class="font-black text-slate-800 text-[11px] uppercase tracking-widest leading-none">Input Aktivitas Barang</h3>
-                    </div>
+                    <div class="bg-slate-50 px-8 py-6 border-b flex items-center gap-3"><div class="bg-[#004a99] p-2 rounded-xl text-white"><i data-lucide="plus" class="w-4 h-4 text-white"></i></div><h3 class="font-black text-slate-800 text-[11px] uppercase tracking-widest leading-none">Pendaftaran Aktivitas</h3></div>
                     <form id="inventoryForm" class="p-8 space-y-6">
-                        <div>
-                            <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest text-left">Pilih Kategori</label>
-                            <select id="itemCategory" required class="form-input font-black text-slate-700">
-                                <!-- UPDATE: Menghapus IT DEVICE dan CONSUMABLES -->
-                                <option value="ELECTRICAL">ELECTRICAL</option>
-                                <option value="PLUMBING">PLUMBING</option>
-                                <option value="MECHANICAL">MECHANICAL</option>
-                            </select>
+                        <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Kategori</label><select id="itemCategory" required class="form-input font-black text-slate-700 tracking-widest"><option value="ELECTRICAL">ELECTRICAL</option><option value="PLUMBING">PLUMBING</option><option value="MECHANICAL">MECHANICAL</option></select></div>
+                        <div class="grid grid-cols-1 gap-6">
+                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Nama Barang</label><input type="text" id="itemName" required class="form-input tracking-wider" placeholder="NAMA BARANG..."></div>
+                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Tipe / Merk</label><input type="text" id="itemType" class="form-input tracking-wider" placeholder="TIPE..."></div>
                         </div>
-
-                        <div class="grid grid-cols-1 gap-6 text-left">
-                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Nama Barang</label><input type="text" id="itemName" required class="form-input" placeholder="NAMA BARANG..."></div>
-                            <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Tipe / Merk (Opt)</label><input type="text" id="itemType" class="form-input" placeholder="TIPE..."></div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 text-left">
+                        <div class="grid grid-cols-2 gap-4">
                             <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Qty</label><input type="number" id="itemQty" required min="1" class="form-input" placeholder="0"></div>
                             <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Satuan</label>
-                                <select id="itemUnit" class="form-input font-bold text-xs uppercase">
-                                    <option value="PCS">PCS</option><option value="ROL">ROL</option><option value="BTG">BTG</option><option value="KLG">KLG</option>
-                                    <option value="BKS">BKS</option><option value="KTK">KTK</option><option value="DOS">DOS</option><option value="UNT">UNT</option><option value="MTR">MTR</option>
+                                <select id="itemUnit" class="form-input font-bold text-xs uppercase tracking-widest">
+                                    <option value="PCS">PCS</option><option value="SET">SET</option><option value="PACK">PACK</option><option value="ROL">ROL</option><option value="BTG">BTG</option><option value="KLG">KLG</option><option value="BKS">BKS</option><option value="KTK">KTK</option><option value="DOS">DOS</option><option value="UNT">UNT</option><option value="MTR">MTR</option>
                                 </select>
                             </div>
                         </div>
-
-                        <div>
-                            <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest text-left">Aliran Barang</label>
-                            <select id="itemStatus" onchange="handleStatusChange()" class="form-input bg-slate-50 text-[#004a99]">
-                                <option value="MASUK">BARANG MASUK (+)</option>
-                                <option value="KELUAR">BARANG KELUAR (-)</option>
-                            </select>
-                        </div>
-
-                        <div id="outOptions" class="hidden p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100 border-dashed space-y-6 animate-in fade-in duration-300">
+                        <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Harga Satuan (Rp)</label><input type="number" id="itemPrice" class="form-input" placeholder="0"></div>
+                        <div><label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Aliran Barang</label><select id="itemStatus" onchange="handleStatusChange()" class="form-input bg-slate-50 text-[#004a99] tracking-widest"><option value="MASUK">BARANG MASUK (+)</option><option value="KELUAR">BARANG KELUAR (-)</option></select></div>
+                        
+                        <div id="outOptions" class="hidden p-6 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 border-dashed space-y-8 animate-in fade-in duration-300 text-left">
                             <div class="grid grid-cols-2 gap-3 text-left">
-                                <label class="cursor-pointer group"><input type="radio" name="subStatus" value="DIPINJAM" onchange="handleSubStatusChange()" checked class="peer hidden"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase">PINJAM</div></label>
-                                <label class="cursor-pointer group"><input type="radio" name="subStatus" value="INSTALASI" onchange="handleSubStatusChange()" class="peer hidden"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase">INSTALASI</div></label>
+                                <label class="cursor-pointer group"><input type="radio" name="subStatus" value="DIPINJAM" onchange="handleSubStatusChange()" checked class="peer hidden"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase tracking-widest transition-all">PINJAM</div></label>
+                                <label class="cursor-pointer group"><input type="radio" name="subStatus" value="INSTALASI" onchange="handleSubStatusChange()" class="peer hidden"><div class="text-center py-3 rounded-2xl bg-white border border-transparent peer-checked:border-[#00aeef] peer-checked:text-[#00aeef] font-black text-[10px] shadow-sm uppercase tracking-widest transition-all">INSTALASI</div></label>
                             </div>
-                            <div id="borrowFields" class="space-y-4 text-left"><input type="text" id="borrowerName" class="form-input shadow-none text-xs" placeholder="NAMA PEMINJAM / DIVISI"><input type="date" id="borrowDate" class="form-input shadow-none text-xs"></div>
-                            <div id="installFields" class="hidden space-y-4 text-left"><input type="text" id="installTech" class="form-input shadow-none text-xs" placeholder="TEKNISI PELAKSANA"><input type="text" id="installLoc" class="form-input shadow-none text-xs" placeholder="LOKASI"></div>
-                            <textarea id="extraNote" class="form-input shadow-none text-xs h-20 text-left" placeholder="CATATAN TAMBAHAN..."></textarea>
+                            <div id="borrowFields" class="space-y-6 text-left">
+                                <div><label class="block text-[8px] font-black text-blue-800 tracking-[0.2em] mb-1.5 ml-2 uppercase">Peminjam</label><input type="text" id="borrowerName" class="form-input shadow-none text-xs tracking-wider" placeholder="NAMA..."></div>
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase">Tanggal Pinjam</label><input type="date" id="borrowDate" class="form-input shadow-none text-xs"></div>
+                                    <div><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase">Rencana Kembali</label><input type="date" id="plannedReturnDate" class="form-input shadow-none text-xs"></div>
+                                </div>
+                            </div>
+                            <div id="installFields" class="hidden space-y-6 text-left text-blue-900">
+                                <div><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left">Teknisi Pelaksana</label><input type="text" id="installTech" class="form-input shadow-none text-xs tracking-wider" placeholder="NAMA TEKNISI..."></div>
+                                <div><label class="block text-[8px] font-black tracking-[0.2em] mb-1.5 ml-2 uppercase text-left">Lokasi Penempatan</label><input type="text" id="installLoc" class="form-input shadow-none text-xs tracking-wider" placeholder="LOKASI (MISAL: LT. 3)"></div>
+                            </div>
+                            <div class="pt-2"><label class="block text-[8px] font-black text-blue-800 tracking-[0.2em] mb-1.5 ml-2 uppercase text-left">Catatan</label><textarea id="extraNote" class="form-input shadow-none text-xs h-24 tracking-wider" placeholder="INFORMASI..."></textarea></div>
                         </div>
-
-                        <button type="submit" id="submitBtn" class="w-full bg-[#004a99] text-white py-5 rounded-full font-black text-xs uppercase shadow-xl hover:bg-[#003366] active:scale-95 transition-all tracking-[0.2em] flex items-center justify-center gap-3">
-                            <i data-lucide="check-circle-2" class="text-white"></i> Simpan Aktivitas
-                        </button>
+                        <button type="submit" id="submitBtn" class="w-full bg-[#004a99] text-white py-5 rounded-full font-black text-xs uppercase shadow-xl hover:bg-[#003366] active:scale-95 transition-all tracking-[0.3em] flex items-center justify-center gap-3">Simpan Aktivitas</button>
                     </form>
                 </div>
             </div>
-
+            <!-- Riwayat -->
             <div class="lg:col-span-8">
                 <div class="card-pelindo">
                     <div class="px-10 py-8 border-b flex justify-between items-center bg-white sticky top-0 z-10 text-left">
-                        <div>
-                            <h3 class="font-black text-slate-800 text-lg uppercase tracking-tight leading-none">Riwayat Aktivitas</h3>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-2">Data Real-Time Pelindo</p>
-                        </div>
-                        <span id="counter" class="text-[10px] bg-[#004a99] text-white px-5 py-2 rounded-full font-black uppercase shadow-lg">0 ENTRI</span>
+                        <div><h3 class="font-black text-slate-800 text-lg uppercase tracking-widest leading-none text-left">Riwayat Aktivitas</h3><p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-2 text-left">Sinkronisasi Cloud Aktif</p></div>
+                        <div class="flex items-center gap-3"><button onclick="showConfirmReset()" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-full text-[9px] font-black border border-red-200 uppercase tracking-widest flex items-center gap-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> RESET</button><span id="counter" class="text-[10px] bg-[#004a99] text-white px-5 py-2 rounded-full font-black uppercase tracking-widest">0 ENTRI</span></div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <tbody id="inventoryList" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-tight"></tbody>
-                        </table>
-                    </div>
-                    <div id="emptyState" class="hidden py-32 text-center">
-                        <i data-lucide="database-backup" class="text-slate-200 w-12 h-12 mx-auto mb-4"></i>
-                        <p class="text-slate-300 font-black text-[11px] uppercase tracking-[0.3em]">Cloud Database Kosong</p>
-                    </div>
+                    <div class="overflow-x-auto text-left"><table class="w-full border-collapse"><tbody id="inventoryList" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider"></tbody></table></div>
+                    <div id="emptyState" class="hidden py-32 text-center text-left"><i data-lucide="database-backup" class="text-slate-200 w-12 h-12 mx-auto mb-4"></i><p class="text-slate-300 font-black text-[11px] uppercase tracking-[0.4em] text-center">Database Kosong</p></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Kembali -->
-    <div id="returnModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-        <div class="bg-white rounded-[3rem] p-12 max-w-sm w-full shadow-2xl uppercase text-center border border-white/20">
-            <h3 class="text-2xl font-black mb-2 text-[#004a99]">Konfirmasi Balik</h3>
-            <p class="text-[10px] text-slate-400 font-bold mb-10 tracking-widest">Pilih tanggal barang diterima kembali.</p>
-            <input type="date" id="actualReturnDate" class="form-input mb-8 text-center border-blue-100 bg-blue-50/30">
-            <div class="flex gap-3"><button onclick="closeModal()" class="flex-1 py-5 bg-slate-100 rounded-full font-black text-[10px]">BATAL</button><button onclick="saveReturn()" class="flex-1 py-5 bg-[#004a99] text-white rounded-full text-[10px] font-black shadow-lg">SIMPAN</button></div>
+    <!-- MODUL LAINNYA -->
+    <div id="view-fullStock" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 text-left gap-8">
+            <div class="flex items-center gap-6"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all"><i data-lucide="arrow-left" class="w-6 h-6"></i></button><div><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left">Informasi Stok</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left">Kelola Kuantitas Langsung</p><div class="h-1.5 w-20 bg-orange-500 mt-4 rounded-full text-left"></div></div></div>
+            <div id="report-target-fullStock"></div>
+        </div>
+        <div id="stockGroupedContent" class="space-y-14 uppercase"></div>
+    </div>
+
+    <div id="view-loanMonitor" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-8">
+            <div class="flex items-center gap-6 text-left"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all"><i data-lucide="arrow-left" class="w-6 h-6"></i></button><div class="text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left">Monitor Pinjaman</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left">Daftar Belum Kembali</p><div class="h-1.5 w-20 bg-purple-500 mt-4 rounded-full text-left"></div></div></div>
+            <div id="report-target-loanMonitor"></div>
+        </div>
+        <div class="card-pelindo overflow-hidden"><div class="overflow-x-auto"><table class="w-full border-collapse"><tbody id="borrowListBody" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider"></tbody></table></div></div>
+    </div>
+
+    <div id="view-budgetView" class="view-section max-w-7xl mx-auto px-6 py-10 text-left uppercase">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-8">
+            <div class="flex items-center gap-6 text-left uppercase"><button onclick="switchView('dashboard')" class="bg-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-200 transition-all"><i data-lucide="arrow-left" class="w-6 h-6"></i></button><div class="text-left"><h2 class="text-2xl font-black text-[#004a99] uppercase tracking-[0.2em] leading-none text-left uppercase">Anggaran</h2><p class="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-[0.3em] text-left">Estimasi Biaya Pengadaan</p><div class="h-1.5 w-20 bg-emerald-500 mt-4 rounded-full text-left"></div></div></div>
+            <div id="report-target-budgetView"></div>
+        </div>
+        <div id="budgetMetrics" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 uppercase"></div>
+        <div class="card-pelindo p-10 uppercase"><h3 class="text-xs font-black text-slate-400 mb-6 tracking-[0.4em] text-left">RINCIAN BARANG MASUK</h3><div class="overflow-x-auto"><table class="w-full border-collapse"><tbody id="budgetListBody" class="text-[11px] divide-y divide-slate-100 font-bold uppercase tracking-wider"></tbody></table></div></div>
+    </div>
+
+    <!-- MODAL CUSTOM (Replacement for native modals) -->
+    <div id="customModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[300] flex items-center justify-center p-6">
+        <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-2xl border border-white/20 text-center">
+            <div id="modalIcon" class="w-16 h-16 rounded-3xl flex items-center justify-center mb-6 mx-auto"></div>
+            <h3 id="modalTitle" class="text-xl font-black mb-2 text-[#004a99] tracking-widest uppercase"></h3>
+            <p id="modalMsg" class="text-[10px] text-slate-400 font-bold mb-8 tracking-widest leading-loose uppercase"></p>
+            <div id="modalInputArea" class="hidden mb-6"><input type="text" id="modalTextEntry" class="form-input text-center"></div>
+            <div id="modalDateArea" class="hidden mb-6"><input type="date" id="modalDateEntry" class="form-input text-center"></div>
+            <div class="flex gap-3 uppercase">
+                <button onclick="closeCustomModal()" class="flex-1 py-4 bg-slate-100 rounded-full font-black text-[10px] tracking-widest uppercase text-slate-500">BATAL</button>
+                <button id="modalConfirmBtn" class="flex-1 py-4 bg-[#004a99] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg uppercase">OK</button>
+            </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 transform translate-y-32 opacity-0 transition-all duration-500 bg-[#004a99] text-white px-12 py-6 rounded-full shadow-2xl z-[200] flex items-center gap-4 text-white font-black text-[11px] tracking-[0.2em] uppercase italic">
-        OPERASI BERHASIL
-    </div>
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 transform translate-y-32 opacity-0 transition-all duration-500 bg-[#004a99] text-white px-12 py-6 rounded-full shadow-2xl z-[250] flex items-center gap-4 font-black text-[11px] tracking-[0.4em] uppercase italic text-white"><span id="toastMessage">OPERASI BERHASIL</span></div>
 
     <script>
         let dbList = [];
         let isSyncActive = false;
+        let curId = null;
+        let chartInstances = {};
+        let modalAction = null;
 
         const init = async () => {
+            const template = document.getElementById('report-buttons-template').innerHTML;
+            ['dashboard', 'fullStock', 'loanMonitor', 'budgetView'].forEach(id => {
+                const target = document.getElementById(`report-target-${id}`);
+                if (target) target.innerHTML = template;
+            });
+
             if (typeof lucide !== 'undefined') lucide.createIcons();
             const { auth, db, collection, onSnapshot, query, orderBy, signInAnonymously } = window.pelindoSync;
             try {
@@ -282,18 +288,90 @@
                     renderUI();
                     document.getElementById('loader').classList.add('opacity-0');
                     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
-                });
+                }, (err) => { console.error(err); document.getElementById('loader').classList.add('hidden'); });
             } catch(e) { console.error(e); document.getElementById('loader').classList.add('hidden'); }
         };
 
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) target.classList.add('active-view');
+            document.getElementById('menuOverlay').classList.add('hidden');
+            window.scrollTo(0,0);
+            renderUI();
+        }
+
+        function toggleMenu() { document.getElementById('menuOverlay').classList.toggle('hidden'); }
         function updateSyncUI(online) {
             const dot = document.getElementById('syncDot');
-            const txt = document.getElementById('syncText');
-            if (online && dot && txt) {
-                dot.classList.replace('bg-slate-400', 'bg-green-400');
-                dot.classList.add('animate-pulse');
-                txt.innerText = "SINKRON OTOMATIS";
-            }
+            if (dot) { dot.classList.replace('bg-slate-400', 'bg-green-400'); dot.classList.add('animate-pulse'); }
+        }
+
+        // --- Custom Modal Handlers (Replacing confirm/prompt) ---
+        function openCustomModal(title, msg, type = 'info', action) {
+            modalAction = action;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
+            const iconArea = document.getElementById('modalIcon');
+            iconArea.className = `w-16 h-16 rounded-3xl flex items-center justify-center mb-6 mx-auto ${type === 'danger' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`;
+            iconArea.innerHTML = `<i data-lucide="${type === 'danger' ? 'trash-2' : 'info'}"></i>`;
+            
+            document.getElementById('modalInputArea').classList.add('hidden');
+            document.getElementById('modalDateArea').classList.add('hidden');
+            document.getElementById('customModal').classList.remove('hidden');
+            
+            const btn = document.getElementById('modalConfirmBtn');
+            btn.onclick = () => { action(); closeCustomModal(); };
+            lucide.createIcons();
+        }
+
+        function showConfirmDelete(id) { openCustomModal("HAPUS DATA?", "INVENTARIS INI AKAN DIHAPUS PERMANEN DARI DATABASE CLOUD.", "danger", () => deleteItem(id)); }
+        function showConfirmReset() {
+            modalAction = async () => {
+                const k = document.getElementById('modalTextEntry').value;
+                if (k === "KONFIRMASI") {
+                    const { db, collection, deleteDoc, doc, getDocs } = window.pelindoSync;
+                    const snap = await getDocs(collection(db, "pelindo_inventory"));
+                    await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "pelindo_inventory", d.id))));
+                    showToast("DATABASE BERSIH");
+                } else { showToast("Gagal: Kata sandi salah", "bg-red-500"); }
+            };
+            document.getElementById('modalTitle').innerText = "HAPUS DATABASE?";
+            document.getElementById('modalMsg').innerText = "Ketik 'KONFIRMASI' untuk membersihkan seluruh data.";
+            document.getElementById('modalInputArea').classList.remove('hidden');
+            document.getElementById('modalTextEntry').value = "";
+            document.getElementById('modalConfirmBtn').onclick = modalAction;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function openModal(id) {
+            curId = id;
+            document.getElementById('modalTitle').innerText = "BARANG KEMBALI";
+            document.getElementById('modalMsg').innerText = "CATAT TANGGAL PENERIMAAN BARANG DI WORKSHOP.";
+            document.getElementById('modalDateArea').classList.remove('hidden');
+            document.getElementById('modalDateEntry').valueAsDate = new Date();
+            document.getElementById('modalConfirmBtn').onclick = saveReturn;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customModal').classList.add('hidden');
+            document.getElementById('modalInputArea').classList.add('hidden');
+            document.getElementById('modalDateArea').classList.add('hidden');
+        }
+
+        // --- Core Functions ---
+        async function adjustStock(name, cat, type, unit, delta) {
+            const { db, collection, addDoc } = window.pelindoSync;
+            await addDoc(collection(db, "pelindo_inventory"), {
+                name, cat, type, unit, qty: Math.abs(delta), price: 0,
+                statusText: delta > 0 ? "KOREKSI (+)" : "KOREKSI (-)",
+                mainStatus: delta > 0 ? "MASUK" : "KELUAR", subType: "KOREKSI",
+                detail: `ADJUST MANUAL (${delta > 0 ? '+' : ''}${delta})`,
+                createdAt: Date.now(),
+                timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).toUpperCase()
+            });
+            showToast("DATA DISINKRON");
         }
 
         function handleStatusChange() { document.getElementById('outOptions').classList.toggle('hidden', document.getElementById('itemStatus').value !== 'KELUAR'); }
@@ -309,8 +387,16 @@
             const status = document.getElementById('itemStatus').value;
             const sub = status === 'KELUAR' ? document.querySelector('input[name="subStatus"]:checked').value : null;
             let detail = "-";
-            if(sub === 'DIPINJAM') detail = `PEMINJAM: ${document.getElementById('borrowerName').value.toUpperCase()} | PINJAM: ${document.getElementById('borrowDate').value}`;
-            else if(sub === 'INSTALASI') detail = `PELAKSANA: ${document.getElementById('installTech').value.toUpperCase()} | LOKASI: ${document.getElementById('installLoc').value.toUpperCase()}`;
+            if(sub === 'DIPINJAM') {
+                const bName = document.getElementById('borrowerName').value.toUpperCase() || "STAF";
+                const bDate = document.getElementById('borrowDate').value || "-";
+                const pDate = document.getElementById('plannedReturnDate').value || "-";
+                detail = `PEMINJAM: ${bName} | PINJAM: ${bDate} | KEMBALI: ${pDate}`;
+            } else if(sub === 'INSTALASI') {
+                const tech = document.getElementById('installTech').value.toUpperCase() || "TEKNISI";
+                const loc = document.getElementById('installLoc').value.toUpperCase() || "LOKASI";
+                detail = `TEKNISI: ${tech} | LOKASI: ${loc}`;
+            }
             const ext = document.getElementById('extraNote').value;
             if(ext) detail += ` | CAT: ${ext}`;
 
@@ -319,99 +405,123 @@
                 cat: document.getElementById('itemCategory').value,
                 type: document.getElementById('itemType').value.toUpperCase() || "-",
                 qty: parseInt(document.getElementById('itemQty').value),
+                price: parseFloat(document.getElementById('itemPrice').value) || 0,
                 unit: document.getElementById('itemUnit').value,
                 statusText: status === 'MASUK' ? 'BARANG MASUK' : `BARANG KELUAR (${sub})`,
                 mainStatus: status, subType: sub, detail, returnDate: null,
                 createdAt: Date.now(),
                 timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).toUpperCase()
             });
-            e.target.reset(); handleStatusChange(); showToast("TERSINKRON KE CLOUD");
+            e.target.reset(); handleStatusChange(); showToast("DATA TERSIMPAN");
         });
 
-        async function importFromExcel(event) {
-            const file = event.target.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                for(let row of jsonData) {
-                    const name = (row['NAMA BARANG'] || row['BARANG'] || '').toString().toUpperCase();
-                    if(!name) continue;
-                    await window.pelindoSync.addDoc(window.pelindoSync.collection(window.pelindoSync.db, "pelindo_inventory"), {
-                        name, cat: (row['KATEGORI'] || 'MISC').toUpperCase(),
-                        type: (row['TIPE'] || '-').toUpperCase(), qty: parseInt(row['JUMLAH'] || 0), unit: (row['SATUAN'] || 'PCS').toUpperCase(),
-                        statusText: 'BARANG MASUK (IMPOR)', mainStatus: 'MASUK', detail: "IMPOR EXCEL", 
-                        createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID').toUpperCase()
-                    });
-                }
-                showToast("DATA DIIMPOR");
-            };
-            reader.readAsArrayBuffer(file);
+        async function deleteItem(id) {
+            const { db, doc, deleteDoc } = window.pelindoSync;
+            await deleteDoc(doc(db, "pelindo_inventory", id));
+            showToast("DATA DIHAPUS");
         }
 
-        async function deleteItem(id) { if(confirm('HAPUS DATA INI DARI SELURUH PERANGKAT?')) await window.pelindoSync.deleteDoc(window.pelindoSync.doc(window.pelindoSync.db, "pelindo_inventory", id)); }
-        function openModal(id) { curId = id; document.getElementById('returnModal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('returnModal').classList.add('hidden'); }
         async function saveReturn() {
-            const date = document.getElementById('actualReturnDate').value; if(!date) return;
+            const date = document.getElementById('modalDateEntry').value; if(!date) return;
             const item = dbList.find(x => x.id === curId);
             await window.pelindoSync.updateDoc(window.pelindoSync.doc(window.pelindoSync.db, "pelindo_inventory", curId), {
                 returnDate: date, detail: item.detail + ` | KEMBALI: ${date}`, statusText: 'BARANG KELUAR (PENGEMBALIAN)'
             });
-            closeModal(); showToast("DATA DIPERBARUI");
+            closeCustomModal(); showToast("DATA DIPERBARUI");
         }
 
         function renderUI() {
-            const list = document.getElementById('inventoryList'); list.innerHTML = '';
-            document.getElementById('emptyState').classList.toggle('hidden', dbList.length > 0);
+            const list = document.getElementById('inventoryList'); 
+            const borrowList = document.getElementById('borrowListBody'); 
+            const budgetList = document.getElementById('budgetListBody'); 
+            if (list) list.innerHTML = '';
+            if (borrowList) borrowList.innerHTML = '';
+            if (budgetList) budgetList.innerHTML = '';
+            if (document.getElementById('emptyState')) document.getElementById('emptyState').classList.toggle('hidden', dbList.length > 0);
+            
+            let totalBudget = 0;
+            let budgetMap = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
+            const stockMap = {};
+
             dbList.forEach(i => {
-                let badge = i.mainStatus === 'MASUK' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-200';
-                if(i.subType === 'DIPINJAM') badge = 'bg-blue-50 text-blue-600 border-blue-100';
-                if(i.subType === 'INSTALASI') badge = 'bg-indigo-50 text-indigo-600 border-indigo-100';
+                if(!stockMap[i.name]) stockMap[i.name] = { in:0, out:0, unit:i.unit, cat:i.cat, type:i.type };
+                if(i.mainStatus === 'MASUK') stockMap[i.name].in += i.qty; else stockMap[i.name].out += i.qty;
+
+                let badge = i.mainStatus === 'MASUK' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600';
+                if(i.subType === 'DIPINJAM') badge = 'bg-blue-50 text-blue-600';
                 
-                list.innerHTML += `<tr class="hover:bg-slate-50/50 group border-b border-slate-50">
-                    <td class="px-10 py-6">
-                        <div class="text-slate-400 text-[9px] font-black">${i.timestamp}</div>
-                        <div class="text-[#00aeef] text-[8px] font-black mt-1">${i.cat}</div>
-                    </td>
-                    <td class="px-10 py-6"><div class="text-slate-800 font-extrabold text-[12px]">${i.name}</div><div class="text-[8px] text-slate-300 font-bold">${i.type}</div></td>
-                    <td class="px-10 py-6"><span class="text-slate-900 font-black text-xs">${i.qty}</span> <small class="text-[9px] text-slate-400 font-bold">${i.unit}</small></td>
-                    <td class="px-10 py-6"><span class="status-badge ${badge}">${i.statusText}</span></td>
-                    <td class="px-10 py-6">
-                        <div class="text-slate-500 text-[10px] font-bold italic lowercase max-w-xs">${i.detail}</div>
-                        ${i.subType === 'DIPINJAM' && !i.returnDate ? `<button onclick="openModal('${i.id}')" class="mt-3 text-[9px] font-black text-[#00aeef] border border-[#00aeef]/20 px-3 py-1.5 rounded-lg bg-white shadow-sm uppercase">Tandai Kembali</button>` : ''}
-                        ${i.returnDate ? `<span class="text-[8px] font-black text-emerald-600 mt-3 block uppercase tracking-tighter">✔ SUDAH KEMBALI</span>` : ''}
-                    </td>
-                    <td class="px-10 py-6 text-right"><button onclick="deleteItem('${i.id}')" class="text-slate-200 hover:text-red-500 p-3 rounded-2xl hover:bg-red-50"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td>
-                </tr>`;
+                const rowHtml = `<tr class="hover:bg-slate-50 group border-b border-slate-50 uppercase"><td class="px-10 py-6 text-left uppercase"><div class="text-slate-400 text-[9px] font-black tracking-widest">${i.timestamp}</div><div class="text-[#00aeef] text-[8px] font-black mt-1 tracking-widest">${i.cat}</div></td><td class="px-10 py-6 text-left uppercase"><div class="text-slate-800 font-extrabold text-[12px] tracking-wider">${i.name}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider">${i.type}</div></td><td class="px-10 py-6 text-left uppercase"><span class="text-slate-900 font-black text-xs">${i.qty}</span> <small class="text-[9px] text-slate-400 font-bold uppercase">${i.unit}</small></td><td class="px-10 py-6 text-left uppercase"><span class="status-badge ${badge} uppercase tracking-widest">${i.statusText}</span></td><td class="px-10 py-6 text-left uppercase"><div class="text-slate-500 text-[10px] font-bold italic lowercase max-w-xs">${i.detail}</div>${i.subType === 'DIPINJAM' && !i.returnDate ? `<button onclick="openModal('${i.id}')" class="mt-3 text-[9px] font-black text-[#00aeef] border border-blue-200 px-3 py-1.5 rounded-lg bg-white shadow-sm uppercase tracking-widest active:scale-95 transition-all">Tandai Kembali</button>` : ''}${i.returnDate ? `<span class="text-[8px] font-black text-emerald-600 mt-3 block uppercase tracking-tighter italic">✔ SUDAH KEMBALI</span>` : ''}</td><td class="px-10 py-6 text-right uppercase"><button onclick="showConfirmDelete('${i.id}')" class="text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td></tr>`;
+
+                if (list) list.innerHTML += rowHtml;
+                if (borrowList && i.subType === 'DIPINJAM' && !i.returnDate) borrowList.innerHTML += rowHtml;
+                if (i.mainStatus === 'MASUK') {
+                    const rowVal = (i.qty || 0) * (i.price || 0);
+                    totalBudget += rowVal;
+                    budgetMap[i.cat] += rowVal;
+                    if (budgetList) budgetList.innerHTML += `<tr class="border-b border-slate-50 uppercase"><td class="px-10 py-5 text-left uppercase"><div class="text-slate-800 text-xs tracking-wider uppercase">${i.name}</div><div class="text-[8px] text-slate-400 tracking-widest uppercase">${i.timestamp}</div></td><td class="px-10 py-5 text-left font-black tracking-wider uppercase">${i.qty} ${i.unit}</td><td class="px-10 py-5 text-left text-slate-400 uppercase">Rp ${(i.price || 0).toLocaleString()}</td><td class="px-10 py-5 text-left text-emerald-600 font-black tracking-widest uppercase">Rp ${rowVal.toLocaleString()}</td></tr>`;
+                }
             });
-            updateStats(); document.getElementById('counter').innerText = `${dbList.length} ENTRI`; 
+
+            updateVisualCharts(stockMap);
+            renderFullStockView(stockMap);
+            renderBudgetMetrics(totalBudget, budgetMap);
             if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (document.getElementById('counter')) document.getElementById('counter').innerText = `${dbList.length} ENTRI`; 
         }
 
-        function updateStats() {
-            const s = {}; dbList.forEach(i => {
-                if(!s[i.name]) s[i.name] = { in: 0, out: 0, unit: i.unit, cat: i.cat };
-                if(i.mainStatus === 'MASUK') s[i.name].in += i.qty; else s[i.name].out += i.qty;
+        function updateVisualCharts(stockMap) {
+            const dataPerCat = { ELECTRICAL: { labels: [], values: [], low: 0 }, MECHANICAL: { labels: [], values: [], low: 0 }, PLUMBING: { labels: [], values: [], low: 0 } };
+            Object.keys(stockMap).forEach(name => {
+                const item = stockMap[name];
+                const balance = item.in - item.out;
+                if(dataPerCat[item.cat]) {
+                    dataPerCat[item.cat].labels.push(name.length > 8 ? name.substring(0,8)+'..' : name);
+                    dataPerCat[item.cat].values.push(balance);
+                    if (balance < 5) dataPerCat[item.cat].low++;
+                }
             });
-            const cont = document.getElementById('stockSummary'); cont.innerHTML = '';
-            Object.keys(s).slice(0, 4).forEach(k => {
-                const bal = s[k].in - s[k].out;
-                cont.innerHTML += `<div class="card-pelindo p-8 flex flex-col justify-between h-44">
-                    <div class="flex justify-between items-start">
-                        <div class="bg-blue-50 p-3 rounded-2xl text-[#004a99]"><i data-lucide="package" class="w-5 h-5"></i></div>
-                        <span class="text-[8px] text-slate-300 font-black uppercase truncate max-w-[100px]">${s[k].cat}</span>
-                    </div>
-                    <div>
-                        <div class="text-[12px] font-extrabold truncate uppercase text-slate-600">${k}</div>
-                        <div class="text-3xl font-black text-[#004a99] mt-2">${bal} <small class="text-[10px] font-black text-slate-300 uppercase">${s[k].unit}</small></div>
-                    </div>
-                </div>`;
+
+            const configs = [{ id: 'chartElectrical', cat: 'ELECTRICAL', color: '#0ea5e9' }, { id: 'chartMechanical', cat: 'MECHANICAL', color: '#f97316' }, { id: 'chartPlumbing', cat: 'PLUMBING', color: '#10b981' }];
+            configs.forEach(conf => {
+                const badge = document.getElementById(`badge-${conf.cat}`);
+                if (dataPerCat[conf.cat].low > 0) { badge.innerText = `${dataPerCat[conf.cat].low} LOW`; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+                const ctx = document.getElementById(conf.id).getContext('2d');
+                if (chartInstances[conf.id]) chartInstances[conf.id].destroy();
+                chartInstances[conf.id] = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: dataPerCat[conf.cat].labels, datasets: [{ data: dataPerCat[conf.cat].values, backgroundColor: conf.color, borderRadius: 6, barThickness: 15 }] },
+                    options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 8 } } }, x: { grid: { display: false }, ticks: { font: { size: 7 } } } } }
+                });
             });
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.classList.replace('translate-y-32', 'translate-y-0'); t.classList.replace('opacity-0', 'opacity-100'); setTimeout(() => { t.classList.replace('translate-y-0', 'translate-y-32'); t.classList.replace('opacity-100', 'opacity-0'); }, 3000); }
+        function renderFullStockView(stockMap) {
+            const cats = ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'];
+            const cont = document.getElementById('stockGroupedContent'); 
+            if (!cont) return;
+            cont.innerHTML = '';
+            cats.forEach(c => {
+                const items = Object.keys(stockMap).filter(k => stockMap[k].cat === c);
+                let itemsHtml = items.map(k => {
+                    const balance = stockMap[k].in - stockMap[k].out;
+                    return `<div class="bg-white p-6 rounded-[2rem] border border-slate-50 shadow-sm flex items-center justify-between group transition-all uppercase"><div class="text-left uppercase"><span class="text-[8px] font-black text-[#00aeef] tracking-[0.3em] block mb-1 uppercase">${stockMap[k].cat}</span><h4 class="text-xs font-black text-slate-700 uppercase tracking-widest">${k}</h4><p class="text-[9px] text-slate-400 font-bold uppercase">${stockMap[k].type}</p></div><div class="flex flex-col items-end gap-3 uppercase"><div class="text-right uppercase uppercase"><span class="text-2xl font-black text-[#004a99] uppercase tracking-widest uppercase">${balance}</span><span class="text-[10px] text-slate-500 font-black ml-1 uppercase tracking-widest uppercase uppercase">${stockMap[k].unit}</span></div><div class="flex items-center gap-1 uppercase uppercase"><button onclick="adjustStock('${k}','${stockMap[k].cat}','${stockMap[k].type}','${stockMap[k].unit}', -1)" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all shadow-sm active:scale-90 uppercase uppercase"><i data-lucide="minus" class="w-4 h-4 uppercase"></i></button><button onclick="adjustStock('${k}','${stockMap[k].cat}','${stockMap[k].type}','${stockMap[k].unit}', 1)" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm active:scale-90 uppercase uppercase"><i data-lucide="plus" class="w-4 h-4 uppercase"></i></button></div></div></div>`;
+                }).join('');
+                cont.innerHTML += `<div class="space-y-6 uppercase uppercase"><div class="flex items-center gap-4 px-4 uppercase uppercase"><h3 class="text-xs font-black text-[#004a99] tracking-[0.4em] whitespace-nowrap uppercase uppercase">${c} UNIT</h3><div class="h-0.5 w-full bg-slate-100 rounded-full uppercase uppercase"></div></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-2 uppercase uppercase">${itemsHtml || '<p class="text-[9px] text-slate-300 px-4 italic tracking-widest uppercase uppercase">BELUM ADA DATA</p>'}</div></div>`;
+            });
+        }
+
+        function renderBudgetMetrics(total, map) {
+            const cont = document.getElementById('budgetMetrics');
+            if (!cont) return;
+            cont.innerHTML = `<div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-emerald-500 shadow-sm uppercase uppercase"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase uppercase">Total Pengadaan</p><h4 class="text-2xl font-black text-emerald-600 mt-2 tracking-widest uppercase uppercase uppercase">Rp ${total.toLocaleString()}</h4></div><div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-blue-500 shadow-sm uppercase uppercase"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase uppercase uppercase">Electrical Cost</p><h4 class="text-xl font-black text-blue-600 mt-2 tracking-widest uppercase uppercase uppercase uppercase">Rp ${map.ELECTRICAL.toLocaleString()}</h4></div><div class="bg-white p-8 rounded-[2.5rem] border-l-8 border-orange-500 shadow-sm uppercase uppercase"><p class="text-[9px] font-black text-slate-400 tracking-[0.4em] uppercase uppercase uppercase uppercase uppercase">Mechanical Cost</p><h4 class="text-xl font-black text-orange-600 mt-2 tracking-widest uppercase uppercase uppercase uppercase uppercase uppercase uppercase">Rp ${map.MECHANICAL.toLocaleString()}</h4></div>`;
+        }
+
+        function showToast(m, bg = "bg-[#004a99]") { 
+            const t = document.getElementById('toast'); 
+            const msg = document.getElementById('toastMessage');
+            if (msg) msg.innerText = m.toUpperCase(); 
+            if (t) { t.className = t.className.replace(/bg-\[[^\]]+\]/, bg); t.classList.replace('translate-y-32', 'translate-y-0'); t.classList.replace('opacity-0', 'opacity-100'); setTimeout(() => { t.classList.replace('translate-y-0', 'translate-y-32'); t.classList.replace('opacity-100', 'opacity-0'); }, 3000); }
+        }
 
         function exportToExcel() { const ws = XLSX.utils.json_to_sheet(dbList.map(i => ({ 'WAKTU': i.timestamp, 'KATEGORI': i.cat, 'BARANG': i.name, 'QTY': i.qty, 'SATUAN': i.unit, 'STATUS': i.statusText, 'DETAIL': i.detail }))); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Stok"); XLSX.writeFile(wb, `PELINDO_REPORT.xlsx`); }
         async function exportToPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'mm', 'a4'); doc.text("LAPORAN INVENTARIS TERMINAL 2", 14, 15); doc.autoTable({ head: [['WAKTU', 'KAT', 'BARANG', 'QTY', 'STATUS', 'DETAIL']], body: dbList.map(i => [i.timestamp, i.cat, i.name, `${i.qty} ${i.unit}`, i.statusText, i.detail]), startY: 25, theme: 'grid' }); doc.save("PELINDO_REPORT.pdf"); }
