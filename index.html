@@ -15,12 +15,11 @@
         :root { --pelindo-blue-dark: #004a99; --pelindo-blue-light: #00aeef; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; text-transform: uppercase; }
         .pelindo-gradient { background: linear-gradient(135deg, var(--pelindo-blue-dark) 0%, #003366 100%); }
-        .card-pelindo { @apply bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden transition-all; }
-        .form-input { @apply mt-1 block w-full rounded-2xl border-gray-200 shadow-sm focus:border-[#00aeef] focus:ring-[#00aeef] text-sm p-4 border font-bold bg-white; }
+        .card-pelindo { @apply bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden; }
+        .form-input { @apply mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00aeef] focus:ring-[#00aeef] text-xs p-3 border font-bold; }
         .view-section { display: none; }
-        .active-view { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .loading-overlay { @apply fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center transition-opacity duration-500; }
+        .active-view { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 
     <script type="module">
@@ -39,81 +38,115 @@
 </head>
 <body class="min-h-screen text-slate-800 pb-20">
 
-    <div id="loader" class="loading-overlay">
-        <div class="w-16 h-16 border-4 border-[#00aeef] border-t-transparent rounded-full animate-spin"></div>
-        <p class="font-black text-[10px] tracking-[0.3em] text-[#004a99] mt-6 animate-pulse">MEMUAT DATA...</p>
-    </div>
-
+    <!-- Navigation -->
     <nav class="pelindo-gradient text-white shadow-xl sticky top-0 z-[100]">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4 cursor-pointer" onclick="switchView('dashboard')">
-                <div class="bg-white p-1 rounded-xl w-10 h-10 flex items-center justify-center font-black text-[#004a99] text-xs italic">T2</div>
+                <div class="bg-white p-1 rounded-lg w-10 h-10 flex items-center justify-center font-black text-[#004a99] text-xs italic">T2</div>
                 <div>
-                    <h1 class="text-sm font-extrabold tracking-widest leading-none">PELINDO TERMINAL 2</h1>
-                    <p class="text-[8px] opacity-70 font-black tracking-widest mt-1">INVENTORY & BUDGET SYSTEM</p>
+                    <h1 class="text-sm font-extrabold tracking-widest leading-none">PELINDO</h1>
+                    <p class="text-[8px] opacity-70 font-black tracking-widest mt-1">TERMINAL 2 INVENTORY</p>
                 </div>
             </div>
-            <button onclick="toggleMenu()" class="p-2 rounded-full bg-white/10"><i data-lucide="menu"></i></button>
+            <div class="flex gap-4">
+                <button onclick="exportToExcel()" class="bg-emerald-500 hover:bg-emerald-600 p-2 rounded-full transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+            </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div id="view-dashboard" class="view-section active-view max-w-7xl mx-auto px-4 py-8">
-        <!-- Anggaran Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="card-pelindo p-6 border-l-8 border-blue-500">
-                <h4 class="text-[9px] font-black text-slate-400 tracking-widest mb-2">ANGGARAN ELECTRICAL</h4>
-                <div id="budget-ELECTRICAL" class="text-xl font-black text-slate-800">RP 0</div>
+        <!-- Budget Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="card-pelindo p-6 border-l-4 border-blue-500">
+                <h4 class="text-[9px] font-black text-slate-400 tracking-widest mb-1">TOTAL ANGGARAN ELECTRICAL</h4>
+                <div id="stat-elec" class="text-xl font-black text-slate-800 italic">RP 0</div>
             </div>
-            <div class="card-pelindo p-6 border-l-8 border-orange-500">
-                <h4 class="text-[9px] font-black text-slate-400 tracking-widest mb-2">ANGGARAN MECHANICAL</h4>
-                <div id="budget-MECHANICAL" class="text-xl font-black text-slate-800">RP 0</div>
-            </div>
-            <div class="card-pelindo p-6 border-l-8 border-emerald-500">
-                <h4 class="text-[9px] font-black text-slate-400 tracking-widest mb-2">ANGGARAN PLUMBING</h4>
-                <div id="budget-PLUMBING" class="text-xl font-black text-slate-800">RP 0</div>
+            <div class="card-pelindo p-6 border-l-4 border-orange-500">
+                <h4 class="text-[9px] font-black text-slate-400 tracking-widest mb-1">TOTAL ANGGARAN MECHANICAL</h4>
+                <div id="stat-mech" class="text-xl font-black text-slate-800 italic">RP 0</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Form -->
             <div class="lg:col-span-4">
-                <div class="card-pelindo p-8">
-                    <h3 class="font-black text-xs mb-6 tracking-widest flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4 text-[#00aeef]"></i> INPUT BARANG</h3>
+                <div class="card-pelindo p-6">
+                    <h3 class="font-black text-[10px] mb-6 tracking-widest flex items-center gap-2 text-[#004a99]">
+                        <i data-lucide="plus-square" class="w-4 h-4"></i> TAMBAH DATA INVENTARIS
+                    </h3>
                     <form id="inventoryForm" class="space-y-4">
-                        <select id="itemCategory" class="form-input" required>
-                            <option value="ELECTRICAL">ELECTRICAL</option>
-                            <option value="MECHANICAL">MECHANICAL</option>
-                            <option value="PLUMBING">PLUMBING</option>
-                        </select>
-                        <input type="text" id="itemName" class="form-input" placeholder="NAMA BARANG" required>
-                        <input type="text" id="itemType" class="form-input" placeholder="MERK / TIPE">
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" id="itemQty" class="form-input" placeholder="QTY" required>
-                            <select id="itemUnit" class="form-input">
-                                <option value="PCS">PCS</option><option value="SET">SET</option><option value="ROLL">ROLL</option>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 ml-1">KATEGORI</label>
+                            <select id="itemCategory" class="form-input" required>
+                                <option value="ELECTRICAL">ELECTRICAL</option>
+                                <option value="MECHANICAL">MECHANICAL</option>
                             </select>
                         </div>
-                        <input type="number" id="itemPrice" class="form-input" placeholder="HARGA SATUAN (RP)">
-                        <select id="itemStatus" class="form-input bg-blue-50">
-                            <option value="MASUK">MASUK (+)</option>
-                            <option value="KELUAR">KELUAR (-)</option>
-                        </select>
-                        <button type="submit" class="w-full py-4 bg-[#004a99] text-white rounded-2xl font-black text-[10px] tracking-widest shadow-lg">SIMPAN DATA</button>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 ml-1">NAMA BARANG</label>
+                            <input type="text" id="itemName" class="form-input" placeholder="CONTOH: LAMPU LED" required>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 ml-1">TIPE / MERK</label>
+                            <input type="text" id="itemType" class="form-input" placeholder="CONTOH: PHILIPS 15W">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[9px] font-black text-slate-400 ml-1">JUMLAH (QTY)</label>
+                                <input type="number" id="itemQty" class="form-input" placeholder="0" required>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-black text-slate-400 ml-1">SATUAN</label>
+                                <select id="itemUnit" class="form-input">
+                                    <option value="PCS">PCS</option>
+                                    <option value="SET">SET</option>
+                                    <option value="ROLL">ROLL</option>
+                                    <option value="PACK">PACK</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 ml-1">HARGA SATUAN (RP)</label>
+                            <input type="number" id="itemPrice" class="form-input" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 ml-1">STATUS</label>
+                            <select id="itemStatus" class="form-input bg-blue-50">
+                                <option value="MASUK">BARANG MASUK (+)</option>
+                                <option value="KELUAR">BARANG KELUAR (-)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-4 bg-[#004a99] text-white rounded-xl font-black text-[10px] tracking-widest shadow-lg hover:scale-[1.02] transition-transform mt-4">
+                            SIMPAN TRANSAKSI
+                        </button>
                     </form>
                 </div>
             </div>
 
+            <!-- List -->
             <div class="lg:col-span-8">
                 <div class="card-pelindo">
                     <div class="p-6 border-b flex justify-between items-center">
-                        <h3 class="font-black text-xs tracking-widest">RIWAYAT TRANSAKSI</h3>
-                        <button onclick="confirmReset()" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-full border border-red-100">RESET SEMUA DATA</button>
+                        <h3 class="font-black text-[10px] tracking-widest text-[#004a99]">RIWAYAT TRANSAKSI TERBARU</h3>
+                        <button onclick="openResetModal()" class="text-[8px] font-black text-red-500 bg-red-50 px-3 py-1 rounded-full hover:bg-red-100">RESET DATA</button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
-                            <thead class="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                <tr><th class="p-4">TANGGAL</th><th class="p-4">BARANG</th><th class="p-4">QTY</th><th class="p-4">STATUS</th><th class="p-4"></th></tr>
+                            <thead class="bg-slate-50 text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                                <tr>
+                                    <th class="p-4">TANGGAL</th>
+                                    <th class="p-4">DETAIL BARANG</th>
+                                    <th class="p-4">QTY</th>
+                                    <th class="p-4">STATUS</th>
+                                    <th class="p-4">AKSI</th>
+                                </tr>
                             </thead>
-                            <tbody id="inventoryList" class="text-[10px] font-bold divide-y divide-slate-50"></tbody>
+                            <tbody id="inventoryList" class="text-[9px] font-bold divide-y divide-slate-50">
+                                <!-- Data injected here -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -121,24 +154,25 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi -->
-    <div id="modalConfirm" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[500] flex items-center justify-center p-6">
-        <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center">
-            <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="alert-circle" class="w-8 h-8"></i></div>
-            <h3 class="text-lg font-black text-slate-800 mb-2 uppercase">Hapus Semua Data?</h3>
-            <p class="text-[10px] text-slate-400 font-bold mb-6">Ketik <span class="text-red-500 font-black tracking-widest">KONFIRMASI</span> untuk melanjutkan penghapusan permanen.</p>
-            <input type="text" id="inputResetKey" class="form-input text-center mb-6 uppercase" placeholder="Ketik disini...">
+    <!-- Reset Confirmation Modal -->
+    <div id="resetModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[500] flex items-center justify-center p-6">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center">
+            <h3 class="text-sm font-black text-slate-800 mb-2 uppercase">KONFIRMASI RESET</h3>
+            <p class="text-[10px] text-slate-400 font-bold mb-6">KETIK "RESET" DIBAWAH INI UNTUK MENGHAPUS SEMUA DATA PERMANEN</p>
+            <input type="text" id="resetConfirmInput" class="form-input text-center mb-6" placeholder="KETIK DISINI...">
             <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 rounded-2xl font-black text-[10px]">BATAL</button>
-                <button id="btnExecuteReset" class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px]">YA, HAPUS</button>
+                <button onclick="closeResetModal()" class="flex-1 py-3 bg-slate-100 rounded-xl font-black text-[10px]">BATAL</button>
+                <button onclick="executeReset()" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-black text-[10px]">HAPUS SEMUA</button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-4 rounded-full text-[10px] font-black tracking-widest shadow-2xl opacity-0 transition-all pointer-events-none z-[600]">Pesan Berhasil</div>
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-[9px] font-black tracking-widest shadow-2xl opacity-0 transition-all pointer-events-none z-[600]">
+        PESAN BERHASIL
+    </div>
 
     <script>
-        let dbList = [];
+        let inventoryData = [];
 
         async function init() {
             lucide.createIcons();
@@ -151,131 +185,136 @@
                     await signInAnonymously(auth);
                 }
 
-                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'pelindo_inventory');
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'inventory_v1');
                 const q = query(colRef, orderBy("createdAt", "desc"));
                 
-                onSnapshot(q, (snap) => {
-                    dbList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    renderUI();
-                    document.getElementById('loader').classList.add('hidden');
-                }, (err) => {
-                    console.error(err);
-                    showToast("Gagal memuat data", "bg-red-500");
+                onSnapshot(q, (snapshot) => {
+                    inventoryData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderInventory();
                 });
-            } catch(e) { console.error(e); }
+            } catch (err) {
+                console.error("Auth Error:", err);
+            }
         }
 
-        function renderUI() {
+        function renderInventory() {
             const list = document.getElementById('inventoryList');
-            list.innerHTML = '';
+            const statElec = document.getElementById('stat-elec');
+            const statMech = document.getElementById('stat-mech');
             
-            let budgets = { ELECTRICAL: 0, MECHANICAL: 0, PLUMBING: 0 };
+            list.innerHTML = '';
+            let totalElec = 0;
+            let totalMech = 0;
 
-            dbList.forEach(item => {
-                const totalItemPrice = (item.price || 0) * (item.qty || 0);
-                if (item.mainStatus === 'MASUK') {
-                    budgets[item.cat] += totalItemPrice;
-                }
+            inventoryData.forEach(item => {
+                const itemTotal = (item.price || 0) * (item.qty || 0);
+                if (item.category === 'ELECTRICAL') totalElec += itemTotal;
+                if (item.category === 'MECHANICAL') totalMech += itemTotal;
 
                 list.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 text-slate-400 font-black text-[9px]">${item.timestamp}</td>
+                        <td class="p-4 text-slate-400 font-black">${item.timestamp || '-'}</td>
                         <td class="p-4">
-                            <div class="text-[#004a99]">${item.name}</div>
-                            <div class="text-[8px] text-slate-300">${item.cat} | ${item.type || '-'}</div>
+                            <div class="text-[#004a99] uppercase">${item.name}</div>
+                            <div class="text-[7px] text-slate-400">${item.category} | ${item.type || '-'}</div>
                         </td>
                         <td class="p-4">${item.qty} ${item.unit}</td>
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-full text-[8px] font-black ${item.mainStatus === 'MASUK' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
-                                ${item.mainStatus}
+                            <span class="px-2 py-1 rounded-full text-[7px] font-black ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
+                                ${item.status}
                             </span>
                         </td>
-                        <td class="p-4 text-right">
-                            <button onclick="deleteDoc('${item.id}')" class="text-slate-200 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <td class="p-4">
+                            <button onclick="deleteItem('${item.id}')" class="text-slate-200 hover:text-red-500 transition-colors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
             });
 
-            // Update budget display
-            Object.keys(budgets).forEach(cat => {
-                document.getElementById(`budget-${cat}`).innerText = `RP ${budgets[cat].toLocaleString('id-ID')}`;
-            });
-
+            statElec.innerText = `RP ${totalElec.toLocaleString('id-ID')}`;
+            statMech.innerText = `RP ${totalMech.toLocaleString('id-ID')}`;
             lucide.createIcons();
-        }
-
-        async function deleteDoc(id) {
-            const { db, appId, doc, deleteDoc: del } = window.pelindoSync;
-            await del(doc(db, 'artifacts', appId, 'public', 'data', 'pelindo_inventory', id));
-            showToast("DATA DIHAPUS");
-        }
-
-        function confirmReset() {
-            const modal = document.getElementById('modalConfirm');
-            const input = document.getElementById('inputResetKey');
-            const btn = document.getElementById('btnExecuteReset');
-            
-            input.value = "";
-            modal.classList.remove('hidden');
-            
-            btn.onclick = async () => {
-                const key = input.value.trim().toUpperCase();
-                if (key === "KONFIRMASI") {
-                    modal.classList.add('hidden');
-                    showToast("MENGHAPUS SEMUA DATA...");
-                    
-                    const { db, appId, collection, getDocs, deleteDoc: del, doc: dRef } = window.pelindoSync;
-                    const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'pelindo_inventory'));
-                    
-                    const batch = snap.docs.map(doc => del(dRef(db, 'artifacts', appId, 'public', 'data', 'pelindo_inventory', doc.id)));
-                    await Promise.all(batch);
-                    
-                    showToast("DATABASE DIBERSIHKAN");
-                } else {
-                    showToast("KATA KUNCI SALAH", "bg-red-500");
-                }
-            };
         }
 
         document.getElementById('inventoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { db, appId, collection, addDoc } = window.pelindoSync;
-            
-            const data = {
-                cat: document.getElementById('itemCategory').value,
+
+            const newItem = {
+                category: document.getElementById('itemCategory').value,
                 name: document.getElementById('itemName').value.toUpperCase(),
                 type: document.getElementById('itemType').value.toUpperCase(),
                 qty: parseInt(document.getElementById('itemQty').value),
                 unit: document.getElementById('itemUnit').value,
                 price: parseInt(document.getElementById('itemPrice').value || 0),
-                mainStatus: document.getElementById('itemStatus').value,
+                status: document.getElementById('itemStatus').value,
                 createdAt: Date.now(),
-                timestamp: new Date().toLocaleString('id-ID', { hour12: false }).replace(/\./g, ':')
+                timestamp: new Date().toLocaleString('id-ID', { hour12: false, dateStyle: 'short', timeStyle: 'short' }).replace(/\//g, '-')
             };
 
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pelindo_inventory'), data);
-            e.target.reset();
-            showToast("DATA DISIMPAN");
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_v1'), newItem);
+                showToast("DATA BERHASIL DISIMPAN");
+                e.target.reset();
+            } catch (err) {
+                showToast("GAGAL MENYIMPAN DATA", "bg-red-600");
+            }
         });
 
-        function closeModal() { document.getElementById('modalConfirm').classList.add('hidden'); }
-        
+        async function deleteItem(id) {
+            const { db, appId, doc, deleteDoc: del } = window.pelindoSync;
+            if (confirm("HAPUS BARIS INI?")) {
+                await del(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_v1', id));
+                showToast("DATA DIHAPUS");
+            }
+        }
+
+        function openResetModal() { document.getElementById('resetModal').classList.remove('hidden'); }
+        function closeResetModal() { document.getElementById('resetModal').classList.add('hidden'); }
+
+        async function executeReset() {
+            const input = document.getElementById('resetConfirmInput').value;
+            if (input === "RESET") {
+                const { db, appId, collection, getDocs, deleteDoc: del, doc: dRef } = window.pelindoSync;
+                const snapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_v1'));
+                const promises = snapshot.docs.map(doc => del(dRef(db, 'artifacts', appId, 'public', 'data', 'inventory_v1', doc.id)));
+                await Promise.all(promises);
+                closeResetModal();
+                showToast("SEMUA DATA TELAH DIRESET");
+            } else {
+                showToast("KATA KUNCI SALAH", "bg-red-600");
+            }
+        }
+
+        function exportToExcel() {
+            const worksheet = XLSX.utils.json_to_sheet(inventoryData.map(i => ({
+                TANGGAL: i.timestamp,
+                KATEGORI: i.category,
+                NAMA_BARANG: i.name,
+                TIPE_MERK: i.type,
+                QTY: i.qty,
+                SATUAN: i.unit,
+                HARGA: i.price,
+                TOTAL: i.price * i.qty,
+                STATUS: i.status
+            })));
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
+            XLSX.writeFile(workbook, "PELINDO_T2_INVENTORY.xlsx");
+        }
+
         function showToast(msg, color = "bg-slate-800") {
             const t = document.getElementById('toast');
             t.innerText = msg;
-            t.className = `fixed bottom-8 left-1/2 -translate-x-1/2 ${color} text-white px-8 py-4 rounded-full text-[10px] font-black tracking-widest shadow-2xl z-[600] opacity-100`;
-            setTimeout(() => t.classList.add('opacity-0'), 2500);
+            t.className = `fixed bottom-8 left-1/2 -translate-x-1/2 ${color} text-white px-6 py-3 rounded-full text-[9px] font-black tracking-widest shadow-2xl transition-all z-[600] opacity-100`;
+            setTimeout(() => t.classList.add('opacity-0'), 3000);
         }
 
         function switchView(view) {
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
             document.getElementById(`view-${view}`).classList.add('active-view');
-        }
-
-        function toggleMenu() {
-            // Sederhana: bisa ditambahkan modal menu jika perlu
-            showToast("MENU SISTEM AKTIF");
         }
 
         window.onload = init;
