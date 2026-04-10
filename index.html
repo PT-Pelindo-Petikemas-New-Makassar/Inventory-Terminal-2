@@ -70,13 +70,13 @@
 <body onclick="window.closeAllMenus()">
 
     <header class="glass-header text-white sticky top-0 z-[100] pb-2 text-left">
-        <div class="max-w-7xl mx-auto px-8 pt-6 pb-4 flex items-center gap-8">
+        <div class="max-w-7xl mx-auto px-8 pt-6 pb-4 flex items-center gap-8 text-left">
             <div class="bg-white p-2 rounded-2xl h-16 w-16 flex-shrink-0 shadow-2xl">
                 <img src="logo pelindo.jpg" alt="Logo" class="h-full w-full object-contain" onerror="this.src='https://www.pelindo.co.id/logo_pelindo_single.png'">
             </div>
             <div class="text-left border-l-2 border-white/20 pl-8">
-                <h1 class="text-xl md:text-2xl font-black tracking-tight leading-tight uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
-                <p class="text-[11px] font-bold opacity-80 tracking-[0.5em] mt-2 uppercase">TEKNIK TERMINAL 2</p>
+                <h1 class="text-xl md:text-2xl font-black tracking-tight leading-tight uppercase text-left">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
+                <p class="text-[11px] font-bold opacity-80 tracking-[0.5em] mt-2 uppercase text-left">TEKNIK TERMINAL 2</p>
             </div>
         </div>
         
@@ -105,12 +105,12 @@
             <div class="flex flex-wrap items-center gap-4">
                 <div class="relative group">
                     <i data-lucide="search" class="w-5 h-5 absolute left-4.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="globalSearch" onkeyup="window.handleSearch(this.value)" placeholder="CARI BARANG..." class="bg-white border-2 border-slate-100 rounded-2xl pl-12 pr-6 py-3 text-sm font-bold w-64 md:w-80 focus:ring-8 focus:ring-blue-50 transition-all uppercase outline-none shadow-sm">
+                    <input type="text" id="globalSearch" onkeyup="window.handleSearch(this.value)" placeholder="CARI BARANG..." class="bg-white border-2 border-slate-100 rounded-2xl pl-12 pr-6 py-3 text-sm font-bold w-64 md:w-80 focus:ring-8 focus:ring-blue-50 transition-all uppercase outline-none shadow-sm text-left">
                 </div>
                 <div id="importPanel" class="bg-white border-2 border-slate-100 rounded-2xl px-6 py-3 shadow-sm flex items-center">
                     <label class="cursor-pointer flex items-center gap-3 group">
                         <input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="window.importDataMultiSheets(event)">
-                        <span class="text-[11px] font-black text-slate-500 group-hover:text-blue-600 tracking-widest transition-all">IMPOR FILE</span>
+                        <span class="text-[11px] font-black text-slate-500 group-hover:text-blue-600 tracking-widest transition-all uppercase">IMPOR FILE</span>
                     </label>
                 </div>
                 <div class="bg-white border-2 border-slate-100 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-6">
@@ -141,60 +141,62 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start text-left">
-                <!-- FORM INPUT - PERBAIKAN GRID HARGA -->
+                <!-- FORM INPUT -->
                 <div class="lg:col-span-5">
-                    <form id="inventoryForm" class="premium-card p-10 space-y-6 shadow-xl border-t-8 border-blue-900">
-                        <div class="flex items-center gap-4 mb-2">
-                            <div class="bg-blue-900 text-white p-2.5 rounded-xl shadow-xl"><i data-lucide="plus" class="w-6 h-6"></i></div>
-                            <span class="text-sm font-black tracking-[0.2em] uppercase">INPUT AKTIVITAS</span>
+                    <form id="inventoryForm" class="premium-card p-10 space-y-6 shadow-xl border-t-8 border-blue-900 text-left">
+                        <div class="flex items-center gap-4 mb-2 text-left">
+                            <div class="bg-blue-900 text-white p-2.5 rounded-xl shadow-xl text-left"><i data-lucide="plus" class="w-6 h-6 text-left"></i></div>
+                            <span class="text-sm font-black tracking-[0.2em] uppercase text-left">INPUT AKTIVITAS</span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-2"><label class="text-[12px] font-black text-slate-500 uppercase ml-1">KATEGORI</label><select id="category" class="form-input-pld"><option value="ELECTRICAL">ELEC</option><option value="MECHANICAL">MECH</option><option value="PLUMBING">PLUM</option></select></div>
-                            <div class="space-y-2"><label class="text-[12px] font-black text-slate-500 uppercase ml-1">ALIRAN</label><select id="itemStatus" onchange="window.toggleKeluarPanels()" class="form-input-pld bg-slate-100 text-[#004a99]"><option value="MASUK">MASUK (+)</option><option value="KELUAR">KELUAR (-)</option></select></div>
+                        <div class="grid grid-cols-2 gap-6 text-left">
+                            <div class="space-y-2 text-left"><label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left">KATEGORI</label><select id="category" class="form-input-pld"><option value="ELECTRICAL">ELEC</option><option value="MECHANICAL">MECH</option><option value="PLUMBING">PLUM</option></select></div>
+                            <div class="space-y-2 text-left"><label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left text-left text-left">ALIRAN</label><select id="itemStatus" onchange="window.toggleKeluarPanels()" class="form-input-pld bg-slate-100 text-[#004a99]"><option value="MASUK">MASUK (+)</option><option value="KELUAR">KELUAR (-)</option></select></div>
                         </div>
 
-                        <div class="space-y-2"><label class="text-[12px] font-black text-slate-500 uppercase ml-1">NAMA MATERIAL</label><input type="text" id="itemName" class="form-input-pld" placeholder="CONTOH: KABEL NYY" required></div>
-                        <div class="space-y-2"><label class="text-[12px] font-black text-slate-500 uppercase ml-1">TIPE / MERK</label><input type="text" id="itemType" class="form-input-pld" placeholder="CONTOH: 4X16MM - SUPREME"></div>
+                        <div class="space-y-2 text-left"><label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left">NAMA MATERIAL</label><input type="text" id="itemName" class="form-input-pld text-left" placeholder="CONTOH: KABEL NYY" required></div>
+                        <div class="space-y-2 text-left"><label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left">TIPE / MERK</label><input type="text" id="itemType" class="form-input-pld text-left" placeholder="CONTOH: 4X16MM - SUPREME"></div>
 
-                        <!-- GRID DIPERBAIKI: Menggunakan md:grid-cols-4 untuk ruang lebih lega bagi Harga -->
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="space-y-2"><label class="text-[11px] font-black text-slate-500 uppercase">QTY</label><input type="number" id="qty" class="form-input-pld" required></div>
-                            <div class="space-y-2">
-                                <label class="text-[11px] font-black text-slate-500 uppercase">UNIT</label>
-                                <select id="unit" class="form-input-pld">
+                        <!-- GRID DIPERBAIKI AGAR HARGA TIDAK TERPOTONG -->
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 text-left">
+                            <div class="md:col-span-3 space-y-2 text-left">
+                                <label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left">QTY</label>
+                                <input type="number" id="qty" class="form-input-pld text-left" required>
+                            </div>
+                            <div class="md:col-span-3 space-y-2 text-left">
+                                <label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left">UNIT</label>
+                                <select id="unit" class="form-input-pld text-left">
                                     <option value="PCS">PCS</option><option value="ROL">ROL</option><option value="BTG">BTG</option>
                                     <option value="SET">SET</option><option value="KLG">KLG</option><option value="BOX">BOX</option>
                                     <option value="MTR">MTR</option><option value="DUS">DUS</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2 space-y-2">
-                                <label class="text-[11px] font-black text-slate-500 uppercase">HARGA (IDR)</label>
-                                <input type="number" id="price" class="form-input-pld" placeholder="0" style="width: 100%;">
+                            <div class="md:col-span-6 space-y-2 text-left">
+                                <label class="text-[12px] font-black text-slate-500 uppercase ml-1 text-left">HARGA (IDR)</label>
+                                <input type="number" id="price" class="form-input-pld text-left" placeholder="0">
                             </div>
                         </div>
 
-                        <div id="keluarContainer" class="hidden p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 space-y-6">
-                            <select id="subStatus" onchange="window.toggleSubPanels()" class="form-input-pld border-blue-200"><option value="PEMINJAMAN">BARANG PINJAM</option><option value="INSTALASI">BARANG PROYEK</option></select>
+                        <div id="keluarContainer" class="hidden p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 space-y-6 text-left">
+                            <select id="subStatus" onchange="window.toggleSubPanels()" class="form-input-pld border-blue-200 uppercase text-left"><option value="PEMINJAMAN">BARANG PINJAM</option><option value="INSTALASI">BARANG PROYEK</option></select>
                             <div id="panelPeminjaman" class="space-y-4 text-left">
-                                <input type="text" id="picBorrow" class="form-input-pld uppercase" placeholder="NAMA PEMINJAM...">
-                                <div class="grid grid-cols-2 gap-4"><input type="date" id="dateBorrow" class="form-input-pld" title="Tgl Pinjam"><input type="date" id="dateReturn" class="form-input-pld" title="Est. Kembali"></div>
-                                <textarea id="notesBorrow" class="form-input-pld h-20 uppercase" placeholder="CATATAN..."></textarea>
+                                <input type="text" id="picBorrow" class="form-input-pld uppercase text-left" placeholder="NAMA PEMINJAM...">
+                                <div class="grid grid-cols-2 gap-4 text-left"><input type="date" id="dateBorrow" class="form-input-pld text-left" title="Tgl Pinjam"><input type="date" id="dateReturn" class="form-input-pld text-left text-left" title="Est. Kembali"></div>
+                                <textarea id="notesBorrow" class="form-input-pld h-20 uppercase text-left text-left" placeholder="CATATAN..."></textarea>
                             </div>
-                            <div id="panelInstalasi" class="hidden space-y-4"><input type="text" id="picInstall" class="form-input-pld uppercase" placeholder="NAMA PELAKSANA..."><textarea id="notesInstall" class="form-input-pld h-20 uppercase" placeholder="LOKASI / CATATAN..."></textarea></div>
+                            <div id="panelInstalasi" class="hidden space-y-4 text-left text-left text-left"><input type="text" id="picInstall" class="form-input-pld uppercase text-left" placeholder="NAMA PELAKSANA..."><textarea id="notesInstall" class="form-input-pld h-20 uppercase text-left text-left" placeholder="LOKASI / CATATAN..."></textarea></div>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black text-sm tracking-widest uppercase hover:scale-[1.01] active:scale-95 transition-all shadow-2xl shadow-blue-900/30">SIMPAN DATA</button>
+                        <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black text-sm tracking-widest uppercase hover:scale-[1.01] active:scale-95 transition-all shadow-2xl shadow-blue-900/30 text-center text-left">SIMPAN DATA</button>
                     </form>
                 </div>
 
-                <!-- RIWAYAT -->
-                <div class="lg:col-span-7">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-sm font-black tracking-widest uppercase">RIWAYAT TRANSAKSI TERBARU</span>
-                        <div class="flex items-center gap-5">
-                            <button onclick="window.clearAllData()" class="text-red-400 hover:text-red-600 transition-all"><i data-lucide="trash-2" class="w-6 h-6"></i></button>
-                            <span id="entri-count" class="bg-blue-100 text-blue-800 px-5 py-2 rounded-full text-[11px] font-black shadow-sm">0 ENTRI</span>
+                <div class="lg:col-span-7 text-left text-left">
+                    <div class="flex justify-between items-center mb-6 text-left text-left">
+                        <span class="text-sm font-black tracking-widest uppercase text-left text-left text-left">RIWAYAT TRANSAKSI TERBARU</span>
+                        <div class="flex items-center gap-5 text-left text-left">
+                            <button onclick="window.clearAllData()" class="text-red-400 hover:text-red-600 transition-all text-left"><i data-lucide="trash-2" class="w-6 h-6 text-left text-left text-left"></i></button>
+                            <span id="entri-count" class="bg-blue-100 text-blue-800 px-5 py-2 rounded-full text-[11px] font-black shadow-sm text-left text-left text-left">0 ENTRI</span>
                         </div>
                     </div>
                     <div class="space-y-4 max-h-[800px] overflow-y-auto pr-3 text-left" id="log-container"></div>
@@ -204,43 +206,43 @@
 
         <div id="view-stock" class="view-section text-left">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
-                <div class="space-y-6 text-left"><div class="border-l-4 border-orange-500 pl-4 font-black text-slate-800 text-xl tracking-widest uppercase">MECHANICAL</div><div id="stock-list-MECHANICAL" class="grid gap-5"></div></div>
-                <div class="space-y-6 text-left"><div class="border-l-4 border-sky-500 pl-4 font-black text-slate-800 text-xl tracking-widest uppercase">ELECTRICAL</div><div id="stock-list-ELECTRICAL" class="grid gap-5"></div></div>
-                <div class="space-y-6 text-left"><div class="border-l-4 border-emerald-500 pl-4 font-black text-slate-800 text-xl tracking-widest uppercase">PLUMBING</div><div id="stock-list-PLUMBING" class="grid gap-5"></div></div>
+                <div class="space-y-6 text-left"><div class="border-l-4 border-orange-500 pl-4 font-black text-slate-800 text-xl tracking-widest uppercase text-left">MECHANICAL</div><div id="stock-list-MECHANICAL" class="grid gap-5 text-left"></div></div>
+                <div class="space-y-6 text-left text-left text-left"><div class="border-l-4 border-sky-500 pl-4 font-black text-slate-800 text-xl tracking-widest uppercase text-left">ELECTRICAL</div><div id="stock-list-ELECTRICAL" class="grid gap-5 text-left text-left"></div></div>
+                <div class="space-y-6 text-left text-left text-left text-left text-left"><div class="border-l-4 border-emerald-500 pl-4 font-black text-slate-800 text-xl tracking-widest uppercase text-left text-left">PLUMBING</div><div id="stock-list-PLUMBING" class="grid gap-5 text-left text-left text-left"></div></div>
             </div>
         </div>
 
         <div id="view-loan" class="view-section text-left">
-            <div class="premium-card overflow-hidden shadow-xl">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 font-black border-b text-slate-500">
-                        <tr><th class="p-6 uppercase">WAKTU</th><th class="p-6 uppercase">BARANG</th><th class="p-6 text-center uppercase">QTY</th><th class="p-6 uppercase">PIC / CATATAN</th><th class="p-6 text-right uppercase">AKSI</th></tr>
+            <div class="premium-card overflow-hidden shadow-xl text-left text-left text-left text-left text-left">
+                <table class="w-full text-left text-sm text-left text-left text-left text-left">
+                    <thead class="bg-slate-50 font-black border-b text-slate-500 text-left text-left text-left text-left text-left">
+                        <tr class="text-left text-left text-left text-left text-left text-left text-left"><th class="p-6 uppercase text-left">WAKTU</th><th class="p-6 uppercase text-left">BARANG</th><th class="p-6 text-center uppercase text-left text-left text-left">QTY</th><th class="p-6 uppercase text-left text-left text-left">PIC / CATATAN</th><th class="p-6 text-right uppercase text-left text-left text-left">AKSI</th></tr>
                     </thead>
-                    <tbody id="loan-table-body" class="divide-y font-bold text-left"></tbody>
+                    <tbody id="loan-table-body" class="divide-y font-bold text-left text-left text-left text-left text-left"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="view-budget" class="view-section text-left">
-            <div id="budget-summary-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"></div>
-            <div class="p-20 rounded-[3.5rem] bg-[#004a99] text-white flex flex-col md:flex-row justify-between items-center gap-10 shadow-2xl">
-                <div class="text-left">
-                    <p class="text-xs font-black opacity-70 tracking-[0.6em] mb-4 uppercase text-left">VALUASI ASET KESELURUHAN</p>
-                    <h3 id="grand-total-budget" class="text-7xl font-black italic tracking-tighter text-left">RP 0</h3>
+        <div id="view-budget" class="view-section text-left text-left text-left text-left text-left">
+            <div id="budget-summary-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-left text-left text-left"></div>
+            <div class="p-20 rounded-[3.5rem] bg-[#004a99] text-white flex flex-col md:flex-row justify-between items-center gap-10 shadow-2xl text-left text-left text-left">
+                <div class="text-left text-left text-left">
+                    <p class="text-xs font-black opacity-70 tracking-[0.6em] mb-4 uppercase text-left text-left">VALUASI ASET KESELURUHAN</p>
+                    <h3 id="grand-total-budget" class="text-7xl font-black italic tracking-tighter text-left text-left text-left">RP 0</h3>
                 </div>
-                <i data-lucide="badge-dollar-sign" class="w-48 h-48 opacity-10"></i>
+                <i data-lucide="badge-dollar-sign" class="w-48 h-48 opacity-10 text-left text-left text-left"></i>
             </div>
         </div>
     </main>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-10 py-5 rounded-full text-sm font-black tracking-[0.2em] uppercase opacity-0 transition-all duration-300 z-[200] shadow-2xl">BERHASIL</div>
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-10 py-5 rounded-full text-sm font-black tracking-[0.2em] uppercase opacity-0 transition-all duration-300 z-[200] shadow-2xl text-left text-left text-left text-left">BERHASIL</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- FIREBASE CONFIG (SESUAI SCREENSHOT) ---
+        // CONFIG FIREBASE (Screenshot 150825)
         const myFirebaseConfig = {
             apiKey: "AIzaSyAIWaX6CaRy-PLa_KUhMyI_b5CnNia1DxM",
             authDomain: "inventaris-pelindo-t2.firebaseapp.com",
@@ -303,92 +305,91 @@
             }
         };
 
-        // --- NEW AGGRESSIVE IMPORT LOGIC ---
+        // --- NEW ULTRA-ROBUST IMPORT LOGIC ---
         window.importDataMultiSheets = async (event) => {
             const file = event.target.files[0]; if (!file) return;
-            showToast("MENGIMPOR...");
+            showToast("MENGANALISIS EXCEL...");
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
                     const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                    let importedCount = 0;
+                    let totalImported = 0;
 
                     for (const sheetName of workbook.SheetNames) {
                         const sheetUpper = sheetName.toUpperCase();
                         const cat = sheetUpper.includes("ELECTRICAL") ? "ELECTRICAL" : 
                                     (sheetUpper.includes("PLUMBING") ? "PLUMBING" : "MECHANICAL");
                         
-                        // Membaca baris secara mentah untuk menemukan baris judul yang benar
-                        const rawSheet = workbook.Sheets[sheetName];
-                        const rows = XLSX.utils.sheet_to_json(rawSheet, { header: 1 });
+                        const ws = workbook.Sheets[sheetName];
+                        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
                         
-                        if (rows.length === 0) continue;
+                        if (rows.length < 1) continue;
 
-                        // Mencari baris mana yang mengandung kata kunci header
-                        let headerIdx = -1;
-                        for (let i = 0; i < Math.min(rows.length, 10); i++) {
-                            const row = rows[i].map(c => String(c).toUpperCase());
-                            if (row.some(c => c.includes("NAMA") || c.includes("BARANG") || c.includes("URAIAN"))) {
-                                headerIdx = i;
+                        // 1. CARI BARIS HEADER (Baris yang mengandung kata kunci)
+                        let headerRowIndex = -1;
+                        for (let i = 0; i < Math.min(rows.length, 50); i++) {
+                            const cells = rows[i].map(c => String(c).toUpperCase());
+                            if (cells.some(c => c.includes("NAMA") || c.includes("BARANG") || c.includes("URAIAN") || c.includes("ITEM"))) {
+                                headerRowIndex = i;
                                 break;
                             }
                         }
 
-                        // Jika header tidak ditemukan, default ke baris 0
-                        const data = XLSX.utils.sheet_to_json(rawSheet, { 
-                            range: headerIdx >= 0 ? headerIdx : 0,
-                            defval: "" 
-                        });
-                        
-                        for (const row of data) {
-                            const findVal = (possibleHeaders) => {
-                                const key = Object.keys(row).find(k => 
-                                    possibleHeaders.some(h => String(k).toUpperCase().includes(h.toUpperCase()))
-                                );
-                                return key ? row[key] : null;
-                            };
+                        // Jika header ditemukan, ambil datanya
+                        if (headerRowIndex !== -1) {
+                            const data = XLSX.utils.sheet_to_json(ws, { range: headerRowIndex, defval: "" });
+                            
+                            for (const row of data) {
+                                const getVal = (keys) => {
+                                    const foundKey = Object.keys(row).find(k => 
+                                        keys.some(key => String(k).toUpperCase().includes(key.toUpperCase()))
+                                    );
+                                    return foundKey ? row[foundKey] : null;
+                                };
 
-                            const name = (findVal(["NAMA", "BARANG", "URAIAN", "ITEM"]) || "").toString().trim().toUpperCase();
-                            const type = (findVal(["TIPE", "TYPE", "MODEL"]) || "").toString().trim().toUpperCase();
-                            const merk = (findVal(["MERK", "BRAND"]) || "").toString().trim().toUpperCase();
-                            
-                            const rawQty = findVal(["VOL", "QTY", "JUMLAH", "QUANTITY"]) || 0;
-                            const qty = parseInt(String(rawQty).replace(/[^0-9]/g, '')) || 0;
-                            
-                            const rawPrice = findVal(["HARGA", "PRICE", "SATUAN"]) || 0;
-                            const price = parseInt(String(rawPrice).replace(/[^0-9]/g, '')) || 0;
-                            
-                            const unit = (findVal(["SAT", "UNIT"]) || "PCS").toString().toUpperCase();
+                                const name = (getVal(["NAMA", "BARANG", "URAIAN", "ITEM", "DESKRIPSI"]) || "").toString().trim().toUpperCase();
+                                const type = (getVal(["TIPE", "TYPE", "SPEC"]) || "").toString().trim().toUpperCase();
+                                const merk = (getVal(["MERK", "BRAND"]) || "").toString().trim().toUpperCase();
+                                
+                                const rawQty = getVal(["VOL", "QTY", "JUMLAH", "STOK", "QUANTITY"]);
+                                const qty = parseInt(String(rawQty || 0).replace(/[^0-9]/g, ''));
+                                
+                                const rawPrice = getVal(["HARGA", "PRICE", "SATUAN", "VALUE"]);
+                                const price = parseInt(String(rawPrice || 0).replace(/[^0-9]/g, ''));
+                                
+                                const unit = (getVal(["SAT", "UNIT", "SATUAN"]) || "PCS").toString().toUpperCase();
 
-                            if (name && qty > 0) {
-                                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
-                                    category: cat, 
-                                    name: name, 
-                                    type: [type, merk].filter(Boolean).join(" - "), 
-                                    qty: qty, 
-                                    unit: unit, 
-                                    price: price, 
-                                    status: 'MASUK', 
-                                    createdAt: Date.now(), 
-                                    timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                                });
-                                importedCount++;
+                                if (name && name !== "" && qty > 0) {
+                                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
+                                        category: cat,
+                                        name: name,
+                                        type: [type, merk].filter(Boolean).join(" - "),
+                                        qty: qty,
+                                        unit: unit,
+                                        price: price,
+                                        status: 'MASUK',
+                                        createdAt: Date.now(),
+                                        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                                        subStatus: null
+                                    });
+                                    totalImported++;
+                                }
                             }
                         }
                     }
                     
-                    if(importedCount > 0) {
-                        showToast(`${importedCount} BARANG DIIMPOR`);
+                    if(totalImported > 0) {
+                        showToast(`${totalImported} BARANG BERHASIL MASUK`);
                     } else {
-                        showToast("KOLOM TIDAK COCOK", "bg-orange-600");
+                        showToast("DATA TIDAK COCOK", "bg-orange-600");
                     }
                 } catch (err) { 
-                    console.error(err);
-                    showToast("GAGAL IMPOR", "bg-red-600"); 
+                    console.error("Import Error:", err);
+                    showToast("GAGAL MEMBACA FILE", "bg-red-600"); 
                 }
             };
             reader.readAsArrayBuffer(file);
-            event.target.value = "";
+            event.target.value = ""; 
         };
 
         window.exportData = (format) => {
@@ -438,23 +439,23 @@
                 div.className = `premium-card p-5 flex justify-between items-center relative border-l-[10px] mb-4 text-left shadow-sm`;
                 div.style.borderLeftColor = color;
                 div.innerHTML = `
-                    <div class="flex-1 min-w-0 pr-6">
-                        <div class="flex items-center gap-4 mb-2">
-                            <h4 class="text-sm font-black text-slate-800 uppercase">${item.name}</h4>
-                            <span class="status-pill ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'}">${item.status}</span>
+                    <div class="flex-1 min-w-0 pr-6 text-left">
+                        <div class="flex items-center gap-4 mb-2 text-left">
+                            <h4 class="text-sm font-black text-slate-800 uppercase text-left">${item.name}</h4>
+                            <span class="status-pill ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'} text-left">${item.status}</span>
                         </div>
-                        <div class="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400">
-                            <span class="text-slate-900 font-black uppercase">${item.qty} ${item.unit}</span> 
-                            <span class="opacity-30">|</span> <span>${item.timestamp}</span>
-                            ${item.type ? `<span class="opacity-30">|</span> <span class="text-slate-500 italic">${item.type}</span>` : ''}
-                            ${pic ? `<span class="opacity-30">|</span> <span class="text-blue-600 font-black">PIC: ${pic}</span>` : ''}
+                        <div class="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400 text-left">
+                            <span class="text-slate-900 font-black uppercase text-left">${item.qty} ${item.unit}</span> 
+                            <span class="opacity-30 text-left">|</span> <span class="text-left">${item.timestamp}</span>
+                            ${item.type ? `<span class="opacity-30 text-left">|</span> <span class="text-slate-500 italic text-left">${item.type}</span>` : ''}
+                            ${pic ? `<span class="opacity-30 text-left">|</span> <span class="text-blue-600 font-black text-left">PIC: ${pic}</span>` : ''}
                         </div>
                         ${note ? `<p class="mt-2 text-[11px] text-slate-500 italic lowercase border-t border-slate-50 pt-2 text-left">note: ${note}</p>` : ''}
                     </div>
-                    <div class="relative">
-                        <button onclick="window.toggleRowMenu(event, '${item.id}')" class="p-3 text-slate-300 hover:text-slate-600 transition-colors"><i data-lucide="more-vertical" class="w-6 h-6"></i></button>
-                        <div id="menu-${item.id}" class="menu-dropdown shadow-2xl border-2">
-                            <button onclick="window.deleteItem(event, '${item.id}')" class="w-full text-left p-4 text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-4 uppercase"><i data-lucide="trash-2" class="w-5 h-5"></i> HAPUS</button>
+                    <div class="relative text-left">
+                        <button onclick="window.toggleRowMenu(event, '${item.id}')" class="p-3 text-slate-300 hover:text-slate-600 transition-colors text-left"><i data-lucide="more-vertical" class="w-6 h-6 text-left"></i></button>
+                        <div id="menu-${item.id}" class="menu-dropdown shadow-2xl border-2 text-left">
+                            <button onclick="window.deleteItem(event, '${item.id}')" class="w-full text-left p-4 text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-4 uppercase text-left"><i data-lucide="trash-2" class="w-5 h-5 text-left"></i> HAPUS</button>
                         </div>
                     </div>`;
                 container.appendChild(div);
@@ -466,7 +467,7 @@
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const grid = document.getElementById(`stock-list-${c}`); if(!grid) return; grid.innerHTML = '';
                 Object.values(sum).filter(s => s.c === c && s.b >= 0).forEach(item => {
-                    grid.innerHTML += `<div class="premium-card p-6 shadow-sm text-left"><h4 class="text-sm font-black text-slate-800 uppercase mb-2">${item.n}</h4><div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.b}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div></div>`;
+                    grid.innerHTML += `<div class="premium-card p-6 text-left shadow-sm text-left"><h4 class="text-sm font-black text-slate-800 uppercase mb-2 text-left">${item.n}</h4><div class="flex justify-between items-end text-left"><span class="text-3xl font-black text-slate-900 text-left">${item.b}</span><span class="text-xs font-black text-slate-300 uppercase text-left">${item.u}</span></div></div>`;
                 });
             });
         }
@@ -474,7 +475,7 @@
         function renderLoan() {
             const body = document.getElementById('loan-table-body'); if(!body) return; body.innerHTML = '';
             inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(l => {
-                body.innerHTML += `<tr><td class="p-6 text-slate-400 font-mono text-sm">${l.timestamp}</td><td class="p-6 text-[#004a99] font-black uppercase text-sm">${l.name}</td><td class="p-6 text-center font-black text-sm">${l.qty}</td><td class="p-6 uppercase text-sm">${l.picBorrow || '-'}${l.notesBorrow ? `<br><span class="text-[11px] text-slate-400 font-normal">NOTE: ${l.notesBorrow}</span>` : ''}</td><td class="p-6 text-right"><button onclick="window.deleteItem(event, '${l.id}')" class="text-emerald-500 hover:scale-110 transition-transform"><i data-lucide="check-circle-2" class="w-7 h-7"></i></button></td></tr>`;
+                body.innerHTML += `<tr><td class="p-6 text-slate-400 font-mono text-sm text-left text-left">${l.timestamp}</td><td class="p-6 text-[#004a99] font-black uppercase text-sm text-left text-left">${l.name}</td><td class="p-6 text-center font-black text-sm text-left text-left">${l.qty}</td><td class="p-6 uppercase text-sm text-left text-left">${l.picBorrow || '-'}${l.notesBorrow ? `<br><span class="text-[11px] text-slate-400 font-normal text-left">NOTE: ${l.notesBorrow}</span>` : ''}</td><td class="p-6 text-right text-left"><button onclick="window.deleteItem(event, '${l.id}')" class="text-emerald-500 hover:scale-110 transition-transform text-left"><i data-lucide="check-circle-2" class="w-7 h-7 text-left"></i></button></td></tr>`;
             });
         }
 
@@ -482,7 +483,7 @@
             const sums = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 }; 
             inventory.filter(i => i.status === 'MASUK').forEach(i => { sums[i.category] += (parseInt(i.qty) * (parseInt(i.price) || 0)); });
             const grid = document.getElementById('budget-summary-grid'); if(!grid) return; grid.innerHTML = '';
-            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => { grid.innerHTML += `<div class="premium-card p-10 border-l-[15px] text-left ${c === 'MECHANICAL' ? 'border-orange-500' : (c === 'ELECTRICAL' ? 'border-sky-500' : 'border-emerald-500')}"><p class="text-[12px] font-black text-slate-400 mb-3 tracking-widest uppercase">ANGGARAN ${c}</p><h3 class="text-4xl font-black italic">RP ${sums[c].toLocaleString('id-ID')}</h3></div>`; });
+            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => { grid.innerHTML += `<div class="premium-card p-10 border-l-[15px] text-left text-left text-left ${c === 'MECHANICAL' ? 'border-orange-500' : (c === 'ELECTRICAL' ? 'border-sky-500' : 'border-emerald-500')} text-left text-left"><p class="text-[12px] font-black text-slate-400 mb-3 tracking-widest uppercase text-left text-left text-left">ANGGARAN ${c}</p><h3 class="text-4xl font-black italic text-left text-left text-left">RP ${sums[c].toLocaleString('id-ID')}</h3></div>`; });
             document.getElementById('grand-total-budget').innerText = `RP ${(sums.MECHANICAL + sums.ELECTRICAL + sums.PLUMBING).toLocaleString('id-ID')}`;
         }
 
@@ -514,13 +515,14 @@
                 notesBorrow: sub === 'PEMINJAMAN' ? document.getElementById('notesBorrow').value.toUpperCase() : null,
                 picInstall: sub === 'INSTALASI' ? document.getElementById('picInstall').value.toUpperCase() : null,
                 notesInstall: sub === 'INSTALASI' ? document.getElementById('notesInstall').value.toUpperCase() : null,
-                createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                appSource: "PelindoAppV2"
             };
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), payload);
             e.target.reset(); window.toggleKeluarPanels(); showToast("DATA DISIMPAN");
         };
 
-        function showToast(m, bg = "bg-[#004a99]") { const t = document.getElementById('toast'); if(!t) return; t.innerText = m; t.style.opacity = '1'; setTimeout(() => { t.style.opacity = '0'; }, 2500); }
+        function showToast(m, bg = "bg-[#004a99]") { const t = document.getElementById('toast'); if(!t) return; t.innerText = m; t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 transform transition-all duration-500 ${bg} text-white px-10 py-5 rounded-full text-sm font-black tracking-[0.2em] uppercase opacity-100 translate-y-0 z-[200] shadow-2xl text-left`; setTimeout(() => { t.className = t.className.replace('opacity-100 translate-y-0', 'opacity-0 translate-y-10'); }, 2500); }
         init();
     </script>
 </body>
