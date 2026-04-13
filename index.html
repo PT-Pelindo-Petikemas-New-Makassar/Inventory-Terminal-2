@@ -50,9 +50,8 @@
 
     <header class="glass-header text-white sticky top-0 z-[100] pb-2 text-left">
         <div class="max-w-7xl mx-auto px-8 pt-6 pb-4 flex items-center gap-8 text-left">
-            <div class="bg-white p-2 rounded-2xl h-16 w-16 flex-shrink-0 shadow-2xl overflow-hidden">
-                <!-- Memanggil logo dari file lokal/github -->
-                <img src="logo pelindo.jpg" alt="Logo Pelindo" class="h-full w-full object-contain" onerror="this.src='https://www.pelindo.co.id/logo_pelindo_single.png'">
+            <div class="bg-white p-2 rounded-2xl h-16 w-16 flex-shrink-0 shadow-2xl overflow-hidden text-center flex items-center justify-center">
+                <img src="logo pelindo.jpg" alt="Logo Pelindo" class="max-h-full max-w-full object-contain" onerror="this.src='https://www.pelindo.co.id/logo_pelindo_single.png'">
             </div>
             <div class="text-left border-l-2 border-white/20 pl-8">
                 <h1 class="text-xl md:text-2xl font-black tracking-tight leading-tight uppercase text-left">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
@@ -79,7 +78,6 @@
                     <span class="text-[11px] font-black text-slate-500 tracking-widest uppercase">UNDUH LAPORAN</span>
                     <div class="flex gap-4">
                         <button onclick="window.exportData('xlsx')" class="mini-btn text-emerald-600" title="EXCEL"><i data-lucide="file-spreadsheet" class="w-6 h-6"></i></button>
-                        <button onclick="window.exportData('docx')" class="mini-btn text-blue-600" title="WORD"><i data-lucide="file-text" class="w-6 h-6"></i></button>
                         <button onclick="window.exportData('pdf')" class="mini-btn text-red-600" title="PDF"><i data-lucide="printer" class="w-6 h-6"></i></button>
                     </div>
                 </div>
@@ -113,7 +111,7 @@
                     <label class="cursor-pointer flex items-center gap-3">
                         <input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="window.importDataMultiSheets(event)">
                         <i data-lucide="upload" class="w-5 h-5 text-blue-600"></i>
-                        <span class="text-[11px] font-black text-slate-500 uppercase">IMPOR FILE</span>
+                        <span class="text-[11px] font-black text-slate-500 uppercase">IMPOR FILE EXCEL</span>
                     </label>
                 </div>
             </div>
@@ -297,8 +295,9 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Konfigurasi Firebase asli Anda
         const myFirebaseConfig = {
-            apiKey: "",
+            apiKey: "AIzaSyAIwAX6CaRy-PLa_KUhMyl_b5CnNia1DxM",
             authDomain: "inventaris-pelindo-t2.firebaseapp.com",
             projectId: "inventaris-pelindo-t2",
             storageBucket: "inventaris-pelindo-t2.firebasestorage.app",
@@ -311,11 +310,17 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'pelindo-v2-prod-stable';
 
         let fbApp, auth, db;
-        try { fbApp = initializeApp(configInput); auth = getAuth(fbApp); db = getFirestore(fbApp); } catch (e) { console.error("Firebase Error"); }
+        try { 
+            fbApp = initializeApp(configInput); 
+            auth = getAuth(fbApp); 
+            db = getFirestore(fbApp); 
+        } catch (e) { 
+            console.error("Firebase Init Error"); 
+        }
 
         let inventory = [], searchQuery = "", issueSearchQuery = "", currentView = 'dashboard', charts = {};
 
-        // Explicitly attach functions to window at the start of the module
+        // Inisialisasi Fungsi Window Secara Eksplisit
         window.switchView = (v) => {
             currentView = v;
             document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
@@ -330,7 +335,6 @@
 
         window.handleSearch = (q) => { searchQuery = q.toUpperCase().trim(); renderAll(); };
         window.handleIssueSearch = (q) => { issueSearchQuery = q.toUpperCase().trim(); renderIssueList(); };
-
         window.closeAllMenus = () => { document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('active')); };
         
         window.toggleRowMenu = (e, id) => { 
@@ -380,17 +384,9 @@
             if (confirm(`Konfirmasi pengembalian ${item.qty} ${item.unit} ${item.name}?`)) {
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
-                        category: item.category,
-                        name: item.name,
-                        type: item.type,
-                        qty: item.qty,
-                        unit: item.unit,
-                        price: item.price || 0,
-                        status: 'MASUK',
-                        subStatus: 'PENGEMBALIAN',
-                        notesBorrow: `DIKEMBALIKAN OLEH ${item.picBorrow}`,
-                        createdAt: Date.now(),
-                        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                        category: item.category, name: item.name, type: item.type, qty: item.qty, unit: item.unit, price: item.price || 0,
+                        status: 'MASUK', subStatus: 'PENGEMBALIAN', notesBorrow: `DIKEMBALIKAN OLEH ${item.picBorrow}`,
+                        createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
                     });
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'workshop_logs', id));
                     showToast("BARANG DIKEMBALIKAN");
@@ -407,39 +403,33 @@
                     const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
                     let totalImported = 0;
                     for (const sheetName of workbook.SheetNames) {
-                        const sn = sheetName.toUpperCase();
-                        const cat = sn.includes("ELECTRICAL") ? "ELECTRICAL" : (sn.includes("PLUMBING") ? "PLUMBING" : "MECHANICAL");
                         const ws = workbook.Sheets[sheetName];
                         const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-                        let subHeaderIdx = -1;
+                        let startIdx = -1;
                         for(let i=0; i<rows.length; i++){
-                            if(rows[i] && rows[i][1] && rows[i][1].toString().toUpperCase().includes("NAMA BARANG")){ subHeaderIdx = i; break; }
+                            if(rows[i] && rows[i][1] && rows[i][1].toString().toUpperCase().includes("NAMA BARANG")){ startIdx = i; break; }
                         }
-                        if (subHeaderIdx !== -1) {
-                            for (let j = subHeaderIdx + 1; j < rows.length; j++) {
-                                const row = rows[j];
-                                const name = (row[1] || "").toString().trim().toUpperCase();
-                                if (!name || name === "") continue;
-                                const tipe = (row[2] || "").toString().trim().toUpperCase();
-                                const merk = (row[3] || "").toString().trim().toUpperCase();
-                                const rawQty = row[4] || 0;
-                                const qty = parseInt(rawQty.toString().replace(/[^0-9]/g, ''));
-                                const unit = (row[5] || "PCS").toString().trim().toUpperCase();
-                                const rawPrice = row[6] || 0;
-                                const price = parseInt(rawPrice.toString().replace(/[^0-9]/g, ''));
-                                if (qty > 0) {
-                                    const fullType = [tipe, merk].filter(t => t && t !== "" && t !== "-").join(" - ");
-                                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
-                                        category: cat, name, type: fullType || "TANPA TIPE", qty, unit, price, status: 'MASUK', createdAt: Date.now(), 
-                                        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), subStatus: null
-                                    });
-                                    totalImported++;
-                                }
+                        if (startIdx === -1) continue;
+                        const sn = sheetName.toUpperCase();
+                        const cat = sn.includes("ELEC") ? "ELECTRICAL" : (sn.includes("PLUM") ? "PLUMBING" : "MECHANICAL");
+                        for (let j = startIdx + 1; j < rows.length; j++) {
+                            const row = rows[j];
+                            const name = (row[1] || "").toString().trim().toUpperCase();
+                            if (!name) continue;
+                            const qty = parseInt(String(row[4] || "0").replace(/[^0-9]/g, '')) || 0;
+                            const price = parseInt(String(row[6] || "0").replace(/[^0-9]/g, '')) || 0;
+                            if (qty > 0) {
+                                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
+                                    category: cat, name, type: row[2] || "TANPA TIPE", qty, unit: row[5] || "PCS", price,
+                                    status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                                });
+                                totalImported++;
                             }
                         }
                     }
-                    showToast(`${totalImported} BARANG DIIMPOR`);
-                } catch (err) { console.error(err); showToast("GAGAL IMPOR", "bg-red-600"); }
+                    if(totalImported > 0) showToast(`${totalImported} BARANG DIIMPOR KE FIREBASE`);
+                    else showToast("TIDAK ADA DATA VALID DITEMUKAN", "bg-orange-600");
+                } catch (err) { console.error(err); showToast("GAGAL IMPOR: FORMAT SALAH", "bg-red-600"); }
             };
             reader.readAsArrayBuffer(file);
             event.target.value = ""; 
@@ -453,12 +443,12 @@
                 const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "INVENTARIS_PELINDO.xlsx");
             } else if(format === 'pdf') {
                 const { jsPDF } = window.jspdf;
-                const docPdf = new jsPDF('landscape'); docPdf.autoTable({ head: [head], body: rows, styles: { fontSize: 8 } }); docPdf.save("INVENTARIS_PELINDO.pdf");
+                const docPdf = new jsPDF('landscape'); docPdf.autoTable({ head: [head], body: rows }); docPdf.save("INVENTARIS_PELINDO.pdf");
             }
         };
 
         window.clearAllData = async () => {
-            if(confirm("BERSIHKAN DATABASE?")) {
+            if(confirm("BERSIHKAN DATABASE? DATA DI FIREBASE AKAN HILANG.")) {
                 const q = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'));
                 const batch = writeBatch(db); q.docs.forEach(d => batch.delete(d.ref)); await batch.commit();
                 showToast("DATABASE BERSIH");
@@ -466,7 +456,7 @@
         };
 
         function renderAll() {
-            const filtered = searchQuery ? inventory.filter(i => (i.name && i.name.toUpperCase().includes(searchQuery)) || (i.type && i.type.toUpperCase().includes(searchQuery)) || (i.category && i.category.toUpperCase().includes(searchQuery))) : [...inventory];
+            const filtered = searchQuery ? inventory.filter(i => i.name.includes(searchQuery) || i.type.includes(searchQuery) || i.category.includes(searchQuery)) : [...inventory];
             renderDashboard(filtered); renderStock(); renderLoan(); renderBudget(); renderCharts(); renderIssueList();
             if(window.lucide) lucide.createIcons();
         }
@@ -474,24 +464,20 @@
         function renderIssueList() {
             const sum = {}; 
             inventory.forEach(i => { 
-                const key = (i.name || '') + '|' + (i.type || '');
-                if(!sum[key]) sum[key] = { n: i.name, t: i.type, c: i.category, b: 0, u: i.unit, p: i.price }; 
-                if(i.status === 'MASUK') sum[key].b += (i.qty || 0); else sum[key].b -= (i.qty || 0); 
+                const key = i.name + '|' + (i.type || '');
+                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: i.price }; 
+                if(i.status === 'MASUK') sum[key].q += i.qty; else sum[key].q -= i.qty; 
             });
 
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const grid = document.getElementById(`issue-list-${c}`); if(!grid) return; grid.innerHTML = '';
-                Object.values(sum).filter(s => s.c === c && s.b > 0).forEach(item => {
-                    const matchesSearch = !issueSearchQuery || item.n.toUpperCase().includes(issueSearchQuery) || (item.t && item.t.toUpperCase().includes(issueSearchQuery));
+                Object.values(sum).filter(s => s.c === c && s.q > 0).forEach(item => {
+                    const matchesSearch = !issueSearchQuery || item.n.toUpperCase().includes(issueSearchQuery);
                     if(matchesSearch) {
                         const div = document.createElement('div');
-                        div.className = "premium-card p-6 text-left shadow-sm cursor-pointer hover:border-blue-500 hover:scale-[1.02] transition-all";
+                        div.className = "premium-card p-6 text-left shadow-sm cursor-pointer hover:border-blue-500 transition-all";
                         div.onclick = () => window.openIssueModal(item.n, item.t, item.c, item.u, item.p);
-                        div.innerHTML = `
-                            <h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4>
-                            <p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t && item.t !== 'TANPA TIPE' ? item.t : 'TIADA RINCIAN'}</p>
-                            <div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.b}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div>
-                        `;
+                        div.innerHTML = `<h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4><p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p><div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.q}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div>`;
                         grid.appendChild(div);
                     }
                 });
@@ -506,8 +492,8 @@
                 if(charts[c]) charts[c].destroy();
                 charts[c] = new Chart(canvas.getContext('2d'), {
                     type: 'bar',
-                    data: { labels: recent.map(i => (i.name || "").substring(0, 7) + '..'), datasets: [{ data: recent.map(i => i.qty), backgroundColor: recent.map(i => i.status === 'MASUK' ? '#10b981' : '#ef4444'), borderRadius: 5 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } } } }
+                    data: { labels: recent.map(i => i.name.substring(0, 7) + '..'), datasets: [{ data: recent.map(i => i.qty), backgroundColor: recent.map(i => i.status === 'MASUK' ? '#10b981' : '#ef4444'), borderRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
                 });
             });
         }
@@ -520,16 +506,9 @@
                 const div = document.createElement('div');
                 const pic = item.picBorrow || item.picInstall || '';
                 const loanInfo = item.subStatus === 'PEMINJAMAN' ? `<div class="mt-1 text-[10px] text-blue-800 font-bold">PINJAM: ${item.dateBorrow || '-'} | ESTIMASI: ${item.dateReturn || '-'}</div>` : '';
-                
                 div.className = `premium-card p-5 flex justify-between items-center relative border-l-[10px] mb-4 text-left shadow-sm`;
                 div.style.borderLeftColor = color;
-                div.innerHTML = `
-                    <div class="flex-1 min-w-0 pr-6 text-left">
-                        <div class="flex items-center gap-4 mb-1 text-left"><h4 class="text-sm font-black text-slate-800 uppercase text-left">${item.name || "BARANG"}</h4><span class="status-pill ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'} text-left">${item.status}</span></div>
-                        <div class="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400 text-left"><span class="text-slate-900 font-black uppercase text-left">${item.qty} ${item.unit || "PCS"}</span> <span class="opacity-30 text-left">|</span> <span class="text-left">${item.timestamp || ""}</span> ${item.type && item.type !== 'TANPA TIPE' ? `<span class="opacity-30 text-left">|</span> <span class="text-slate-500 italic text-left">${item.type}</span>` : ''} ${pic ? `<span class="opacity-30 text-left">|</span> <span class="text-blue-600 font-black text-left">PIC: ${pic}</span>` : ''}</div>
-                        ${loanInfo}
-                    </div>
-                    <div class="relative text-left"><button onclick="window.toggleRowMenu(event, '${item.id}')" class="p-3 text-slate-300 hover:text-slate-600 transition-colors text-left"><i data-lucide="more-vertical" class="w-6 h-6 text-left"></i></button><div id="menu-${item.id}" class="menu-dropdown shadow-2xl border-2 text-left"><button onclick="window.deleteItem(event, '${item.id}')" class="w-full text-left p-4 text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-4 uppercase text-left"><i data-lucide="trash-2" class="w-5 h-5 text-left"></i> HAPUS</button></div></div>`;
+                div.innerHTML = `<div class="flex-1 min-w-0 pr-6 text-left"><div class="flex items-center gap-4 mb-1 text-left"><h4 class="text-sm font-black text-slate-800 uppercase text-left">${item.name || "BARANG"}</h4><span class="status-pill ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'} text-left">${item.status}</span></div><div class="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400 text-left"><span class="text-slate-900 font-black uppercase text-left">${item.qty} ${item.unit || "PCS"}</span> <span class="opacity-30 text-left">|</span> <span class="text-left">${item.timestamp || ""}</span> ${item.type && item.type !== 'TANPA TIPE' ? `<span class="opacity-30 text-left">|</span> <span class="text-slate-500 italic text-left">${item.type}</span>` : ''} ${pic ? `<span class="opacity-30 text-left">|</span> <span class="text-blue-600 font-black text-left">PIC: ${pic}</span>` : ''}</div>${loanInfo}</div><div class="relative text-left"><button onclick="window.toggleRowMenu(event, '${item.id}')" class="p-3 text-slate-300 hover:text-slate-600 transition-colors text-left"><i data-lucide="more-vertical" class="w-6 h-6 text-left"></i></button><div id="menu-${item.id}" class="menu-dropdown shadow-2xl border-2 text-left"><button onclick="window.deleteItem(event, '${item.id}')" class="w-full text-left p-4 text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-4 uppercase text-left text-left text-left text-left"><i data-lucide="trash-2" class="w-5 h-5 text-left text-left text-left text-left"></i> HAPUS</button></div></div>`;
                 container.appendChild(div);
             });
         }
@@ -537,19 +516,14 @@
         function renderStock() {
             const sum = {}; 
             inventory.forEach(i => { 
-                const key = (i.name || '') + '|' + (i.type || '');
+                const key = i.name + '|' + (i.type || '');
                 if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category }; 
-                if(i.status === 'MASUK') sum[key].q += (i.qty || 0); else sum[key].q -= (i.qty || 0); 
+                if(i.status === 'MASUK') sum[key].q += i.qty; else sum[key].q -= i.qty; 
             });
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const grid = document.getElementById(`stock-list-${c}`); if(!grid) return; grid.innerHTML = '';
                 Object.values(sum).filter(s => s.c === c && s.q >= 0).forEach(item => {
-                    grid.innerHTML += `
-                        <div class="premium-card p-6 text-left shadow-sm">
-                            <h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4>
-                            <p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t && item.t !== 'TANPA TIPE' ? item.t : 'TIADA RINCIAN'}</p>
-                            <div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.q}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div>
-                        </div>`;
+                    grid.innerHTML += `<div class="premium-card p-6 text-left shadow-sm"><h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4><p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p><div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.q}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div></div>`;
                 });
             });
         }
@@ -558,21 +532,7 @@
             const body = document.getElementById('loan-table-body'); if(!body) return; body.innerHTML = '';
             inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(l => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="p-6 text-slate-400 font-mono text-sm text-left">${l.timestamp}</td>
-                    <td class="p-6 text-[#004a99] font-black uppercase text-sm text-left">${l.name} <br> <span class="text-[10px] font-normal text-slate-400 italic lowercase text-left">${l.type || '-'}</span></td>
-                    <td class="p-6 text-center font-black text-sm text-left">${l.qty}</td>
-                    <td class="p-6 uppercase text-sm text-left">
-                        <span class="text-blue-900 font-black">${l.picBorrow || '-'}</span><br>
-                        <span class="text-[10px] text-slate-500 font-bold tracking-tighter">PINJAM: ${l.dateBorrow || '-'}</span><br>
-                        <span class="text-[10px] text-orange-600 font-bold tracking-tighter">ESTIMASI: ${l.dateReturn || '-'}</span>
-                    </td>
-                    <td class="p-6 text-right">
-                        <button onclick="window.returnItemById(event, '${l.id}')" class="text-emerald-500 hover:scale-110 transition-transform text-left" title="Konfirmasi Pengembalian">
-                            <i data-lucide="check-circle-2" class="w-8 h-8 text-left"></i>
-                        </button>
-                    </td>
-                `;
+                row.innerHTML = `<td class="p-6 text-slate-400 font-mono text-sm text-left">${l.timestamp}</td><td class="p-6 text-[#004a99] font-black uppercase text-sm text-left">${l.name} <br> <span class="text-[10px] font-normal text-slate-400 italic lowercase text-left">${l.type || '-'}</span></td><td class="p-6 text-center font-black text-sm text-left">${l.qty}</td><td class="p-6 uppercase text-sm text-left"><span class="text-blue-900 font-black">${l.picBorrow || '-'}</span><br><span class="text-[10px] text-slate-500 font-bold tracking-tighter">PINJAM: ${l.dateBorrow || '-'}</span><br><span class="text-[10px] text-orange-600 font-bold tracking-tighter">ESTIMASI: ${l.dateReturn || '-'}</span></td><td class="p-6 text-right"><button onclick="window.returnItemById(event, '${l.id}')" class="text-emerald-500 hover:scale-110 transition-transform text-left" title="Konfirmasi Pengembalian"><i data-lucide="check-circle-2" class="w-8 h-8 text-left"></i></button></td>`;
                 body.appendChild(row);
             });
             if(window.lucide) lucide.createIcons();
@@ -590,51 +550,38 @@
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token); 
                 else if(auth) await signInAnonymously(auth);
-                if(auth) {
-                    onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), (snap) => {
-                                inventory = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                                inventory.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                                renderAll();
-                            });
-                        }
-                    });
-                }
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), (snap) => {
+                            inventory = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            inventory.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                            renderAll();
+                        });
+                    }
+                });
             } catch (err) { console.error("Init Error"); }
         };
 
         document.getElementById('inventoryForm').onsubmit = async (e) => {
             e.preventDefault();
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
-                category: document.getElementById('category').value, 
-                name: document.getElementById('itemName').value.toUpperCase().trim(),
-                type: document.getElementById('itemType').value.toUpperCase().trim() || "TANPA TIPE", 
-                qty: parseInt(document.getElementById('qty').value),
-                price: parseInt(document.getElementById('price').value || 0), 
-                unit: document.getElementById('unit').value, 
-                status: 'MASUK', 
-                subStatus: null,
-                createdAt: Date.now(), 
-                timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(),
+                type: document.getElementById('itemType').value.toUpperCase().trim() || "TANPA TIPE", qty: parseInt(document.getElementById('qty').value),
+                price: parseInt(document.getElementById('price').value || 0), unit: document.getElementById('unit').value, 
+                status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             });
-            e.target.reset(); 
-            showToast("DATA STOK DISIMPAN");
+            e.target.reset(); showToast("DATA STOK DISIMPAN KE CLOUD");
             window.switchView('dashboard');
         };
 
         document.getElementById('issueFormAction').onsubmit = async (e) => {
             e.preventDefault();
             const sub = document.getElementById('modalSubStatus').value;
-            const name = document.getElementById('modalItemName').value;
-            const type = document.getElementById('modalItemType').value;
-            const cat = document.getElementById('modalCategory').value;
-            const unit = document.getElementById('modalUnit').value;
-            const qty = parseInt(document.getElementById('modalQty').value);
-            const price = parseInt(document.getElementById('modalPrice').value || 0);
-
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
-                category: cat, name, type, qty, unit, price, status: 'KELUAR', subStatus: sub,
+                category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value,
+                type: document.getElementById('modalItemType').value, qty: parseInt(document.getElementById('modalQty').value),
+                unit: document.getElementById('modalUnit').value, price: parseInt(document.getElementById('modalPrice').value || 0),
+                status: 'KELUAR', subStatus: sub,
                 picBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalPicBorrow').value.toUpperCase() : null,
                 notesBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalNotesBorrow').value.toUpperCase() : null,
                 dateBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalDateBorrow').value : null,
@@ -643,16 +590,15 @@
                 notesInstall: sub === 'INSTALASI' ? document.getElementById('modalNotesInstall').value.toUpperCase() : null,
                 createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             });
-
-            window.closeIssueModal();
-            showToast("PENGELUARAN DISIMPAN");
+            window.closeIssueModal(); showToast("PENGELUARAN TERCATAT");
             window.switchView('dashboard');
         };
 
-        function showToast(m) { 
+        function showToast(m, cls = "bg-slate-900") { 
             const t = document.getElementById('toast'); if(!t) return; 
-            t.innerText = m; t.style.opacity = '1';
-            setTimeout(() => { if(t) t.style.opacity = '0'; }, 2500); 
+            t.innerText = m; t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 text-white px-10 py-5 rounded-full text-sm font-black tracking-[0.2em] uppercase transition-all duration-300 z-[200] shadow-2xl ${cls}`;
+            t.style.opacity = '1';
+            setTimeout(() => { if(t) t.style.opacity = '0'; }, 3000); 
         }
         init();
     </script>
