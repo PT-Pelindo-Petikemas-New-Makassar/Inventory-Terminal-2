@@ -205,7 +205,15 @@
             </div>
             <div class="premium-card overflow-hidden shadow-xl">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 font-black border-b text-slate-500"><tr class="text-left"><th class="p-6 uppercase">WAKTU</th><th class="p-6 uppercase">BARANG</th><th class="p-6 text-center uppercase">QTY</th><th class="p-6 uppercase">PIC / TANGGAL</th><th class="p-6 text-right uppercase">AKSI</th></tr></thead>
+                    <thead class="bg-slate-50 font-black border-b text-slate-500">
+                        <tr class="text-left">
+                            <th class="p-6 uppercase">WAKTU</th>
+                            <th class="p-6 uppercase">BARANG</th>
+                            <th class="p-6 text-center uppercase">QTY</th>
+                            <th class="p-6 uppercase">PEMINJAM / DETAIL</th>
+                            <th class="p-6 text-right uppercase">AKSI</th>
+                        </tr>
+                    </thead>
                     <tbody id="loan-table-body" class="divide-y font-bold"></tbody>
                 </table>
             </div>
@@ -299,7 +307,6 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi Firebase asli Anda
         const myFirebaseConfig = {
             apiKey: "AIzaSyAIwAX6CaRy-PLa_KUhMyl_b5CnNia1DxM",
             authDomain: "inventaris-pelindo-t2.firebaseapp.com",
@@ -314,17 +321,10 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'pelindo-v2-prod-stable';
 
         let fbApp, auth, db;
-        try { 
-            fbApp = initializeApp(configInput); 
-            auth = getAuth(fbApp); 
-            db = getFirestore(fbApp); 
-        } catch (e) { 
-            console.error("Firebase Init Error"); 
-        }
+        try { fbApp = initializeApp(configInput); auth = getAuth(fbApp); db = getFirestore(fbApp); } catch (e) { console.error("Firebase Error"); }
 
         let inventory = [], searchQuery = "", issueSearchQuery = "", currentView = 'dashboard', charts = {};
 
-        // Inisialisasi Fungsi Window Secara Eksplisit
         window.switchView = (v) => {
             currentView = v;
             document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
@@ -398,7 +398,6 @@
             }
         };
 
-        // Fungsi Penyesuaian Stok Baru
         window.adjustStock = async (name, type, cat, unit, price, delta) => {
             const amount = parseInt(delta);
             const status = amount > 0 ? 'MASUK' : 'KELUAR';
@@ -415,6 +414,173 @@
             } catch (err) {
                 showToast("GAGAL PENYESUAIAN", "bg-red-600");
             }
+        };
+
+        function renderAll() {
+            const filtered = searchQuery ? inventory.filter(i => (i.name || "").includes(searchQuery) || (i.type || "").includes(searchQuery) || (i.category || "").includes(searchQuery)) : [...inventory];
+            renderDashboard(filtered); renderStock(); renderLoan(); renderBudget(); renderCharts(); renderIssueList();
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function renderIssueList() {
+            const sum = {}; 
+            inventory.forEach(i => { 
+                const key = (i.name || "") + '|' + (i.type || '');
+                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: i.price }; 
+                if(i.status === 'MASUK') sum[key].q += (i.qty || 0); else sum[key].q -= (i.qty || 0); 
+            });
+
+            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
+                const grid = document.getElementById(`issue-list-${c}`); if(!grid) return; grid.innerHTML = '';
+                Object.values(sum).filter(s => s.c === c && s.q > 0).forEach(item => {
+                    const matchesSearch = !issueSearchQuery || (item.n || "").toUpperCase().includes(issueSearchQuery);
+                    if(matchesSearch) {
+                        const div = document.createElement('div');
+                        div.className = "premium-card p-6 text-left shadow-sm cursor-pointer hover:border-blue-500 transition-all";
+                        div.onclick = () => window.openIssueModal(item.n, item.t, item.c, item.u, item.p);
+                        div.innerHTML = `<h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4><p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p><div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.q}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div>`;
+                        grid.appendChild(div);
+                    }
+                });
+            });
+        }
+
+        function renderCharts() {
+            const cats = ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'];
+            cats.forEach(c => {
+                const canvas = document.getElementById(`chart-${c}`); if(!canvas) return;
+                const recent = inventory.filter(i => i.category === c).slice(0, 5);
+                if(charts[c]) charts[c].destroy();
+                charts[c] = new Chart(canvas.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: recent.map(i => (i.name || "").substring(0, 7) + '..'), datasets: [{ data: recent.map(i => i.qty), backgroundColor: recent.map(i => i.status === 'MASUK' ? '#10b981' : '#ef4444'), borderRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
+                });
+            });
+        }
+
+        function renderDashboard(items) {
+            const container = document.getElementById('log-container'); if(!container) return;
+            container.innerHTML = ''; document.getElementById('entri-count').innerText = `${items.length} ENTRI`;
+            items.slice(0, 60).forEach(item => {
+                const color = item.category === 'ELECTRICAL' ? '#0ea5e9' : (item.category === 'MECHANICAL' ? '#f97316' : '#10b981');
+                const div = document.createElement('div');
+                const pic = item.picBorrow || item.picInstall || '';
+                const notes = item.notesBorrow || item.notesInstall || '';
+                
+                let detailInfo = "";
+                if(item.subStatus === 'PEMINJAMAN'){
+                    detailInfo = `<div class="mt-2 text-[10px] text-blue-800 font-bold bg-blue-50 p-2 rounded-lg border border-blue-100">
+                        <i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i> PINJAM: ${item.dateBorrow || '-'} | <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i> EST: ${item.dateReturn || '-'}
+                    </div>`;
+                } else if(item.subStatus === 'PENYESUAIAN'){
+                    detailInfo = `<div class="mt-2 text-[10px] text-orange-800 font-bold bg-orange-50 p-2 rounded-lg border border-orange-100 italic">PENYESUAIAN STOK MANUAL</div>`;
+                } else if(item.subStatus === 'PENGEMBALIAN'){
+                    detailInfo = `<div class="mt-2 text-[10px] text-emerald-800 font-bold bg-emerald-50 p-2 rounded-lg border border-emerald-100">PENGEMBALIAN BARANG</div>`;
+                }
+
+                div.className = `premium-card p-5 flex justify-between items-start relative border-l-[10px] mb-4 text-left shadow-sm`;
+                div.style.borderLeftColor = color;
+                div.innerHTML = `
+                    <div class="flex-1 min-w-0 pr-6 text-left">
+                        <div class="flex items-center gap-4 mb-1 text-left"><h4 class="text-sm font-black text-slate-800 uppercase text-left">${item.name || "BARANG"}</h4><span class="status-pill ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'} text-left">${item.status}</span></div>
+                        <div class="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400 text-left">
+                            <span class="text-slate-900 font-black uppercase text-left">${item.qty} ${item.unit || "PCS"}</span> 
+                            <span class="opacity-30 text-left">|</span> 
+                            <span class="text-left">${item.timestamp || ""}</span> 
+                            ${item.type && item.type !== 'TANPA TIPE' ? `<span class="opacity-30 text-left">|</span> <span class="text-slate-500 italic text-left">${item.type}</span>` : ''} 
+                            ${pic ? `<span class="opacity-30 text-left">|</span> <span class="text-blue-600 font-black text-left">PIC: ${pic}</span>` : ''}
+                        </div>
+                        ${notes ? `<p class="text-[11px] text-slate-500 mt-1 font-medium lowercase italic"><i data-lucide="info" class="w-3 h-3 inline mr-1"></i> ${notes}</p>` : ''}
+                        ${detailInfo}
+                    </div>
+                    <div class="relative text-left">
+                        <button onclick="window.toggleRowMenu(event, '${item.id}')" class="p-3 text-slate-300 hover:text-slate-600 transition-colors text-left"><i data-lucide="more-vertical" class="w-6 h-6 text-left"></i></button>
+                        <div id="menu-${item.id}" class="menu-dropdown shadow-2xl border-2 text-left"><button onclick="window.deleteItem(event, '${item.id}')" class="w-full text-left p-4 text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-4 uppercase text-left"><i data-lucide="trash-2" class="w-5 h-5 text-left"></i> HAPUS</button></div>
+                    </div>`;
+                container.appendChild(div);
+            });
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function renderStock() {
+            const sum = {}; 
+            inventory.forEach(i => { 
+                const key = (i.name || "") + '|' + (i.type || '');
+                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: i.price }; 
+                if(i.status === 'MASUK') sum[key].q += (i.qty || 0); else sum[key].q -= (i.qty || 0); 
+            });
+            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
+                const grid = document.getElementById(`stock-list-${c}`); if(!grid) return; grid.innerHTML = '';
+                Object.values(sum).filter(s => s.c === c && s.q >= 0).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "premium-card p-6 text-left shadow-sm";
+                    div.innerHTML = `
+                        <h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4>
+                        <p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center gap-3">
+                                <button onclick="window.adjustStock('${(item.n || "").replace(/'/g, "\\'")}', '${(item.t || "").replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p || 0}, -1)" class="adjust-btn" title="Kurangi Stok"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                <span class="text-3xl font-black text-slate-900">${item.q}</span>
+                                <button onclick="window.adjustStock('${(item.n || "").replace(/'/g, "\\'")}', '${(item.t || "").replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p || 0}, 1)" class="adjust-btn" title="Tambah Stok"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            </div>
+                            <span class="text-xs font-black text-slate-300 uppercase">${item.u}</span>
+                        </div>`;
+                    grid.appendChild(div);
+                });
+            });
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function renderLoan() {
+            const body = document.getElementById('loan-table-body'); if(!body) return; body.innerHTML = '';
+            inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(l => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-6 text-slate-400 font-mono text-sm text-left">${l.timestamp}</td>
+                    <td class="p-6 text-[#004a99] font-black uppercase text-sm text-left">${l.name} <br> <span class="text-[10px] font-normal text-slate-400 italic lowercase text-left">${l.type || '-'}</span></td>
+                    <td class="p-6 text-center font-black text-sm text-left">${l.qty}</td>
+                    <td class="p-6 uppercase text-sm text-left">
+                        <span class="text-blue-900 font-black">${l.picBorrow || '-'}</span><br>
+                        <div class="text-[10px] text-slate-500 font-bold bg-slate-50 p-2 rounded-lg border mt-2">
+                             <div class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> TGL PINJAM: ${l.dateBorrow || '-'}</div>
+                             <div class="flex items-center gap-1 text-orange-600"><i data-lucide="clock" class="w-3 h-3"></i> ESTIMASI: ${l.dateReturn || '-'}</div>
+                             ${l.notesBorrow ? `<div class="mt-1 border-t pt-1 italic text-slate-400 font-medium lowercase">"${l.notesBorrow}"</div>` : ''}
+                        </div>
+                    </td>
+                    <td class="p-6 text-right">
+                        <button onclick="window.returnItemById(event, '${l.id}')" class="text-emerald-500 hover:scale-110 transition-transform text-left" title="Konfirmasi Pengembalian">
+                            <i data-lucide="check-circle-2" class="w-8 h-8 text-left"></i>
+                        </button>
+                    </td>
+                `;
+                body.appendChild(row);
+            });
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function renderBudget() {
+            const sums = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 }; 
+            inventory.filter(i => i.status === 'MASUK').forEach(i => { sums[i.category] += (parseInt(i.qty || 0) * (parseInt(i.price || 0))); });
+            const grid = document.getElementById('budget-summary-grid'); if(!grid) return; grid.innerHTML = '';
+            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => { grid.innerHTML += `<div class="premium-card p-10 border-l-[15px] text-left ${c === 'MECHANICAL' ? 'border-orange-500' : (c === 'ELECTRICAL' ? 'border-sky-500' : 'border-emerald-500')}"><p class="text-[12px] font-black text-slate-400 mb-3 tracking-widest uppercase text-left">ANGGARAN ${c}</p><h3 class="text-4xl font-black italic text-left">RP ${sums[c].toLocaleString('id-ID')}</h3></div>`; });
+            document.getElementById('grand-total-budget').innerText = `RP ${(sums.MECHANICAL + sums.ELECTRICAL + sums.PLUMBING).toLocaleString('id-ID')}`;
+        }
+
+        const init = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token); 
+                else if(auth) await signInAnonymously(auth);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), (snap) => {
+                            inventory = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            inventory.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                            renderAll();
+                        });
+                    }
+                });
+            } catch (err) { console.error("Init Error"); }
         };
 
         window.importDataMultiSheets = async (event) => {
@@ -450,9 +616,8 @@
                             }
                         }
                     }
-                    if(totalImported > 0) showToast(`${totalImported} BARANG DIIMPOR KE FIREBASE`);
-                    else showToast("TIDAK ADA DATA VALID DITEMUKAN", "bg-orange-600");
-                } catch (err) { console.error(err); showToast("GAGAL IMPOR: FORMAT SALAH", "bg-red-600"); }
+                    if(totalImported > 0) showToast(`${totalImported} BARANG DIIMPOR`);
+                } catch (err) { showToast("GAGAL IMPOR: FORMAT SALAH", "bg-red-600"); }
             };
             reader.readAsArrayBuffer(file);
             event.target.value = ""; 
@@ -461,7 +626,6 @@
         window.exportData = async (format) => {
             const head = ["WAKTU", "KATEGORI", "BARANG", "TIPE", "QTY", "SATUAN", "STATUS", "PIC", "CATATAN"];
             const rows = inventory.map(i => [i.timestamp, i.category, i.name, i.type || '-', i.qty, i.unit, i.status, i.picBorrow || i.picInstall || '-', i.notesBorrow || i.notesInstall || '-']);
-            
             if(format === 'xlsx') {
                 const ws = XLSX.utils.aoa_to_sheet([head, ...rows]);
                 const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "INVENTARIS_PELINDO.xlsx");
@@ -470,143 +634,21 @@
                 const docPdf = new jsPDF('landscape'); docPdf.autoTable({ head: [head], body: rows }); docPdf.save("INVENTARIS_PELINDO.pdf");
             } else if(format === 'docx') {
                 try {
-                    const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType, HeadingLevel } = docx;
+                    const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType } = docx;
                     const tableRows = [new TableRow({children: head.map(h => new TableCell({children: [new Paragraph({ children: [new TextRun({ text: h, bold: true })], alignment: AlignmentType.CENTER })], shading: { fill: "E7E7E7" }}))})];
                     rows.forEach(r => { tableRows.push(new TableRow({children: r.map(c => new TableCell({children: [new Paragraph({ text: String(c || "-") })]}))})); });
-                    const docWord = new Document({sections: [{children: [new Paragraph({children: [new TextRun({ text: "LAPORAN INVENTARIS WORKSHOP", bold: true, size: 32 })], alignment: AlignmentType.CENTER, spacing: { after: 400 }}),new Paragraph({children: [new TextRun({ text: "PT PELINDO PETIKEMAS NEW MAKASSAR", bold: true, size: 24 })], alignment: AlignmentType.CENTER, spacing: { after: 600 }}),new Table({width: { size: 100, type: WidthType.PERCENTAGE },rows: tableRows})]}]});
-                    const blob = await Packer.toBlob(docWord);
-                    saveAs(blob, "INVENTARIS_PELINDO.docx");
-                } catch (err) { console.error(err); showToast("GAGAL EKSPOR WORD", "bg-red-600"); }
+                    const docWord = new Document({sections: [{children: [new Paragraph({children: [new TextRun({ text: "LAPORAN INVENTARIS WORKSHOP", bold: true, size: 32 })], alignment: AlignmentType.CENTER, spacing: { after: 400 }}),new Table({width: { size: 100, type: WidthType.PERCENTAGE },rows: tableRows})]}]});
+                    const blob = await Packer.toBlob(docWord); saveAs(blob, "INVENTARIS_PELINDO.docx");
+                } catch (err) { console.error(err); }
             }
         };
 
         window.clearAllData = async () => {
-            if(confirm("BERSIHKAN DATABASE? DATA DI FIREBASE AKAN HILANG.")) {
+            if(confirm("BERSIHKAN DATABASE?")) {
                 const q = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'));
                 const batch = writeBatch(db); q.docs.forEach(d => batch.delete(d.ref)); await batch.commit();
                 showToast("DATABASE BERSIH");
             }
-        };
-
-        function renderAll() {
-            const filtered = searchQuery ? inventory.filter(i => i.name.includes(searchQuery) || i.type.includes(searchQuery) || i.category.includes(searchQuery)) : [...inventory];
-            renderDashboard(filtered); renderStock(); renderLoan(); renderBudget(); renderCharts(); renderIssueList();
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function renderIssueList() {
-            const sum = {}; 
-            inventory.forEach(i => { 
-                const key = i.name + '|' + (i.type || '');
-                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: i.price }; 
-                if(i.status === 'MASUK') sum[key].q += i.qty; else sum[key].q -= i.qty; 
-            });
-
-            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
-                const grid = document.getElementById(`issue-list-${c}`); if(!grid) return; grid.innerHTML = '';
-                Object.values(sum).filter(s => s.c === c && s.q > 0).forEach(item => {
-                    const matchesSearch = !issueSearchQuery || item.n.toUpperCase().includes(issueSearchQuery);
-                    if(matchesSearch) {
-                        const div = document.createElement('div');
-                        div.className = "premium-card p-6 text-left shadow-sm cursor-pointer hover:border-blue-500 transition-all";
-                        div.onclick = () => window.openIssueModal(item.n, item.t, item.c, item.u, item.p);
-                        div.innerHTML = `<h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4><p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p><div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.q}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div>`;
-                        grid.appendChild(div);
-                    }
-                });
-            });
-        }
-
-        function renderCharts() {
-            const cats = ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'];
-            cats.forEach(c => {
-                const canvas = document.getElementById(`chart-${c}`); if(!canvas) return;
-                const recent = inventory.filter(i => i.category === c).slice(0, 5);
-                if(charts[c]) charts[c].destroy();
-                charts[c] = new Chart(canvas.getContext('2d'), {
-                    type: 'bar',
-                    data: { labels: recent.map(i => i.name.substring(0, 7) + '..'), datasets: [{ data: recent.map(i => i.qty), backgroundColor: recent.map(i => i.status === 'MASUK' ? '#10b981' : '#ef4444'), borderRadius: 5 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
-                });
-            });
-        }
-
-        function renderDashboard(items) {
-            const container = document.getElementById('log-container'); if(!container) return;
-            container.innerHTML = ''; document.getElementById('entri-count').innerText = `${items.length} ENTRI`;
-            items.slice(0, 40).forEach(item => {
-                const color = item.category === 'ELECTRICAL' ? '#0ea5e9' : (item.category === 'MECHANICAL' ? '#f97316' : '#10b981');
-                const div = document.createElement('div');
-                const pic = item.picBorrow || item.picInstall || '';
-                const loanInfo = item.subStatus === 'PEMINJAMAN' ? `<div class="mt-1 text-[10px] text-blue-800 font-bold">PINJAM: ${item.dateBorrow || '-'} | ESTIMASI: ${item.dateReturn || '-'}</div>` : '';
-                div.className = `premium-card p-5 flex justify-between items-center relative border-l-[10px] mb-4 text-left shadow-sm`;
-                div.style.borderLeftColor = color;
-                div.innerHTML = `<div class="flex-1 min-w-0 pr-6 text-left"><div class="flex items-center gap-4 mb-1 text-left"><h4 class="text-sm font-black text-slate-800 uppercase text-left">${item.name || "BARANG"}</h4><span class="status-pill ${item.status === 'MASUK' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'} text-left">${item.status}</span></div><div class="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400 text-left"><span class="text-slate-900 font-black uppercase text-left">${item.qty} ${item.unit || "PCS"}</span> <span class="opacity-30 text-left">|</span> <span class="text-left">${item.timestamp || ""}</span> ${item.type && item.type !== 'TANPA TIPE' ? `<span class="opacity-30 text-left">|</span> <span class="text-slate-500 italic text-left">${item.type}</span>` : ''} ${pic ? `<span class="opacity-30 text-left">|</span> <span class="text-blue-600 font-black text-left">PIC: ${pic}</span>` : ''}</div>${loanInfo}</div><div class="relative text-left"><button onclick="window.toggleRowMenu(event, '${item.id}')" class="p-3 text-slate-300 hover:text-slate-600 transition-colors text-left"><i data-lucide="more-vertical" class="w-6 h-6 text-left"></i></button><div id="menu-${item.id}" class="menu-dropdown shadow-2xl border-2 text-left"><button onclick="window.deleteItem(event, '${item.id}')" class="w-full text-left p-4 text-xs font-black text-red-600 hover:bg-red-50 flex items-center gap-4 uppercase text-left text-left text-left text-left"><i data-lucide="trash-2" class="w-5 h-5 text-left text-left text-left text-left"></i> HAPUS</button></div></div>`;
-                container.appendChild(div);
-            });
-        }
-
-        function renderStock() {
-            const sum = {}; 
-            inventory.forEach(i => { 
-                const key = i.name + '|' + (i.type || '');
-                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: i.price }; 
-                if(i.status === 'MASUK') sum[key].q += i.qty; else sum[key].q -= i.qty; 
-            });
-            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
-                const grid = document.getElementById(`stock-list-${c}`); if(!grid) return; grid.innerHTML = '';
-                Object.values(sum).filter(s => s.c === c && s.q >= 0).forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "premium-card p-6 text-left shadow-sm";
-                    div.innerHTML = `
-                        <h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4>
-                        <p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p>
-                        <div class="flex justify-between items-end">
-                            <div class="flex items-center gap-3">
-                                <button onclick="window.adjustStock('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p || 0}, -1)" class="adjust-btn" title="Kurangi Stok"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                                <span class="text-3xl font-black text-slate-900">${item.q}</span>
-                                <button onclick="window.adjustStock('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p || 0}, 1)" class="adjust-btn" title="Tambah Stok"><i data-lucide="plus" class="w-4 h-4"></i></button>
-                            </div>
-                            <span class="text-xs font-black text-slate-300 uppercase">${item.u}</span>
-                        </div>`;
-                    grid.appendChild(div);
-                });
-            });
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function renderLoan() {
-            const body = document.getElementById('loan-table-body'); if(!body) return; body.innerHTML = '';
-            inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(l => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td class="p-6 text-slate-400 font-mono text-sm text-left">${l.timestamp}</td><td class="p-6 text-[#004a99] font-black uppercase text-sm text-left">${l.name} <br> <span class="text-[10px] font-normal text-slate-400 italic lowercase text-left">${l.type || '-'}</span></td><td class="p-6 text-center font-black text-sm text-left">${l.qty}</td><td class="p-6 uppercase text-sm text-left"><span class="text-blue-900 font-black">${l.picBorrow || '-'}</span><br><span class="text-[10px] text-slate-500 font-bold tracking-tighter">PINJAM: ${l.dateBorrow || '-'}</span><br><span class="text-[10px] text-orange-600 font-bold tracking-tighter">ESTIMASI: ${l.dateReturn || '-'}</span></td><td class="p-6 text-right"><button onclick="window.returnItemById(event, '${l.id}')" class="text-emerald-500 hover:scale-110 transition-transform text-left" title="Konfirmasi Pengembalian"><i data-lucide="check-circle-2" class="w-8 h-8 text-left"></i></button></td>`;
-                body.appendChild(row);
-            });
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function renderBudget() {
-            const sums = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 }; 
-            inventory.filter(i => i.status === 'MASUK').forEach(i => { sums[i.category] += (parseInt(i.qty) * (parseInt(i.price) || 0)); });
-            const grid = document.getElementById('budget-summary-grid'); if(!grid) return; grid.innerHTML = '';
-            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => { grid.innerHTML += `<div class="premium-card p-10 border-l-[15px] text-left ${c === 'MECHANICAL' ? 'border-orange-500' : (c === 'ELECTRICAL' ? 'border-sky-500' : 'border-emerald-500')}"><p class="text-[12px] font-black text-slate-400 mb-3 tracking-widest uppercase text-left">ANGGARAN ${c}</p><h3 class="text-4xl font-black italic text-left">RP ${sums[c].toLocaleString('id-ID')}</h3></div>`; });
-            document.getElementById('grand-total-budget').innerText = `RP ${(sums.MECHANICAL + sums.ELECTRICAL + sums.PLUMBING).toLocaleString('id-ID')}`;
-        }
-
-        const init = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token); 
-                else if(auth) await signInAnonymously(auth);
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), (snap) => {
-                            inventory = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                            inventory.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                            renderAll();
-                        });
-                    }
-                });
-            } catch (err) { console.error("Init Error"); }
         };
 
         document.getElementById('inventoryForm').onsubmit = async (e) => {
@@ -617,7 +659,27 @@
                 price: parseInt(document.getElementById('price').value || 0), unit: document.getElementById('unit').value, 
                 status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             });
-            e.target.reset(); showToast("DATA STOK DISIMPAN KE CLOUD");
+            e.target.reset(); showToast("DATA STOK DISIMPAN");
+            window.switchView('dashboard');
+        };
+
+        document.getElementById('issueFormAction').onsubmit = async (e) => {
+            e.preventDefault();
+            const sub = document.getElementById('modalSubStatus').value;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
+                category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value,
+                type: document.getElementById('modalItemType').value, qty: parseInt(document.getElementById('modalQty').value),
+                unit: document.getElementById('modalUnit').value, price: parseInt(document.getElementById('modalPrice').value || 0),
+                status: 'KELUAR', subStatus: sub,
+                picBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalPicBorrow').value.toUpperCase() : null,
+                notesBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalNotesBorrow').value.toUpperCase() : null,
+                dateBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalDateBorrow').value : null,
+                dateReturn: sub === 'PEMINJAMAN' ? document.getElementById('modalDateReturn').value : null,
+                picInstall: sub === 'INSTALASI' ? document.getElementById('modalPicInstall').value.toUpperCase() : null,
+                notesInstall: sub === 'INSTALASI' ? document.getElementById('modalNotesInstall').value.toUpperCase() : null,
+                createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            });
+            window.closeIssueModal(); showToast("PENGELUARAN TERCATAT");
             window.switchView('dashboard');
         };
 
