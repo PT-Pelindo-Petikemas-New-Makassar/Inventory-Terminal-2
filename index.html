@@ -45,6 +45,8 @@
         .section-title { 
             @apply text-[11px] font-bold opacity-80 tracking-[0.5em] uppercase text-left text-slate-800;
         }
+
+        .adjust-btn { @apply w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-blue-600 hover:text-white transition-all text-slate-600; }
     </style>
 </head>
 <body onclick="window.closeAllMenus()">
@@ -396,6 +398,25 @@
             }
         };
 
+        // Fungsi Penyesuaian Stok Baru
+        window.adjustStock = async (name, type, cat, unit, price, delta) => {
+            const amount = parseInt(delta);
+            const status = amount > 0 ? 'MASUK' : 'KELUAR';
+            const finalQty = Math.abs(amount);
+            
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
+                    category: cat, name: name, type: type, qty: finalQty, unit: unit, price: price || 0,
+                    status: status, subStatus: 'PENYESUAIAN',
+                    createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                    notesInstall: 'PENYESUAIAN STOK MANUAL'
+                });
+                showToast(`STOK ${name} ${amount > 0 ? 'DITAMBAH' : 'DIKURANGI'}`);
+            } catch (err) {
+                showToast("GAGAL PENYESUAIAN", "bg-red-600");
+            }
+        };
+
         window.importDataMultiSheets = async (event) => {
             const file = event.target.files[0]; if (!file) return;
             showToast("MENGANALISIS EXCEL...");
@@ -450,51 +471,12 @@
             } else if(format === 'docx') {
                 try {
                     const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType, HeadingLevel } = docx;
-                    
-                    const tableRows = [
-                        new TableRow({
-                            children: head.map(h => new TableCell({
-                                children: [new Paragraph({ children: [new TextRun({ text: h, bold: true })], alignment: AlignmentType.CENTER })],
-                                shading: { fill: "E7E7E7" }
-                            }))
-                        })
-                    ];
-
-                    rows.forEach(r => {
-                        tableRows.push(new TableRow({
-                            children: r.map(c => new TableCell({
-                                children: [new Paragraph({ text: String(c || "-") })]
-                            }))
-                        }));
-                    });
-
-                    const docWord = new Document({
-                        sections: [{
-                            children: [
-                                new Paragraph({
-                                    children: [new TextRun({ text: "LAPORAN INVENTARIS WORKSHOP", bold: true, size: 32 })],
-                                    alignment: AlignmentType.CENTER,
-                                    spacing: { after: 400 }
-                                }),
-                                new Paragraph({
-                                    children: [new TextRun({ text: "PT PELINDO PETIKEMAS NEW MAKASSAR", bold: true, size: 24 })],
-                                    alignment: AlignmentType.CENTER,
-                                    spacing: { after: 600 }
-                                }),
-                                new Table({
-                                    width: { size: 100, type: WidthType.PERCENTAGE },
-                                    rows: tableRows
-                                })
-                            ]
-                        }]
-                    });
-
+                    const tableRows = [new TableRow({children: head.map(h => new TableCell({children: [new Paragraph({ children: [new TextRun({ text: h, bold: true })], alignment: AlignmentType.CENTER })], shading: { fill: "E7E7E7" }}))})];
+                    rows.forEach(r => { tableRows.push(new TableRow({children: r.map(c => new TableCell({children: [new Paragraph({ text: String(c || "-") })]}))})); });
+                    const docWord = new Document({sections: [{children: [new Paragraph({children: [new TextRun({ text: "LAPORAN INVENTARIS WORKSHOP", bold: true, size: 32 })], alignment: AlignmentType.CENTER, spacing: { after: 400 }}),new Paragraph({children: [new TextRun({ text: "PT PELINDO PETIKEMAS NEW MAKASSAR", bold: true, size: 24 })], alignment: AlignmentType.CENTER, spacing: { after: 600 }}),new Table({width: { size: 100, type: WidthType.PERCENTAGE },rows: tableRows})]}]});
                     const blob = await Packer.toBlob(docWord);
                     saveAs(blob, "INVENTARIS_PELINDO.docx");
-                } catch (err) { 
-                    console.error(err); 
-                    showToast("GAGAL EKSPOR WORD", "bg-red-600");
-                }
+                } catch (err) { console.error(err); showToast("GAGAL EKSPOR WORD", "bg-red-600"); }
             }
         };
 
@@ -568,15 +550,29 @@
             const sum = {}; 
             inventory.forEach(i => { 
                 const key = i.name + '|' + (i.type || '');
-                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category }; 
+                if(!sum[key]) sum[key] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: i.price }; 
                 if(i.status === 'MASUK') sum[key].q += i.qty; else sum[key].q -= i.qty; 
             });
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const grid = document.getElementById(`stock-list-${c}`); if(!grid) return; grid.innerHTML = '';
                 Object.values(sum).filter(s => s.c === c && s.q >= 0).forEach(item => {
-                    grid.innerHTML += `<div class="premium-card p-6 text-left shadow-sm"><h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4><p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p><div class="flex justify-between items-end"><span class="text-3xl font-black text-slate-900">${item.q}</span><span class="text-xs font-black text-slate-300 uppercase">${item.u}</span></div></div>`;
+                    const div = document.createElement('div');
+                    div.className = "premium-card p-6 text-left shadow-sm";
+                    div.innerHTML = `
+                        <h4 class="text-sm font-black text-slate-800 uppercase mb-1">${item.n}</h4>
+                        <p class="text-[11px] font-bold text-blue-600 mb-2 lowercase italic">${item.t || 'TIADA RINCIAN'}</p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center gap-3">
+                                <button onclick="window.adjustStock('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p || 0}, -1)" class="adjust-btn" title="Kurangi Stok"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                <span class="text-3xl font-black text-slate-900">${item.q}</span>
+                                <button onclick="window.adjustStock('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p || 0}, 1)" class="adjust-btn" title="Tambah Stok"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            </div>
+                            <span class="text-xs font-black text-slate-300 uppercase">${item.u}</span>
+                        </div>`;
+                    grid.appendChild(div);
                 });
             });
+            if(window.lucide) lucide.createIcons();
         }
 
         function renderLoan() {
@@ -622,26 +618,6 @@
                 status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             });
             e.target.reset(); showToast("DATA STOK DISIMPAN KE CLOUD");
-            window.switchView('dashboard');
-        };
-
-        document.getElementById('issueFormAction').onsubmit = async (e) => {
-            e.preventDefault();
-            const sub = document.getElementById('modalSubStatus').value;
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'workshop_logs'), {
-                category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value,
-                type: document.getElementById('modalItemType').value, qty: parseInt(document.getElementById('modalQty').value),
-                unit: document.getElementById('modalUnit').value, price: parseInt(document.getElementById('modalPrice').value || 0),
-                status: 'KELUAR', subStatus: sub,
-                picBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalPicBorrow').value.toUpperCase() : null,
-                notesBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalNotesBorrow').value.toUpperCase() : null,
-                dateBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalDateBorrow').value : null,
-                dateReturn: sub === 'PEMINJAMAN' ? document.getElementById('modalDateReturn').value : null,
-                picInstall: sub === 'INSTALASI' ? document.getElementById('modalPicInstall').value.toUpperCase() : null,
-                notesInstall: sub === 'INSTALASI' ? document.getElementById('modalNotesInstall').value.toUpperCase() : null,
-                createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-            });
-            window.closeIssueModal(); showToast("PENGELUARAN TERCATAT");
             window.switchView('dashboard');
         };
 
