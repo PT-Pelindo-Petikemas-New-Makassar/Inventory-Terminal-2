@@ -26,12 +26,14 @@
         #sidebar-menu { 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
+            z-index: 200;
         }
         #sidebar-menu.open { transform: translateX(0); }
         .sidebar-overlay { 
             display: none;
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
+            z-index: 150;
         }
         .sidebar-overlay.active { display: block; }
 
@@ -41,17 +43,23 @@
         .active-view { display: block; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Navigation Buttons in Sidebar - FIXED ALIGNMENT */
+        /* Fixed Icon Alignment in Sidebar */
         .nav-btn-sidebar { 
             @apply flex items-center gap-4 px-6 py-4 text-slate-600 hover:text-blue-700 hover:bg-blue-50 transition-all rounded-xl font-bold border-l-4 border-transparent text-left;
         }
         .nav-btn-sidebar.active { @apply text-blue-700 bg-blue-100 border-blue-700 font-black shadow-sm; }
-        .nav-btn-sidebar i { @apply flex-shrink-0; }
-        .nav-btn-sidebar span { @apply leading-none mt-0.5; } 
+        
+        /* Container ikon dengan dimensi tetap agar teks di kanannya sejajar sempurna */
+        .nav-btn-sidebar .icon-wrapper {
+            @apply flex-shrink-0 w-6 h-6 flex items-center justify-center;
+        }
+        .nav-btn-sidebar span { 
+            @apply leading-none;
+        } 
         
         .status-pill { @apply px-3 py-1 rounded-full text-[10px] font-black border uppercase inline-block; }
-        .chart-box { height: 160px; width: 100%; position: relative; }
-        .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .chart-box { height: 180px; width: 100%; position: relative; }
+        .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 250; }
         .adjust-btn { @apply w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-blue-600 hover:text-white transition-all text-slate-600; }
         
         ::-webkit-scrollbar { width: 6px; }
@@ -61,45 +69,47 @@
 <body class="antialiased">
 
     <!-- SIDEBAR NAVIGATION -->
-    <div id="sidebar-overlay" onclick="window.toggleMenu(false)" class="sidebar-overlay fixed inset-0 z-[150]"></div>
-    <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 bg-white z-[200] shadow-2xl flex flex-col">
+    <div id="sidebar-overlay" onclick="window.toggleMenu(false)" class="sidebar-overlay fixed inset-0"></div>
+    <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl flex flex-col">
         <div class="p-6 bg-[#004a99] text-white flex justify-between items-center">
             <div>
                 <h2 class="font-black text-sm tracking-tighter">NAVIGASI MENU</h2>
                 <p class="text-[9px] opacity-60 font-bold uppercase">WORKSHOP TERMINAL 2</p>
             </div>
-            <button onclick="window.toggleMenu(false)" class="p-2 hover:bg-white/10 rounded-lg"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <button onclick="window.toggleMenu(false)" class="p-2 hover:bg-white/10 rounded-lg flex items-center justify-center">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
         </div>
         
         <nav class="flex-1 p-4 space-y-1 overflow-y-auto mt-2">
             <button onclick="window.switchView('dashboard')" id="nav-dashboard" class="nav-btn-sidebar active w-full">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> 
+                <div class="icon-wrapper"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
                 <span class="text-xs uppercase tracking-widest">DASHBOARD</span>
             </button>
             <div class="h-px bg-slate-100 my-2"></div>
             <button onclick="window.switchView('input')" id="nav-input" class="nav-btn-sidebar w-full">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i> 
+                <div class="icon-wrapper"><i data-lucide="plus-circle" class="w-5 h-5"></i></div>
                 <span class="text-xs uppercase tracking-widest">INPUT BARANG</span>
             </button>
             <button onclick="window.switchView('issue')" id="nav-issue" class="nav-btn-sidebar w-full">
-                <i data-lucide="log-out" class="w-5 h-5"></i> 
+                <div class="icon-wrapper"><i data-lucide="log-out" class="w-5 h-5"></i></div>
                 <span class="text-xs uppercase tracking-widest">BARANG KELUAR</span>
             </button>
             <button onclick="window.switchView('stock')" id="nav-stock" class="nav-btn-sidebar w-full">
-                <i data-lucide="package" class="w-5 h-5"></i> 
+                <div class="icon-wrapper"><i data-lucide="package" class="w-5 h-5"></i></div>
                 <span class="text-xs uppercase tracking-widest">STOK BARANG</span>
             </button>
             <button onclick="window.switchView('loan')" id="nav-loan" class="nav-btn-sidebar w-full">
-                <i data-lucide="clipboard-list" class="w-5 h-5"></i> 
+                <div class="icon-wrapper"><i data-lucide="clipboard-list" class="w-5 h-5"></i></div>
                 <span class="text-xs uppercase tracking-widest">PEMINJAMAN</span>
             </button>
             <button onclick="window.switchView('budget')" id="nav-budget" class="nav-btn-sidebar w-full">
-                <i data-lucide="wallet" class="w-5 h-5"></i> 
+                <div class="icon-wrapper"><i data-lucide="wallet" class="w-5 h-5"></i></div>
                 <span class="text-xs uppercase tracking-widest">VALUASI</span>
             </button>
         </nav>
 
-        <div class="p-6 border-t border-slate-100 text-[10px] text-slate-400 font-bold text-center">
+        <div class="p-6 border-t border-slate-100 text-[10px] text-slate-400 font-bold text-center italic">
             &copy; 2024 PT PELINDO PETIKEMAS
         </div>
     </aside>
@@ -109,80 +119,71 @@
         <div class="header-top text-white">
             <div class="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
                 <div class="flex items-center">
-                    <!-- Hamburger Button -->
-                    <button onclick="window.toggleMenu(true)" class="p-2 hover:bg-white/10 rounded-xl transition-all mr-4 flex items-center justify-center">
+                    <button onclick="window.toggleMenu(true)" class="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all mr-4 flex items-center justify-center min-w-[40px] min-h-[40px]">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                     
-                    <div class="bg-white p-1 rounded-lg h-10 w-10 flex-shrink-0 flex items-center justify-center shadow-lg">
+                    <div class="bg-white p-1 rounded-lg h-10 w-10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
+                        <!-- Memanggil file logo sesuai nama yang Anda upload ke repositori -->
                         <img src="logo%20pelindo.jpg" alt="Logo" class="max-h-full max-w-full object-contain" onerror="this.src='https://www.pelindo.co.id/logo_pelindo_single.png'">
                     </div>
                     <div class="border-l border-white/20 pl-4 ml-4">
                         <h1 class="text-xs md:text-sm font-black tracking-tight leading-none uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
-                        <p class="text-[8px] font-bold opacity-70 tracking-[0.2em] uppercase mt-1">WORKSHOP TERMINAL 2</p>
+                        <p class="text-[8px] font-bold opacity-70 tracking-[0.2em] uppercase mt-1 leading-none">WORKSHOP TERMINAL 2</p>
                     </div>
                 </div>
                 
                 <div class="flex gap-2">
-                    <button onclick="window.exportData('xlsx')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all" title="Excel"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></button>
-                    <button onclick="window.exportData('word')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all" title="Word"><i data-lucide="file-text" class="w-4 h-4"></i></button>
-                    <button onclick="window.exportData('pdf')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all" title="PDF"><i data-lucide="file-down" class="w-4 h-4"></i></button>
+                    <button onclick="window.exportData('xlsx')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all flex items-center justify-center" title="Excel"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></button>
+                    <button onclick="window.exportData('pdf')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all flex items-center justify-center" title="PDF"><i data-lucide="file-down" class="w-4 h-4"></i></button>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 md:px-8 py-6">
-        
-        <!-- DASHBOARD -->
+        <!-- Dashboard Content -->
         <div id="view-dashboard" class="view-section active-view">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <h2 class="text-[10px] font-black tracking-[0.4em] text-slate-400 uppercase">INVENTARIS WORKSHOP</h2>
                 <div id="entri-count" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black shadow-lg uppercase">0 ENTRI TERDATA</div>
             </div>
 
+            <!-- Diagram Batang (Bar Charts) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
                 <div class="premium-card p-6 border-t-4 border-orange-500">
-                    <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest">MECHANICAL</p>
+                    <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest uppercase">MECHANICAL</p>
                     <div class="chart-box"><canvas id="chart-MECHANICAL"></canvas></div>
                 </div>
                 <div class="premium-card p-6 border-t-4 border-sky-500">
-                    <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest">ELECTRICAL</p>
+                    <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest uppercase">ELECTRICAL</p>
                     <div class="chart-box"><canvas id="chart-ELECTRICAL"></canvas></div>
                 </div>
                 <div class="premium-card p-6 border-t-4 border-emerald-500">
-                    <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest">PLUMBING</p>
+                    <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest uppercase">PLUMBING</p>
                     <div class="chart-box"><canvas id="chart-PLUMBING"></canvas></div>
                 </div>
             </div>
 
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <h3 class="text-[11px] font-black text-slate-800 tracking-widest">RIWAYAT AKTIVITAS</h3>
+                <h3 class="text-[11px] font-black text-slate-800 tracking-widest uppercase">RIWAYAT AKTIVITAS TERKINI</h3>
                 <div class="flex gap-2 w-full md:w-auto">
-                    <input type="text" onkeyup="window.handleSearch(this.value)" placeholder="CARI..." class="bg-white border rounded-xl px-4 py-2 text-xs font-bold w-full md:w-64 focus:border-blue-500 outline-none">
-                    <button onclick="window.clearAllData()" class="p-2 text-red-400 hover:text-red-600 bg-red-50 rounded-xl" title="Hapus Semua"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    <input type="text" onkeyup="window.handleSearch(this.value)" placeholder="CARI..." class="bg-white border rounded-xl px-4 py-2 text-xs font-bold w-full md:w-64 focus:border-blue-500 outline-none uppercase">
+                    <button onclick="window.clearAllData()" class="p-2 text-red-400 hover:text-red-600 bg-red-50 rounded-xl flex items-center justify-center" title="Hapus Semua"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                 </div>
             </div>
             
             <div id="log-container" class="space-y-4 max-h-[600px] overflow-y-auto pr-2"></div>
         </div>
 
+        <!-- Input Section -->
         <div id="view-input" class="view-section">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase">INPUT BARANG</h2>
-                <div class="bg-white border p-1 rounded-xl flex items-center gap-2">
-                    <input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="window.importDataMultiSheets(event)">
-                    <label for="importExcel" class="cursor-pointer flex items-center gap-2 px-4 py-2 text-[10px] font-black text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all">
-                        <i data-lucide="upload" class="w-4 h-4"></i> IMPOR FILE
-                    </label>
-                </div>
-            </div>
-
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">PENERIMAAN BARANG</h2>
             <div class="max-w-2xl mx-auto">
                 <form id="inventoryForm" class="premium-card p-6 md:p-10 space-y-6 shadow-xl border-t-8 border-blue-900">
                     <div class="flex items-center gap-4 mb-2">
                         <div class="bg-blue-900 text-white p-2.5 rounded-xl"><i data-lucide="plus" class="w-5 h-5"></i></div>
-                        <span class="text-xs font-black tracking-widest uppercase">TAMBAH STOK</span>
+                        <span class="text-xs font-black tracking-widest uppercase">TAMBAH STOK BARU</span>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,20 +230,20 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-[#004a99] text-white py-4 rounded-xl font-black text-xs tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all shadow-xl">SIMPAN DATABASE</button>
+                    <button type="submit" class="w-full bg-[#004a99] text-white py-4 rounded-xl font-black text-xs tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all shadow-xl">SIMPAN KE DATABASE</button>
                 </form>
             </div>
         </div>
 
+        <!-- Issue Section -->
         <div id="view-issue" class="view-section">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase">BARANG KELUAR</h2>
                 <div class="relative w-full md:w-80">
                     <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="issueSearch" onkeyup="window.handleIssueSearch(this.value)" placeholder="CARI MATERIAL..." class="form-input-pld pl-12 bg-white shadow-sm">
+                    <input type="text" id="issueSearch" onkeyup="window.handleIssueSearch(this.value)" placeholder="CARI MATERIAL..." class="form-input-pld pl-12 bg-white shadow-sm uppercase">
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="space-y-4">
                     <div class="border-l-4 border-orange-500 pl-4 font-black text-slate-800 text-sm tracking-widest uppercase">MECHANICAL</div>
@@ -259,6 +260,7 @@
             </div>
         </div>
 
+        <!-- Stock Section -->
         <div id="view-stock" class="view-section">
             <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">POSISI STOK TERKINI</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -277,18 +279,19 @@
             </div>
         </div>
 
+        <!-- Loan Section -->
         <div id="view-loan" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">AKTIVITAS PEMINJAMAN</h2>
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 uppercase">DAFTAR PINJAMAN AKTIF</h2>
             <div class="premium-card overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 font-black border-b text-slate-500 text-[10px]">
+                    <table class="w-full text-left text-sm uppercase">
+                        <thead class="bg-slate-50 font-black border-b text-slate-500 text-[10px] uppercase">
                             <tr>
-                                <th class="p-4 md:p-6">PEMINJAM</th>
-                                <th class="p-4 md:p-6">MATERIAL</th>
-                                <th class="p-4 md:p-6 text-center">QTY</th>
-                                <th class="p-4 md:p-6 hidden md:table-cell">WAKTU</th>
-                                <th class="p-4 md:p-6 text-right">AKSI</th>
+                                <th class="p-4 md:p-6 uppercase">PEMINJAM</th>
+                                <th class="p-4 md:p-6 uppercase">MATERIAL</th>
+                                <th class="p-4 md:p-6 text-center uppercase">QTY</th>
+                                <th class="p-4 md:p-6 hidden md:table-cell uppercase">WAKTU PINJAM</th>
+                                <th class="p-4 md:p-6 text-right uppercase">AKSI</th>
                             </tr>
                         </thead>
                         <tbody id="loan-table-body" class="divide-y font-bold"></tbody>
@@ -297,29 +300,50 @@
             </div>
         </div>
 
+        <!-- Valuation Section -->
         <div id="view-budget" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">VALUASI ASET WORKSHOP</h2>
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 uppercase">VALUASI ASET WORKSHOP</h2>
             <div id="budget-summary-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"></div>
             
-            <div class="bg-gradient-to-br from-[#004a99] to-[#00aeef] p-10 md:p-16 rounded-[2rem] text-white flex flex-col lg:flex-row justify-between items-center gap-10 shadow-2xl relative overflow-hidden">
+            <div class="bg-gradient-to-br from-[#004a99] to-[#00aeef] p-10 md:p-16 rounded-[2rem] text-white flex flex-col lg:flex-row justify-between items-center gap-10 shadow-2xl relative overflow-hidden mb-10">
                 <div class="z-10 text-center lg:text-left">
-                    <p class="text-[10px] font-black opacity-70 tracking-[0.6em] mb-4">TOTAL VALUASI MATERIAL</p>
-                    <h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black italic tracking-tighter">RP 0</h3>
+                    <p class="text-[10px] font-black opacity-70 tracking-[0.6em] mb-4 uppercase">TOTAL VALUASI MATERIAL</p>
+                    <h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase">RP 0</h3>
                 </div>
                 <i data-lucide="badge-dollar-sign" class="w-40 h-40 opacity-10 absolute right-[-20px] bottom-[-20px] lg:static"></i>
+            </div>
+
+            <div class="premium-card overflow-hidden">
+                <div class="p-6 border-b bg-slate-50">
+                    <h3 class="font-black text-xs tracking-widest uppercase">DETAIL HARGA SATUAN MATERIAL</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm uppercase">
+                        <thead class="bg-slate-100 font-black border-b text-slate-500 text-[10px] uppercase">
+                            <tr>
+                                <th class="p-4">KATEGORI</th>
+                                <th class="p-4">NAMA MATERIAL</th>
+                                <th class="p-4 text-center">STOK</th>
+                                <th class="p-4 text-right">HARGA SATUAN</th>
+                                <th class="p-4 text-right">SUBTOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="valuation-table-body" class="divide-y font-bold"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- MODAL KELUAR BARANG -->
-    <div id="issueModal" class="fixed inset-0 z-[250] modal-overlay flex items-center justify-center p-4 hidden">
+    <!-- Modal Issue -->
+    <div id="issueModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden">
         <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <div>
-                    <h3 id="issueModalTitle" class="text-lg font-black uppercase">BARANG KELUAR</h3>
-                    <p id="issueModalSubTitle" class="text-[10px] font-bold opacity-60 mt-1 uppercase">DETAIL</p>
+                    <h3 id="issueModalTitle" class="text-lg font-black uppercase tracking-tight">BARANG KELUAR</h3>
+                    <p id="issueModalSubTitle" class="text-[10px] font-bold opacity-60 mt-1 uppercase">DETAIL MATERIAL</p>
                 </div>
-                <button onclick="window.closeIssueModal()" class="hover:rotate-90 transition-all"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <button onclick="window.closeIssueModal()" class="hover:rotate-90 transition-all flex items-center justify-center"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
             
             <form id="issueFormAction" class="p-6 md:p-8 space-y-6">
@@ -328,51 +352,47 @@
                 <input type="hidden" id="modalCategory">
                 <input type="hidden" id="modalUnit">
                 <input type="hidden" id="modalPrice">
-                
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 ml-1">JUMLAH</label>
+                        <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">JUMLAH KELUAR</label>
                         <input type="number" id="modalQty" class="form-input-pld" required min="1">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 ml-1">TUJUAN</label>
-                        <select id="modalSubStatus" onchange="window.toggleModalSubPanels()" class="form-input-pld">
+                        <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">TUJUAN</label>
+                        <select id="modalSubStatus" onchange="window.toggleModalSubPanels()" class="form-input-pld uppercase font-black">
                             <option value="PEMINJAMAN">PINJAM</option>
                             <option value="INSTALASI">INSTALASI</option>
                             <option value="PENYESUAIAN">PENYESUAIAN</option>
                         </select>
                     </div>
                 </div>
-
                 <div id="modalPanelPeminjaman" class="space-y-4">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 ml-1">NAMA PEMINJAM</label>
-                        <input type="text" id="modalPicBorrow" class="form-input-pld" placeholder="SIAPA YANG PINJAM?">
+                        <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">NAMA PEMINJAM</label>
+                        <input type="text" id="modalPicBorrow" class="form-input-pld" placeholder="NAMA LENGKAP...">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 ml-1">TGL PINJAM</label>
+                            <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">TGL PINJAM</label>
                             <input type="date" id="modalDateBorrow" class="form-input-pld">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 ml-1">ESTIMASI KEMBALI</label>
+                            <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">ESTIMASI KEMBALI</label>
                             <input type="date" id="modalDateReturn" class="form-input-pld">
                         </div>
                     </div>
                 </div>
-
                 <div id="modalPanelInstalasi" class="hidden space-y-4">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 ml-1">NAMA PELAKSANA / PIC</label>
-                        <input type="text" id="modalPicInstall" class="form-input-pld" placeholder="NAMA TEKNISI">
+                        <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">PELAKSANA / PIC</label>
+                        <input type="text" id="modalPicInstall" class="form-input-pld" placeholder="NAMA TEKNISI...">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 ml-1">LOKASI / KETERANGAN</label>
-                        <textarea id="modalNotesInstall" class="form-input-pld h-20 resize-none" placeholder="LOKASI PEMASANGAN..."></textarea>
+                        <label class="text-[10px] font-black text-slate-400 ml-1 uppercase">LOKASI / KETERANGAN</label>
+                        <textarea id="modalNotesInstall" class="form-input-pld h-20 resize-none uppercase" placeholder="LOKASI UNIT / CRANE..."></textarea>
                     </div>
                 </div>
-
-                <button type="submit" class="w-full bg-[#004a99] text-white py-4 rounded-xl font-black text-xs tracking-widest uppercase hover:opacity-90 transition-all shadow-xl">KONFIRMASI</button>
+                <button type="submit" class="w-full bg-[#004a99] text-white py-4 rounded-xl font-black text-xs tracking-widest uppercase hover:opacity-90 transition-all shadow-xl">KONFIRMASI PENGELUARAN</button>
             </form>
         </div>
     </div>
@@ -385,19 +405,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIG
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "", projectId: "" };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pld-inventory-v2';
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let inventory = [];
-        let searchQuery = "";
-        let issueSearchQuery = "";
-        let charts = {};
-
-        // MENU TOGGLE
+        // Global registration for menu toggling
         window.toggleMenu = (show) => {
             const menu = document.getElementById('sidebar-menu');
             const overlay = document.getElementById('sidebar-overlay');
@@ -412,27 +420,40 @@
             }
         };
 
-        // VIEW SWITCH
         window.switchView = (v) => {
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
             document.querySelectorAll('.nav-btn-sidebar').forEach(b => b.classList.remove('active'));
-            
             const target = document.getElementById(`view-${v}`);
             if (target) target.classList.add('active-view');
-            
             const btn = document.getElementById(`nav-${v}`);
             if (btn) btn.classList.add('active');
-            
             window.toggleMenu(false); 
             renderAll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            if(window.lucide) lucide.createIcons();
         };
+
+        // Firebase Config
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIza...", projectId: "pld-workshop" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pld-inventory-v2';
+        
+        let db, auth;
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) { console.warn("Firebase Init Error:", e.message); }
+
+        let inventory = [];
+        let searchQuery = "";
+        let issueSearchQuery = "";
+        let charts = {};
 
         window.handleSearch = (q) => { searchQuery = q.toUpperCase(); renderAll(); };
         window.handleIssueSearch = (q) => { issueSearchQuery = q.toUpperCase(); renderIssueList(); };
 
-        // ACTIONS
         window.deleteItem = async (id) => {
+            if (!db) return;
             if (confirm("Hapus data ini?")) {
                 try {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id));
@@ -442,6 +463,7 @@
         };
 
         window.returnItem = async (id) => {
+            if (!db) return;
             const item = inventory.find(i => i.id === id);
             if (!item) return;
             if (confirm(`Kembalikan ${item.name}?`)) {
@@ -461,6 +483,7 @@
         };
 
         window.adjustStockManual = async (name, type, cat, unit, price, delta) => {
+            if (!db) return;
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
                     name, type, category: cat, unit, price: price || 0,
@@ -475,7 +498,6 @@
             } catch (e) { showToast("GAGAL", "bg-red-600"); }
         };
 
-        // MODAL
         window.openIssueModal = (item) => {
             document.getElementById('issueModalTitle').innerText = item.n;
             document.getElementById('issueModalSubTitle').innerText = `${item.t} | STOK: ${item.q}`;
@@ -500,39 +522,6 @@
             document.getElementById('modalPanelInstalasi').classList.toggle('hidden', val !== 'INSTALASI');
         };
 
-        // EXPORT/IMPORT
-        window.importDataMultiSheets = async (e) => {
-            const file = e.target.files[0]; if (!file) return;
-            showToast("MEMPROSES FILE...");
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                try {
-                    const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
-                    let count = 0;
-                    for (const sName of workbook.SheetNames) {
-                        const ws = workbook.Sheets[sName];
-                        const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-                        const cat = sName.toUpperCase().includes("ELEC") ? "ELECTRICAL" : (sName.toUpperCase().includes("PLUM") ? "PLUMBING" : "MECHANICAL");
-                        let start = -1;
-                        for(let i=0; i<rows.length; i++) { if(rows[i] && rows[i].some(c => String(c).toUpperCase().includes("NAMA"))) { start = i; break; } }
-                        if(start === -1) continue;
-                        for(let j = start + 1; j < rows.length; j++) {
-                            const r = rows[j];
-                            const name = String(r[1] || "").trim().toUpperCase();
-                            if(!name) continue;
-                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
-                                name, category: cat, type: r[2] || "UMUM", qty: parseInt(r[4]) || 0, unit: r[5] || "PCS", price: parseInt(String(r[6]).replace(/[^0-9]/g, '')) || 0,
-                                status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                            });
-                            count++;
-                        }
-                    }
-                    showToast(`${count} DATA DIIMPOR`);
-                } catch (err) { showToast("GAGAL", "bg-red-600"); }
-            };
-            reader.readAsArrayBuffer(file);
-        };
-
         window.exportData = (format) => {
             const head = ["WAKTU", "KATEGORI", "MATERIAL", "TIPE", "QTY", "UNIT", "STATUS", "KETERANGAN"];
             const rows = inventory.map(i => [i.timestamp, i.category, i.name, i.type, i.qty, i.unit, i.status, i.notesInstall || i.notesBorrow || '-']);
@@ -550,6 +539,7 @@
         };
 
         window.clearAllData = async () => {
+            if (!db) return;
             if(confirm("HAPUS SEMUA DATA?")) {
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'));
                 const batch = writeBatch(db);
@@ -559,7 +549,6 @@
             }
         };
 
-        // RENDERING
         function renderAll() {
             const filtered = inventory.filter(i => i.name.includes(searchQuery) || i.category.includes(searchQuery));
             renderLogs(filtered);
@@ -590,7 +579,7 @@
                             ${item.qty} ${item.unit} • ${item.timestamp} • <span class="italic font-normal">${item.type}</span>
                         </div>
                     </div>
-                    <button onclick="window.deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <button onclick="window.deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 flex items-center justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 `;
                 container.appendChild(div);
             });
@@ -618,9 +607,9 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-2">
-                                <button onclick="window.adjustStockManual('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p}, -1)" class="adjust-btn"><i data-lucide="minus" class="w-3 h-3"></i></button>
+                                <button onclick="window.adjustStockManual('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p}, -1)" class="adjust-btn flex items-center justify-center"><i data-lucide="minus" class="w-3 h-3"></i></button>
                                 <span class="text-xl font-black ${item.q < 5 ? 'text-red-600' : 'text-slate-900'}">${item.q}</span>
-                                <button onclick="window.adjustStockManual('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p}, 1)" class="adjust-btn"><i data-lucide="plus" class="w-3 h-3"></i></button>
+                                <button onclick="window.adjustStockManual('${item.n.replace(/'/g, "\\'")}', '${item.t.replace(/'/g, "\\'")}', '${item.c}', '${item.u}', ${item.p}, 1)" class="adjust-btn flex items-center justify-center"><i data-lucide="plus" class="w-3 h-3"></i></button>
                             </div>
                             <span class="text-[8px] font-bold text-slate-400 italic">${item.t}</span>
                         </div>
@@ -672,7 +661,7 @@
                     <td class="p-4 text-center text-xs font-black">${loan.qty} ${loan.unit}</td>
                     <td class="p-4 text-[9px] hidden md:table-cell text-slate-400">${loan.dateBorrow}</td>
                     <td class="p-4 text-right">
-                        <button onclick="window.returnItem('${loan.id}')" class="text-emerald-500 hover:scale-110 transition-all"><i data-lucide="check-circle" class="w-6 h-6"></i></button>
+                        <button onclick="window.returnItem('${loan.id}')" class="text-emerald-500 hover:scale-110 transition-all flex items-center justify-end w-full"><i data-lucide="check-circle" class="w-6 h-6"></i></button>
                     </td>
                 `;
                 body.appendChild(row);
@@ -684,38 +673,71 @@
             const stock = {};
             inventory.forEach(i => {
                 const key = `${i.name}|${i.type}`;
-                if(!stock[key]) stock[key] = { q: 0, p: i.price, c: i.category };
+                if(!stock[key]) stock[key] = { n: i.name, q: 0, p: i.price, c: i.category, u: i.unit };
                 stock[key].q += (i.status === 'MASUK' ? i.qty : -i.qty);
             });
+
             Object.values(stock).forEach(item => { if(item.q > 0) sums[item.c] += (item.q * item.p); });
             const grid = document.getElementById('budget-summary-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
-            ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(cat => {
-                const color = cat === 'MECHANICAL' ? 'orange' : (cat === 'ELECTRICAL' ? 'sky' : 'emerald');
-                grid.innerHTML += `
-                    <div class="premium-card p-6 border-l-[10px] border-${color}-500">
-                        <p class="text-[9px] font-black text-slate-400 mb-1">VALUASI ${cat}</p>
-                        <h4 class="text-xl font-black italic">RP ${sums[cat].toLocaleString('id-ID')}</h4>
-                    </div>
-                `;
-            });
+            if(grid) {
+                grid.innerHTML = '';
+                ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(cat => {
+                    const color = cat === 'MECHANICAL' ? 'orange' : (cat === 'ELECTRICAL' ? 'sky' : 'emerald');
+                    grid.innerHTML += `
+                        <div class="premium-card p-6 border-l-[10px] border-${color}-500">
+                            <p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">ASET ${cat}</p>
+                            <h4 class="text-xl font-black italic">RP ${sums[cat].toLocaleString('id-ID')}</h4>
+                        </div>
+                    `;
+                });
+            }
             document.getElementById('grand-total-budget').innerText = `RP ${(sums.MECHANICAL + sums.ELECTRICAL + sums.PLUMBING).toLocaleString('id-ID')}`;
+
+            const tableBody = document.getElementById('valuation-table-body');
+            if(tableBody) {
+                tableBody.innerHTML = '';
+                Object.values(stock).filter(item => item.q > 0).sort((a,b) => a.c.localeCompare(b.c)).forEach(item => {
+                    const subtotal = item.q * item.p;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="p-4 text-[10px] text-slate-400">${item.c}</td>
+                        <td class="p-4 text-xs font-black">${item.n}</td>
+                        <td class="p-4 text-center text-xs">${item.q} ${item.u}</td>
+                        <td class="p-4 text-right text-xs font-bold">RP ${item.p.toLocaleString('id-ID')}</td>
+                        <td class="p-4 text-right text-xs font-black text-blue-600">RP ${subtotal.toLocaleString('id-ID')}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
         }
 
         function renderCharts() {
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(cat => {
                 const canvas = document.getElementById(`chart-${cat}`);
                 if(!canvas) return;
-                const recent = inventory.filter(i => i.category === cat).slice(0, 10);
+                const stockByName = {};
+                inventory.filter(i => i.category === cat).forEach(i => {
+                    if(!stockByName[i.name]) stockByName[i.name] = 0;
+                    stockByName[i.name] += (i.status === 'MASUK' ? i.qty : -i.qty);
+                });
+                const labels = Object.keys(stockByName).slice(0, 5); 
+                const dataValues = labels.map(l => stockByName[l]);
                 if(charts[cat]) charts[cat].destroy();
                 charts[cat] = new Chart(canvas, {
-                    type: 'line',
+                    type: 'bar',
                     data: {
-                        labels: recent.map(i => i.timestamp),
-                        datasets: [{ data: recent.map(i => i.status === 'MASUK' ? i.qty : -i.qty), borderColor: cat === 'MECHANICAL' ? '#f97316' : (cat === 'ELECTRICAL' ? '#0ea5e9' : '#10b981'), borderWidth: 3, tension: 0.4, pointRadius: 0 }]
+                        labels: labels,
+                        datasets: [{ 
+                            data: dataValues, 
+                            backgroundColor: cat === 'MECHANICAL' ? '#f97316' : (cat === 'ELECTRICAL' ? '#0ea5e9' : '#10b981'),
+                            borderRadius: 8
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } }
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } }, 
+                        scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font: { size: 8, weight: 'bold' } } } } 
+                    }
                 });
             });
         }
@@ -729,66 +751,72 @@
             setTimeout(() => { t.style.opacity = '0'; }, 3000);
         }
 
-        // LISTENERS
-        document.getElementById('inventoryForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const data = {
-                category: document.getElementById('category').value,
-                name: document.getElementById('itemName').value.toUpperCase().trim(),
-                type: document.getElementById('itemType').value.toUpperCase().trim() || "UMUM",
-                qty: parseInt(document.getElementById('qty').value),
-                unit: document.getElementById('unit').value,
-                price: parseInt(document.getElementById('price').value || 0),
-                status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-            };
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
-            e.target.reset();
-            showToast("STOK TERCATAT");
-            window.switchView('dashboard');
-        };
-
-        document.getElementById('issueFormAction').onsubmit = async (e) => {
-            e.preventDefault();
-            const sub = document.getElementById('modalSubStatus').value;
-            const data = {
-                category: document.getElementById('modalCategory').value,
-                name: document.getElementById('modalItemName').value,
-                type: document.getElementById('modalItemType').value,
-                qty: parseInt(document.getElementById('modalQty').value),
-                unit: document.getElementById('modalUnit').value,
-                price: parseInt(document.getElementById('modalPrice').value),
-                status: 'KELUAR', subStatus: sub,
-                picBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalPicBorrow').value.toUpperCase() : null,
-                dateBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalDateBorrow').value : null,
-                dateReturn: sub === 'PEMINJAMAN' ? document.getElementById('modalDateReturn').value : null,
-                picInstall: sub === 'INSTALASI' ? document.getElementById('modalPicInstall').value.toUpperCase() : null,
-                notesInstall: sub === 'INSTALASI' ? document.getElementById('modalNotesInstall').value.toUpperCase() : (sub === 'PENYESUAIAN' ? 'PENYESUAIAN' : null),
-                createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-            };
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
-            window.closeIssueModal();
-            showToast("PENGELUARAN TERCATAT");
-            window.switchView('dashboard');
-        };
-
-        // INIT
         async function init() {
+            if(window.lucide) lucide.createIcons();
             try {
-                // Initial icon rendering
-                if(window.lucide) lucide.createIcons();
-
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
-                else { await signInAnonymously(auth); }
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (snap) => {
-                            inventory = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                            inventory.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                            renderAll();
-                        }, (err) => showToast("SYNC ERROR", "bg-red-600"));
-                    }
-                });
+                if (auth) {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+                    else { await signInAnonymously(auth); }
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (snap) => {
+                                inventory = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                                inventory.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                                renderAll();
+                            }, (err) => showToast("SYNC ERROR", "bg-red-600"));
+                        }
+                    });
+                }
             } catch (e) { console.error(e); }
+        }
+
+        const invForm = document.getElementById('inventoryForm');
+        if(invForm) {
+            invForm.onsubmit = async (e) => {
+                e.preventDefault();
+                if(!db) return;
+                const data = {
+                    category: document.getElementById('category').value,
+                    name: document.getElementById('itemName').value.toUpperCase().trim(),
+                    type: document.getElementById('itemType').value.toUpperCase().trim() || "UMUM",
+                    qty: parseInt(document.getElementById('qty').value),
+                    unit: document.getElementById('unit').value,
+                    price: parseInt(document.getElementById('price').value || 0),
+                    status: 'MASUK', createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                };
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
+                e.target.reset();
+                showToast("STOK TERCATAT");
+                window.switchView('dashboard');
+            };
+        }
+
+        const issueForm = document.getElementById('issueFormAction');
+        if(issueForm) {
+            issueForm.onsubmit = async (e) => {
+                e.preventDefault();
+                if(!db) return;
+                const sub = document.getElementById('modalSubStatus').value;
+                const data = {
+                    category: document.getElementById('modalCategory').value,
+                    name: document.getElementById('modalItemName').value,
+                    type: document.getElementById('modalItemType').value,
+                    qty: parseInt(document.getElementById('modalQty').value),
+                    unit: document.getElementById('modalUnit').value,
+                    price: parseInt(document.getElementById('modalPrice').value),
+                    status: 'KELUAR', subStatus: sub,
+                    picBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalPicBorrow').value.toUpperCase() : null,
+                    dateBorrow: sub === 'PEMINJAMAN' ? document.getElementById('modalDateBorrow').value : null,
+                    dateReturn: sub === 'PEMINJAMAN' ? document.getElementById('modalDateReturn').value : null,
+                    picInstall: sub === 'INSTALASI' ? document.getElementById('modalPicInstall').value.toUpperCase() : null,
+                    notesInstall: sub === 'INSTALASI' ? document.getElementById('modalNotesInstall').value.toUpperCase() : (sub === 'PENYESUAIAN' ? 'PENYESUAIAN' : null),
+                    createdAt: Date.now(), timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                };
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
+                window.closeIssueModal();
+                showToast("PENGELUARAN TERCATAT");
+                window.switchView('dashboard');
+            };
         }
 
         init();
