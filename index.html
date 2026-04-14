@@ -135,6 +135,7 @@
                 
                 <div class="flex gap-2">
                     <button onclick="window.exportData('xlsx')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all flex items-center justify-center" title="Excel"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></button>
+                    <button onclick="window.exportData('word')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all flex items-center justify-center" title="Word"><i data-lucide="file-text" class="w-4 h-4"></i></button>
                     <button onclick="window.exportData('pdf')" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all flex items-center justify-center" title="PDF"><i data-lucide="file-down" class="w-4 h-4"></i></button>
                 </div>
             </div>
@@ -166,7 +167,7 @@
             </div>
 
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <h3 class="text-[11px] font-black text-slate-800 tracking-widest uppercase">RIWAYAT AKTIVITAS TERKINI</h3>
+                <h3 class="text-[11px] font-black text-slate-800 tracking-widest uppercase">RIWAYAT AKTIVITAS</h3>
                 <div class="flex gap-2 w-full md:w-auto">
                     <input type="text" onkeyup="window.handleSearch(this.value)" placeholder="CARI..." class="bg-white border rounded-xl px-4 py-2 text-xs font-bold w-full md:w-64 focus:border-blue-500 outline-none uppercase">
                     <button onclick="window.clearAllData()" class="p-2 text-red-400 hover:text-red-600 bg-red-50 rounded-xl flex items-center justify-center" title="Hapus Semua"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
