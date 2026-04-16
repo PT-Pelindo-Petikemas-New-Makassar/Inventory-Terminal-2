@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#004a99">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>PT PELINDO PETIKEMAS - WORKSHOP T2</title>
+    
+    <!-- PWA Manifest Integration -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo%20pelindo.jpg">
     
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,23 +48,17 @@
     <script>
         /** UI Global Functions **/
         window.toggleMenu = function(show) {
-            const menu = document.getElementById('sidebar-menu');
-            const overlay = document.getElementById('sidebar-overlay');
-            if (!menu || !overlay) return;
-            if (show) {
-                menu.classList.add('open');
-                overlay.classList.add('active');
-            } else {
-                menu.classList.remove('open');
-                overlay.classList.remove('active');
-            }
+            const m = document.getElementById('sidebar-menu'), o = document.getElementById('sidebar-overlay');
+            if (!m || !o) return;
+            if (show) { m.classList.add('open'); o.classList.add('active'); } 
+            else { m.classList.remove('open'); o.classList.remove('active'); }
         };
 
         window.switchView = function(viewId) {
             const sections = document.querySelectorAll('.view-section');
-            const buttons = document.querySelectorAll('.nav-btn-sidebar');
+            const btns = document.querySelectorAll('.nav-btn-sidebar');
             sections.forEach(s => s.classList.remove('active-view'));
-            buttons.forEach(b => b.classList.remove('active'));
+            btns.forEach(b => b.classList.remove('active'));
 
             const target = document.getElementById('view-' + viewId);
             const btn = document.getElementById('nav-' + viewId);
@@ -67,7 +67,6 @@
 
             window.toggleMenu(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            
             if (window.renderAll) window.renderAll();
         };
     </script>
@@ -77,8 +76,9 @@
     <div id="sidebar-overlay" onclick="window.toggleMenu(false)" class="sidebar-overlay fixed inset-0"></div>
     <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-80 bg-white shadow-2xl flex flex-col border-r border-slate-100">
         <div class="p-8 header-gradient text-white text-center">
-            <div class="bg-white p-2 rounded-2xl h-16 w-16 flex items-center justify-center shadow-lg mx-auto mb-4">
-                <img src="https://www.pelindo.co.id/logo_pelindo_single.png" alt="Pelindo" class="max-h-full">
+            <div class="bg-white p-1 rounded-2xl h-20 w-full flex items-center justify-center shadow-lg mx-auto mb-4 overflow-hidden">
+                <!-- Image call for logo pelindo.jpg -->
+                <img src="logo%20pelindo.jpg" alt="Pelindo Logo" class="max-h-full max-w-full object-contain" onerror="this.src='https://www.pelindo.co.id/logo_pelindo_single.png'">
             </div>
             <h2 class="font-black text-sm tracking-tight leading-tight uppercase">PELINDO INVENTORY</h2>
             <p class="text-[8px] opacity-70 font-bold uppercase tracking-[0.2em]">Workshop Terminal 2</p>
@@ -94,8 +94,11 @@
             <button onclick="window.switchView('budget')" id="nav-budget" class="nav-btn-sidebar w-full"><i data-lucide="trending-up"></i><span>Valuasi Aset</span></button>
         </nav>
 
-        <div class="p-8 border-t border-slate-100 text-center">
-            <p class="text-[9px] font-bold text-slate-400">PT PELINDO PETIKEMAS © 2026</p>
+        <div class="p-8 border-t border-slate-100">
+            <div class="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700"><i data-lucide="user" class="w-5 h-5"></i></div>
+                <div class="min-w-0"><p class="text-[9px] font-black text-slate-400 mb-0.5 uppercase">Admin Mode</p><p class="text-xs font-bold truncate text-slate-800 uppercase">MNP Workshop</p></div>
+            </div>
         </div>
     </aside>
 
@@ -103,24 +106,29 @@
         <div class="header-gradient text-white">
             <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <button onclick="window.toggleMenu(true)" class="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all"><i data-lucide="menu" class="w-6 h-6"></i></button>
-                    <div class="hidden md:block border-l border-white/20 pl-6"><h1 class="text-sm font-black tracking-tight leading-none uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1><p class="text-[9px] font-bold opacity-60 tracking-[0.2em] mt-1.5 uppercase">T2 Workshop Management</p></div>
+                    <button onclick="window.toggleMenu(true)" class="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all flex items-center justify-center"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                    <div class="hidden md:flex items-center gap-4 border-l border-white/20 pl-6">
+                        <img src="logo%20pelindo.jpg" alt="Pelindo" class="h-8 w-auto brightness-0 invert" onerror="this.style.display='none'">
+                        <div>
+                            <h1 class="text-sm font-black tracking-tight leading-none uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1>
+                            <p class="text-[9px] font-bold opacity-60 tracking-[0.2em] mt-1.5 uppercase">T2 Workshop Management</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="window.exportData('xlsx')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] transition-all flex items-center gap-2 shadow-lg"><i data-lucide="download" class="w-4 h-4"></i> EXCEL</button>
+                    <button onclick="window.exportData('xlsx')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="download" class="w-4 h-4"></i> EXCEL</button>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        
-        <!-- DASHBOARD VIEW -->
+        <!-- Dashboard View -->
         <div id="view-dashboard" class="view-section active-view">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 text-center md:text-left">
                 <div class="premium-card p-6 border-b-4 border-blue-600 stat-card-gradient">
                     <p class="text-[9px] font-black text-slate-400 tracking-widest mb-1 uppercase">Total Material</p>
-                    <span id="count-total-items" class="text-3xl font-black tracking-tighter">0</span>
+                    <span id="count-total-items" class="text-3xl font-black tracking-tighter text-slate-800">0</span>
                 </div>
                 <div class="premium-card p-6 border-b-4 border-orange-500 stat-card-gradient">
                     <p class="text-[9px] font-black text-slate-400 tracking-widest mb-1 uppercase">Stok Menipis</p>
@@ -143,7 +151,7 @@
                 </div>
                 <div class="premium-card p-8 flex flex-col">
                     <h3 class="font-black text-xs tracking-widest mb-6 uppercase">Aktivitas Terbaru</h3>
-                    <div id="recent-logs-container" class="space-y-4 flex-1 max-h-[450px] overflow-y-auto pr-2 text-[10px]"></div>
+                    <div id="recent-logs-container" class="space-y-4 flex-1 max-h-[450px] overflow-y-auto pr-2"></div>
                 </div>
             </div>
 
@@ -167,15 +175,15 @@
             <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">Stok Aktual Workshop</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between border-l-4 border-orange-500 pl-4 mb-6"><span class="font-black text-slate-800 text-sm uppercase">Mechanical</span><span class="text-[10px] font-black bg-orange-50 text-orange-600 px-3 py-1 rounded-lg" id="badge-count-MECHANICAL">0</span></div>
+                    <div class="flex items-center justify-between border-l-4 border-orange-500 pl-4 mb-6 uppercase"><span class="font-black text-slate-800 text-sm">Mechanical</span><span class="text-[10px] font-black bg-orange-50 text-orange-600 px-3 py-1 rounded-lg" id="badge-count-MECHANICAL">0</span></div>
                     <div id="stock-list-MECHANICAL" class="grid gap-4"></div>
                 </div>
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between border-l-4 border-sky-500 pl-4 mb-6"><span class="font-black text-slate-800 text-sm uppercase">Electrical</span><span class="text-[10px] font-black bg-sky-50 text-sky-600 px-3 py-1 rounded-lg" id="badge-count-ELECTRICAL">0</span></div>
+                    <div class="flex items-center justify-between border-l-4 border-sky-500 pl-4 mb-6 uppercase"><span class="font-black text-slate-800 text-sm">Electrical</span><span class="text-[10px] font-black bg-sky-50 text-sky-600 px-3 py-1 rounded-lg" id="badge-count-ELECTRICAL">0</span></div>
                     <div id="stock-list-ELECTRICAL" class="grid gap-4"></div>
                 </div>
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between border-l-4 border-emerald-500 pl-4 mb-6"><span class="font-black text-slate-800 text-sm uppercase">Plumbing</span><span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-3 py-1 rounded-lg" id="badge-count-PLUMBING">0</span></div>
+                    <div class="flex items-center justify-between border-l-4 border-emerald-500 pl-4 mb-6 uppercase"><span class="font-black text-slate-800 text-sm">Plumbing</span><span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-3 py-1 rounded-lg" id="badge-count-PLUMBING">0</span></div>
                     <div id="stock-list-PLUMBING" class="grid gap-4"></div>
                 </div>
             </div>
@@ -202,31 +210,31 @@
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Kategori</label><select id="category" class="form-input-pld"><option value="ELECTRICAL">Electrical</option><option value="MECHANICAL">Mechanical</option><option value="PLUMBING">Plumbing</option></select></div>
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Satuan</label><select id="unit" class="form-input-pld"><option value="PCS">PCS</option><option value="SET">SET</option><option value="MTR">MTR</option><option value="ROL">ROL</option><option value="BTG">BTG</option><option value="PACK">PACK</option></select></div>
                     </div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Nama Material</label><input type="text" id="itemName" class="form-input-pld" required placeholder="Nama Lengkap Material..."></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Merk / Tipe Spesifikasi</label><input type="text" id="itemType" class="form-input-pld" placeholder="Contoh: Tekiro / 10 Inch..."></div>
+                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Nama Material</label><input type="text" id="itemName" class="form-input-pld" required placeholder="NAMA LENGKAP MATERIAL..."></div>
+                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Merk / Tipe Spesifikasi</label><input type="text" id="itemType" class="form-input-pld" placeholder="CONTOH: TEKIRO / 10 INCH..."></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Qty</label><input type="number" id="qty" class="form-input-pld" required min="1" value="1"></div>
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Harga Satuan (Rp)</label><input type="number" id="price" class="form-input-pld" value="0"></div>
                     </div>
-                    <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black text-xs uppercase shadow-xl hover:opacity-90 transition-all">Simpan Material Ke database</button>
+                    <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black text-xs uppercase shadow-xl hover:opacity-90 transition-all">Simpan ke Database</button>
                 </form>
             </div>
         </div>
 
-        <!-- VALUASI -->
+        <!-- VALUASI VIEW -->
         <div id="view-budget" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Valuasi Aset Workshop</h2>
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">Valuasi Aset Workshop</h2>
             
             <div class="bg-gradient-to-br from-[#004a99] to-[#00aeef] p-12 rounded-[2rem] text-white flex flex-col items-center justify-center mb-8 shadow-2xl relative overflow-hidden text-center">
                 <i data-lucide="trending-up" class="absolute -right-10 -bottom-10 w-64 h-64 opacity-10"></i>
                 <p class="text-[10px] font-black opacity-70 tracking-[0.6em] mb-4 uppercase">Total Nilai Estimasi Stok</p>
-                <h3 id="grand-total-budget" class="text-5xl font-black italic tracking-tighter">RP 0</h3>
+                <h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black italic tracking-tighter">RP 0</h3>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div class="premium-card p-6 border-l-8 border-orange-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest text-center md:text-left">Total Mechanical</p><h4 id="val-cat-mechanical" class="text-lg font-black text-slate-800 italic text-center md:text-left">RP 0</h4></div>
-                <div class="premium-card p-6 border-l-8 border-sky-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest text-center md:text-left">Total Electrical</p><h4 id="val-cat-electrical" class="text-lg font-black text-slate-800 italic text-center md:text-left">RP 0</h4></div>
-                <div class="premium-card p-6 border-l-8 border-emerald-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest text-center md:text-left">Total Plumbing</p><h4 id="val-cat-plumbing" class="text-lg font-black text-slate-800 italic text-center md:text-left">RP 0</h4></div>
+                <div class="premium-card p-6 border-l-8 border-orange-500 stat-card-gradient text-center md:text-left uppercase"><p class="text-[9px] font-black text-slate-400 mb-1 tracking-widest">Mechanical</p><h4 id="val-cat-mechanical" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
+                <div class="premium-card p-6 border-l-8 border-sky-500 stat-card-gradient text-center md:text-left uppercase"><p class="text-[9px] font-black text-slate-400 mb-1 tracking-widest">Electrical</p><h4 id="val-cat-electrical" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
+                <div class="premium-card p-6 border-l-8 border-emerald-500 stat-card-gradient text-center md:text-left uppercase"><p class="text-[9px] font-black text-slate-400 mb-1 tracking-widest">Plumbing</p><h4 id="val-cat-plumbing" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
             </div>
 
             <div class="premium-card overflow-hidden">
@@ -235,13 +243,13 @@
                         <thead class="bg-slate-50 font-black border-b text-[10px] text-slate-500 text-center">
                             <tr><th class="p-6">Kategori</th><th class="p-6">Nama Material</th><th class="p-6">Merk / Tipe</th><th class="p-6 text-center">Stok</th><th class="p-6 text-right">Harga Satuan</th><th class="p-6 text-right">Subtotal Nilai</th></tr>
                         </thead>
-                        <tbody id="valuation-table-body" class="divide-y font-bold text-slate-700"></tbody>
+                        <tbody id="valuation-table-body" class="divide-y font-bold text-slate-700 text-center"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- BARANG KELUAR -->
+        <!-- BARANG KELUAR VIEW -->
         <div id="view-issue" class="view-section">
             <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Pencatatan Barang Keluar</h2>
             <div class="relative w-full max-w-md mb-10 mx-auto md:mx-0">
@@ -251,7 +259,7 @@
             <div id="issue-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
-        <!-- PEMINJAMAN -->
+        <!-- PEMINJAMAN VIEW -->
         <div id="view-loan" class="view-section">
             <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Peminjaman Berjalan</h2>
             <div class="premium-card overflow-hidden">
@@ -268,7 +276,7 @@
         </div>
     </main>
 
-    <!-- Modals -->
+    <!-- Modals & Confirmation -->
     <div id="confirmModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden" style="z-index: 500;">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-fadeIn">
             <div class="p-10 text-center">
@@ -276,8 +284,8 @@
                 <h3 id="confirmTitle" class="text-lg font-black uppercase mb-2 text-slate-800">Konfirmasi</h3>
                 <p id="confirmMessage" class="text-xs text-slate-500 font-bold mb-8 leading-relaxed">Apakah Anda yakin?</p>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="window.closeConfirmModal()" class="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase hover:bg-slate-200">Batal</button>
-                    <button id="confirmActionButton" class="py-4 bg-[#004a99] text-white rounded-2xl font-black text-[10px] uppercase shadow-xl hover:opacity-90">Ya, Proses</button>
+                    <button onclick="window.closeConfirmModal()" class="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase hover:bg-slate-200 transition-all">Batal</button>
+                    <button id="confirmActionButton" class="py-4 bg-[#004a99] text-white rounded-2xl font-black text-[10px] uppercase shadow-xl hover:opacity-90 transition-all">Ya, Proses</button>
                 </div>
             </div>
         </div>
@@ -307,7 +315,7 @@
                     <div class="space-y-2"><label class="text-[10px] font-black text-blue-400 ml-1 uppercase">PIC Teknisi</label><input type="text" id="modalPicInstall" class="form-input-pld"></div>
                     <div class="space-y-2"><label class="text-[10px] font-black text-blue-400 ml-1 uppercase">Unit / Lokasi</label><textarea id="modalNotesInstall" class="form-input-pld h-24 resize-none" placeholder="MISAL: RTG 01 / CRANE..."></textarea></div>
                 </div>
-                <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black uppercase shadow-xl hover:opacity-90">Konfirmasi Pengeluaran</button>
+                <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black uppercase shadow-xl hover:opacity-90 transition-all">Konfirmasi Pengeluaran</button>
             </form>
         </div>
     </div>
@@ -317,7 +325,7 @@
         <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i><span>BERHASIL</span>
     </div>
 
-    <!-- Logic Logic -->
+    <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -332,7 +340,7 @@
         let issueSearchQuery = "";
         let mainChart = null;
 
-        /** Utilities - Global Access **/
+        /** Utilities - Hoisted Standard Functions **/
         window.showToast = function(m, e = false) { 
             const t = document.getElementById('toast'); if (!t) return;
             t.querySelector('span').innerText = m; 
@@ -344,7 +352,6 @@
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return val;
             let str = String(val).replace(/Rp/gi, '').replace(/\s/g, '');
-            // Handle European (Indonesian) format 1.000,00 vs standard 1,000.00
             if (str.includes('.') && str.includes(',')) str = str.replace(/\./g, '').replace(/,/g, '.');
             else if (str.includes(',')) str = str.replace(/,/g, '.');
             else if (str.includes('.') && str.split('.').pop().length === 3) str = str.replace(/\./g, '');
@@ -355,7 +362,8 @@
             if (!obj) return null;
             const keys = Object.keys(obj);
             for (let t of targets) {
-                const found = keys.find(k => k.toUpperCase().replace(/[\s\n\r]/g, '').includes(t.toUpperCase().replace(/\s/g, '')));
+                const nt = t.replace(/\s/g, '').toUpperCase();
+                const found = keys.find(k => k.replace(/[\s\n\r]/g, '').toUpperCase().includes(nt));
                 if (found) return found;
             }
             return null;
@@ -363,9 +371,10 @@
 
         function detectCat(name, sheetName = "") {
             const s = (name + " " + sheetName).toUpperCase();
-            if (s.includes("ELEC")) return "ELECTRICAL";
-            if (s.includes("PLUM")) return "PLUMBING";
-            if (s.includes("MECH")) return "MECHANICAL";
+            const elec = ["ELEC", "KABEL", "LAMP", "LED", "SWITCH", "BREAKER", "FUSE", "ECU", "BATTERY", "CABLE", "MODULE", "SENSOR", "AKI", "ISOLASI"];
+            const plum = ["PLUM", "KRAN", "VALVE", "PVC", "PIPE", "FLANGE", "ELBOW", "PUMP", "ALCON", "HYDRANT", "SEAL", "LEM"];
+            if (elec.some(k => s.includes(k))) return "ELECTRICAL";
+            if (plum.some(k => s.includes(k))) return "PLUMBING";
             return "MECHANICAL";
         }
 
@@ -385,14 +394,14 @@
         };
 
         window.deleteLog = (id) => {
-            window.openConfirmModal("Hapus Log", "Log ini akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => {
+            window.openConfirmModal("Hapus Log", "Riwayat ini akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id));
                 window.showToast("DATA DIHAPUS");
             });
         };
 
         window.deleteMaterial = (name, type) => {
-            window.openConfirmModal("Hapus Stok", `Hapus seluruh histori stok ${name}?`, "trash-2", "bg-red-50 text-red-600", async () => {
+            window.openConfirmModal("Hapus Stok", `Hapus seluruh riwayat ${name}?`, "trash-2", "bg-red-50 text-red-600", async () => {
                 const toDelete = inventory.filter(i => i.name === name && i.type === type);
                 const batch = writeBatch(db);
                 toDelete.forEach(item => batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', item.id)));
@@ -405,8 +414,7 @@
             const it = inventory.find(i => i.id === id);
             if (!it) return;
             window.openConfirmModal("Kembalikan Stok", `Konfirmasi pengembalian material ${it.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => {
-                const now = new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short' });
-                const logDetail = `PENGEMBALIAN DARI ${it.picBorrow} PADA ${now}.`;
+                const logDetail = `PENGEMBALIAN DARI ${it.picBorrow} PADA ${new Date().toLocaleDateString('id-ID')}.`;
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { ...it, status: 'MASUK', subStatus: 'PENGEMBALIAN', notesInstall: logDetail, createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) });
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id), { subStatus: 'SELESAI' });
                 window.showToast("BARANG KEMBALI");
@@ -431,7 +439,7 @@
             });
         };
 
-        window.renderAll = () => {
+        window.renderAll = function() {
             const summary = {};
             inventory.forEach(i => {
                 const k = `${i.name}|${i.type}`;
@@ -441,21 +449,19 @@
                 summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty);
             });
             const stock = Object.values(summary).filter(s => s.q !== 0);
-            
             const valCats = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
             stock.forEach(it => { if (it.q > 0) valCats[it.c] += (it.q * it.p); });
             const grandTotal = Object.values(valCats).reduce((a, b) => a + b, 0);
 
-            // Dashboard
-            const safeUpdate = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-            safeUpdate('count-total-items', stock.length);
-            safeUpdate('count-low-stock', stock.filter(s => s.q > 0 && s.q < 5).length);
-            safeUpdate('count-active-loans', inventory.filter(i => i.subStatus === 'PEMINJAMAN').length);
-            safeUpdate('total-asset-value', `Rp ${grandTotal.toLocaleString('id-ID')}`);
-            safeUpdate('grand-total-budget', `RP ${grandTotal.toLocaleString('id-ID')}`);
-            safeUpdate('val-cat-mechanical', `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`);
-            safeUpdate('val-cat-electrical', `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`);
-            safeUpdate('val-cat-plumbing', `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`);
+            const updateText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+            updateText('count-total-items', stock.length);
+            updateText('count-low-stock', stock.filter(s => s.q > 0 && s.q < 5).length);
+            updateText('count-active-loans', inventory.filter(i => i.subStatus === 'PEMINJAMAN').length);
+            updateText('total-asset-value', `Rp ${grandTotal.toLocaleString('id-ID')}`);
+            updateText('grand-total-budget', `RP ${grandTotal.toLocaleString('id-ID')}`);
+            updateText('val-cat-mechanical', `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`);
+            updateText('val-cat-electrical', `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`);
+            updateText('val-cat-plumbing', `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`);
 
             const ctx = document.getElementById('main-inventory-chart')?.getContext('2d');
             if (ctx) {
@@ -467,10 +473,10 @@
             if (rec && full) {
                 rec.innerHTML = ''; full.innerHTML = '';
                 inventory.forEach((i, idx) => {
-                    let d = i.notesInstall || i.notesBorrow || '-';
-                    if (i.subStatus === 'PROYEK') d = `PIC: ${i.picInstall} | LOKASI: ${i.notesInstall}`;
-                    if (i.subStatus === 'PEMINJAMAN') d = `PIC: ${i.picBorrow} | EST: ${i.dateReturn || '-'}`;
-                    const card = `<div class="premium-card p-5 border-l-8 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white"><div class="flex justify-between items-start"><div class="flex-1 pr-4"><div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black">${i.subStatus || 'LOG'}</span><h4 class="text-[10px] font-black truncate">${i.name}</h4></div><p class="text-[9px] font-bold text-slate-400 mb-2">${i.qty} ${i.unit} • ${i.timestamp}</p><div class="bg-slate-50 p-2 rounded-xl border italic text-[9px] text-slate-600 font-bold leading-relaxed">${d}</div></div><button onclick="window.deleteLog('${i.id}')" class="p-2 text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2"></i></button></div></div>`;
+                    let det = i.notesInstall || i.notesBorrow || '-';
+                    if (i.subStatus === 'PROYEK') det = `PIC: ${i.picInstall} | UNIT: ${i.notesInstall}`;
+                    if (i.subStatus === 'PEMINJAMAN') det = `PIC: ${i.picBorrow} | EST: ${i.dateReturn || '-'}`;
+                    const card = `<div class="premium-card p-5 border-l-8 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white"><div class="flex justify-between items-start"><div class="flex-1 pr-4 text-left"><div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black">${i.subStatus || 'LOG'}</span><h4 class="text-[10px] font-black truncate">${i.name}</h4></div><p class="text-[9px] font-bold text-slate-400 mb-2 uppercase">${i.qty} ${i.unit} • ${i.timestamp}</p><div class="bg-slate-50 p-2 rounded-xl border italic text-[9px] text-slate-600 font-bold leading-relaxed">${det}</div></div><button onclick="window.deleteLog('${i.id}')" class="p-2 text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2"></i></button></div></div>`;
                     if (idx < 10) rec.innerHTML += card;
                     if (!searchQuery || i.name.includes(searchQuery.toUpperCase())) full.innerHTML += card;
                 });
@@ -483,7 +489,7 @@
                 if (list) {
                     list.innerHTML = ''; items.forEach(it => {
                         const nS = it.n.replace(/'/g, "\\'"), tS = it.t.replace(/'/g, "\\'");
-                        list.innerHTML += `<div class="premium-card p-5 border-l-4 ${it.q < 5 ? 'border-red-500 bg-red-50' : 'border-slate-100'}"><div class="flex justify-between mb-2"><div><p class="text-[10px] font-black uppercase">${it.n}</p><p class="text-[8px] text-slate-400 uppercase font-bold">${it.t}</p></div><button onclick="window.deleteMaterial('${nS}', '${tS}')" class="text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="flex justify-between items-center"><div class="flex items-center gap-2"><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, -1)" class="adjust-btn"><i data-lucide="minus"></i></button><span class="text-lg font-black w-8 text-center">${it.q}</span><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, 1)" class="adjust-btn"><i data-lucide="plus"></i></button></div><span class="text-[9px] font-black text-slate-400 uppercase">${it.u}</span></div></div>`;
+                        list.innerHTML += `<div class="premium-card p-5 border-l-4 ${it.q < 5 ? 'border-red-500 bg-red-50' : 'border-slate-100'}"><div class="flex justify-between mb-2 text-left"><div><p class="text-[10px] font-black uppercase">${it.n}</p><p class="text-[8px] text-slate-400 uppercase font-bold">${it.t}</p></div><button onclick="window.deleteMaterial('${nS}', '${tS}')" class="text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="flex justify-between items-center"><div class="flex items-center gap-2"><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, -1)" class="adjust-btn"><i data-lucide="minus"></i></button><span class="text-lg font-black w-8 text-center">${it.q}</span><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, 1)" class="adjust-btn"><i data-lucide="plus"></i></button></div><span class="text-[9px] font-black text-slate-400 uppercase">${it.u}</span></div></div>`;
                     });
                 }
             });
@@ -494,8 +500,7 @@
                 stock.filter(s => s.q > 0).forEach(it => {
                     if (issueSearchQuery && !it.n.includes(issueSearchQuery.toUpperCase())) return;
                     let theme = it.c === "ELECTRICAL" ? "border-sky-500 bg-sky-50/30" : (it.c === "PLUMBING" ? "border-emerald-500 bg-emerald-50/30" : "border-orange-500 bg-orange-50/30");
-                    const itData = JSON.stringify(it).replace(/"/g, '&quot;');
-                    iGrid.innerHTML += `<div onclick="window.openIssueModal(JSON.parse(this.dataset.item))" data-item="${itData}" class="premium-card p-6 border-t-4 ${theme} cursor-pointer hover:scale-[1.03] transition-all"><div class="flex justify-between mb-4"><span class="text-[8px] font-black px-2 py-1 bg-white rounded-md border text-slate-400 uppercase">${it.c}</span><span class="text-xl font-black uppercase">${it.q} <small class="text-[10px] text-slate-400 font-bold">${it.u}</small></span></div><h4 class="text-[11px] font-black truncate mb-1 uppercase">${it.n}</h4><p class="text-[8px] text-slate-500 italic font-bold truncate uppercase">${it.t}</p></div>`;
+                    iGrid.innerHTML += `<div onclick="window.openIssueModal(JSON.parse(this.dataset.item))" data-item="${JSON.stringify(it).replace(/"/g, '&quot;')}" class="premium-card p-6 border-t-4 ${theme} cursor-pointer hover:scale-[1.03] transition-all text-left"><div class="flex justify-between mb-4"><span class="text-[8px] font-black px-2 py-1 bg-white rounded-md border text-slate-400 uppercase">${it.c}</span><span class="text-xl font-black uppercase">${it.q} <small class="text-[10px] text-slate-400 font-bold">${it.u}</small></span></div><h4 class="text-[11px] font-black truncate mb-1 uppercase">${it.n}</h4><p class="text-[8px] text-slate-500 italic font-bold truncate uppercase">${it.t}</p></div>`;
                 });
             }
 
@@ -504,7 +509,7 @@
                 lBody.innerHTML = ''; document.getElementById('loan-empty-state').classList.toggle('hidden', loans.length > 0);
                 loans.forEach(ln => { 
                     const isOver = ln.dateReturn && new Date(ln.dateReturn) < new Date();
-                    lBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-xs text-blue-900 font-black">${ln.picBorrow}</td><td class="p-6 text-[10px] font-black">${ln.name}</td><td class="p-6 text-[9px] text-slate-400 font-bold">${ln.type}</td><td class="p-6 text-center text-xs font-black">${ln.qty}</td><td class="p-6"><p class="text-[9px] font-bold">P: ${ln.dateBorrow || ln.timestamp}</p><p class="${isOver ? 'text-red-500' : 'text-emerald-500'} font-black text-[9px]">E: ${ln.dateReturn || '-'}</p></td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i data-lucide="check"></i></button></td></tr>`; 
+                    lBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-xs text-blue-900 font-black">${ln.picBorrow}</td><td class="p-6 text-[10px] font-black">${ln.name}</td><td class="p-6 text-[9px] text-slate-400 font-bold text-center">${ln.type}</td><td class="p-6 text-center text-xs font-black">${ln.qty}</td><td class="p-6"><p class="text-[9px] font-bold text-center">P: ${ln.dateBorrow || ln.timestamp}</p><p class="${isOver ? 'text-red-500' : 'text-emerald-500'} font-black text-[9px] text-center">E: ${ln.dateReturn || '-'}</p></td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i data-lucide="check"></i></button></td></tr>`; 
                 });
             }
 
@@ -512,13 +517,13 @@
             if (vBody) {
                 vBody.innerHTML = '';
                 stock.filter(s => s.q > 0).forEach(it => { 
-                    vBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase text-center"><td class="p-6 text-[10px] text-slate-400 font-bold">${it.c}</td><td class="p-6 text-[10px] font-black">${it.n}</td><td class="p-6 text-[9px] font-bold text-slate-400">${it.t}</td><td class="p-6 text-center text-xs font-black">${it.q}</td><td class="p-6 text-right text-xs font-bold text-slate-400">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-xs font-black text-blue-600">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; 
+                    vBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase text-center"><td class="p-6 text-[10px] text-slate-400 font-bold">${it.c}</td><td class="p-6 text-[10px] font-black text-left">${it.n}</td><td class="p-6 text-[9px] font-bold text-slate-400 text-left">${it.t}</td><td class="p-6 text-center text-xs font-black">${it.q}</td><td class="p-6 text-right text-xs font-bold text-slate-400">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-xs font-black text-blue-600">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; 
                 });
             }
             refreshLucide();
         };
 
-        /** Impor Processing **/
+        /** Impor Logic **/
         window.importExcelGeneral = async (e) => {
             const f = e.target.files[0]; if (!f) return;
             const reader = new FileReader(); reader.onload = async (ev) => {
@@ -527,33 +532,37 @@
                     let count = 0;
                     for (const sn of wb.SheetNames) {
                         const ws = wb.Sheets[sn];
-                        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                        const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
                         let hIdx = -1;
-                        for (let i = 0; i < Math.min(data.length, 50); i++) {
-                            if (data[i].some(c => String(c).toUpperCase().includes("NAMA") || String(c).toUpperCase().includes("DESCRIPTION"))) { hIdx = i; break; }
+                        for (let i = 0; i < Math.min(rawData.length, 50); i++) {
+                            if (rawData[i].some(c => {
+                                let s = String(c).toUpperCase();
+                                return s.includes("NAMA") || s.includes("DESCRIPTION") || s.includes("BARANG");
+                            })) { hIdx = i; break; }
                         }
                         if (hIdx === -1) continue;
                         const rows = XLSX.utils.sheet_to_json(ws, { range: hIdx });
                         for (const row of rows) {
                             const nameK = findColKey(row, ['Nama Barang', 'Description', 'NAMA']);
-                            const qtyK = findColKey(row, ['VOL', 'Qty', 'Quantity']);
-                            if (row[nameK] && cleanNum(row[qtyK]) > 0) {
+                            const volK = findColKey(row, ['VOL', 'Qty', 'Quantity']);
+                            const priceK = findColKey(row, ['Harga Satuan', 'Unit Cost', 'Price', 'HARGA']);
+                            if (row[nameK] && cleanNum(row[volK]) > 0) {
                                 let cat = detectCat(row[nameK], sn);
                                 const merk = String(row[findColKey(row, ['Merk', 'Brand'])] || "").trim();
-                                const tipe = String(row[findColKey(row, ['Tipe', 'Type'])] || "").trim();
+                                const tipe = String(row[findColKey(row, ['Tipe', 'Type', 'Spec'])] || "").trim();
                                 const combinedType = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
 
                                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
                                     name: String(row[nameK]).toUpperCase().trim(), category: cat, type: combinedType.toUpperCase(), 
-                                    qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['SAT', 'Unit'])] || "PCS").toUpperCase(), 
-                                    price: cleanNum(row[findColKey(row, ['HARGA', 'PRICE'])]), status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), 
+                                    qty: cleanNum(row[volK]), unit: String(row[findColKey(row, ['SAT', 'Unit'])] || "PCS").toUpperCase(), 
+                                    price: cleanNum(row[priceK]), status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), 
                                     timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
                                 });
                                 count++;
                             }
                         }
                     }
-                    window.showToast(`${count} BARANG DIIMPOR`);
+                    window.showToast(`${count} DATA DIIMPOR`);
                 } catch (err) { window.showToast("GAGAL MEMBACA FILE", true); }
             }; reader.readAsArrayBuffer(f);
         };
@@ -564,10 +573,10 @@
                 try {
                     const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
                     const ws = wb.Sheets[wb.SheetNames[0]];
-                    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                    const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
                     let hIdx = -1;
-                    for (let i = 0; i < Math.min(data.length, 50); i++) {
-                        if (data[i].some(c => String(c).toUpperCase().includes("SHORT TEXT"))) { hIdx = i; break; }
+                    for (let i = 0; i < Math.min(rawData.length, 50); i++) {
+                        if (rawData[i].some(c => String(c).toUpperCase().includes("SHORT TEXT"))) { hIdx = i; break; }
                     }
                     if (hIdx === -1) { window.showToast("FORMAT SAP TIDAK COCOK", true); return; }
 
@@ -575,19 +584,20 @@
                     let count = 0;
                     for (const row of rows) {
                         const textK = findColKey(row, ['Short Text', 'Description']);
-                        const qtyK = findColKey(row, ['Quantity requested', 'Quantity']);
+                        const qtyK = findColKey(row, ['Quantity requested', 'Quantity', 'Qty']);
+                        const priceK = findColKey(row, ['Valuation Price', 'Price', 'Harga']);
                         if (row[textK] && cleanNum(row[qtyK]) > 0) {
                             const p = String(row[textK]).split(';');
-                            // SAP: BRAND;PROD;SPEC
-                            const brand = (p[0] || "").trim();
-                            const prod = (p[1] || p[0] || "TANPA NAMA").trim();
-                            const spec = (p[2] || "").trim();
-                            const combinedSpec = (brand && spec) ? `${brand} / ${spec}` : (brand || spec || "-");
+                            // SAP: MERK;NAMA;TIPE
+                            const merk = (p[0] || "").trim();
+                            const nama = (p[1] || p[0] || "TANPA NAMA").trim();
+                            const tipe = (p[2] || "").trim();
+                            const combinedSpec = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
 
                             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
-                                name: prod.toUpperCase(), category: detectCat(row[textK]), type: combinedSpec.toUpperCase(), 
-                                qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['Unit of Measure', 'Unit'])] || "PCS").replace("EA", "PCS"), 
-                                price: cleanNum(row[findColKey(row, ['Valuation Price', 'Price'])]), status: 'MASUK', subStatus: 'IMPOR SAP', 
+                                name: nama.toUpperCase(), category: detectCat(row[textK]), type: combinedSpec.toUpperCase(), 
+                                qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['Unit'])] || "PCS").replace("EA", "PCS"), 
+                                price: cleanNum(row[priceK]), status: 'MASUK', subStatus: 'IMPOR SAP', 
                                 notesInstall: `SAP PR: ${row[findColKey(row, ['Purchase Requisition'])] || '-'}`, 
                                 createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
                             });
@@ -603,7 +613,7 @@
         window.handleSearch = (q) => { searchQuery = q; window.renderAll(); };
         window.handleIssueSearch = (q) => { issueSearchQuery = q; window.renderAll(); };
         window.openIssueModal = (it) => { 
-            document.getElementById('issueModalTitle').innerText = `${it.n} (${it.q} ${it.u})`; 
+            document.getElementById('issueModalTitle').innerText = it.n; 
             document.getElementById('modalItemName').value = it.n; 
             document.getElementById('modalItemType').value = it.t; 
             document.getElementById('modalCategory').value = it.c; 
@@ -612,11 +622,28 @@
             document.getElementById('modalQty').max = it.q; 
             document.getElementById('modalDateBorrow').valueAsDate = new Date(); 
             document.getElementById('issueModal').classList.remove('hidden'); 
+            refreshLucide();
         };
         window.closeIssueModal = () => document.getElementById('issueModal').classList.add('hidden');
         window.toggleModalSubPanels = () => { const v = document.getElementById('modalSubStatus').value; document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); };
 
-        window.clearAllData = () => { window.openConfirmModal("RESET DATABASE", "Hapus semua data riwayat dan stok?", "alert-triangle", "bg-red-50 text-red-600", async () => { const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); window.showToast("DATABASE BERSIH", true); }); };
+        window.clearAllData = () => { 
+            window.openConfirmModal("RESET DATABASE", "Hapus semua data?", "alert-triangle", "bg-red-50 text-red-600", async () => { 
+                const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); 
+                const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); 
+                await b.commit(); window.showToast("DATABASE BERSIH", true); 
+            }); 
+        };
+
+        window.exportData = (fmt) => {
+            if (!inventory.length) return window.showToast("Data kosong", true);
+            const head = ["WAKTU", "KATEGORI", "MATERIAL", "TIPE", "QTY", "UNIT", "STATUS", "KET"];
+            const rows = inventory.map(i => [i.timestamp, i.category, i.name, i.type, i.qty, i.unit, i.status, (i.notesInstall || i.notesBorrow || '-')]);
+            if (fmt === 'xlsx') {
+                const ws = XLSX.utils.aoa_to_sheet([head, ...rows]), wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Laporan"); XLSX.writeFile(wb, `PELINDO_REPORT_${Date.now()}.xlsx`);
+            }
+        };
 
         document.getElementById('inventoryForm').onsubmit = async (e) => {
             e.preventDefault();
@@ -632,21 +659,6 @@
             const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('itemType').value, qty: Number(document.getElementById('modalQty').value), unit: document.getElementById('unit').value, price: Number(document.getElementById('price').value) || 0, status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase(), dateBorrow: document.getElementById('modalDateBorrow').value, dateReturn: document.getElementById('modalDateReturn').value, notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase(), picInstall: document.getElementById('modalPicInstall').value.toUpperCase(), notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase(), createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) };
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
             window.closeIssueModal(); window.showToast("PENGELUARAN TERCATAT"); window.switchView('dashboard');
-        };
-
-        window.exportData = (fmt) => {
-            if (!inventory.length) return window.showToast("Data kosong", true);
-            const head = ["WAKTU", "KATEGORI", "MATERIAL", "TIPE", "QTY", "UNIT", "STATUS", "KET"];
-            const rows = inventory.map(i => [i.timestamp, i.category, i.name, i.type, i.qty, i.unit, i.status, (i.notesInstall || i.notesBorrow || '-')]);
-            if (fmt === 'xlsx') {
-                const ws = XLSX.utils.aoa_to_sheet([head, ...rows]), wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Laporan"); XLSX.writeFile(wb, `PELINDO_REPORT_${Date.now()}.xlsx`);
-            } else {
-                const { jsPDF } = window.jspdf; const docP = new jsPDF('landscape');
-                docP.setFontSize(14); docP.text("LAPORAN INVENTARIS WORKSHOP T2", 14, 15);
-                docP.autoTable({ head: [head], body: rows, startY: 20, theme: 'grid', styles: { fontSize: 8 } });
-                docP.save(`PELINDO_REPORT_${Date.now()}.pdf`);
-            }
         };
 
         setInterval(() => { const n = new Date(); const tE = document.getElementById('current-time-display'), dE = document.getElementById('current-date-display'); if (tE) tE.innerText = n.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); if (dE) dE.innerText = n.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); }, 1000);
