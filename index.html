@@ -40,7 +40,7 @@
     </style>
 
     <script>
-        /** UI Global Functions - Tersedia segera saat load untuk GitHub Pages **/
+        /** UI Global Functions **/
         window.toggleMenu = function(show) {
             const menu = document.getElementById('sidebar-menu');
             const overlay = document.getElementById('sidebar-overlay');
@@ -68,7 +68,6 @@
             window.toggleMenu(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // Trigger render jika data sudah ada
             if (window.renderAll) window.renderAll();
         };
     </script>
@@ -96,7 +95,7 @@
         </nav>
 
         <div class="p-8 border-t border-slate-100 text-center">
-            <p class="text-[9px] font-bold text-slate-400">PT PELINDO PETIKEMAS © 2026</p>
+            <p class="text-[9px] font-bold text-slate-400 uppercase">PT Pelindo Petikemas © 2026</p>
         </div>
     </aside>
 
@@ -165,7 +164,7 @@
 
         <!-- STOK -->
         <div id="view-stock" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">Stok Aktual Workshop</h2>
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Stok Aktual Workshop</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="space-y-4">
                     <div class="flex items-center justify-between border-l-4 border-orange-500 pl-4 mb-6"><span class="font-black text-slate-800 text-sm uppercase">Mechanical</span><span class="text-[10px] font-black bg-orange-50 text-orange-600 px-3 py-1 rounded-lg" id="badge-count-MECHANICAL">0</span></div>
@@ -203,8 +202,8 @@
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Kategori</label><select id="category" class="form-input-pld"><option value="ELECTRICAL">Electrical</option><option value="MECHANICAL">Mechanical</option><option value="PLUMBING">Plumbing</option></select></div>
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Satuan</label><select id="unit" class="form-input-pld"><option value="PCS">PCS</option><option value="SET">SET</option><option value="MTR">MTR</option><option value="ROL">ROL</option><option value="BTG">BTG</option><option value="PACK">PACK</option></select></div>
                     </div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Nama Material</label><input type="text" id="itemName" class="form-input-pld" required placeholder="NAMA LENGKAP MATERIAL..."></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Merk / Tipe Spesifikasi</label><input type="text" id="itemType" class="form-input-pld" placeholder="CONTOH: TEKIRO / 10 INCH..."></div>
+                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Nama Material</label><input type="text" id="itemName" class="form-input-pld" required placeholder="Nama Lengkap Material..."></div>
+                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Merk / Tipe Spesifikasi</label><input type="text" id="itemType" class="form-input-pld" placeholder="Contoh: Tekiro / 10 Inch..."></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Qty Awal</label><input type="number" id="qty" class="form-input-pld" required min="1" value="1"></div>
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Harga Satuan (Rp)</label><input type="number" id="price" class="form-input-pld" value="0"></div>
@@ -216,15 +215,15 @@
 
         <!-- VALUASI -->
         <div id="view-budget" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">Valuasi Aset Workshop</h2>
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Valuasi Aset Workshop</h2>
             
             <div class="bg-gradient-to-br from-[#004a99] to-[#00aeef] p-12 rounded-[2rem] text-white flex flex-col items-center justify-center mb-8 shadow-2xl relative overflow-hidden text-center">
                 <i data-lucide="trending-up" class="absolute -right-10 -bottom-10 w-64 h-64 opacity-10"></i>
-                <p class="text-[10px] font-black opacity-70 tracking-[0.6em] mb-4 uppercase">Total Estimasi Nilai Stok</p>
+                <p class="text-[10px] font-black opacity-70 tracking-[0.6em] mb-4 uppercase">Total Nilai Estimasi Stok</p>
                 <h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black italic tracking-tighter">RP 0</h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-center md:text-left">
                 <div class="premium-card p-6 border-l-8 border-orange-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Mechanical</p><h4 id="val-cat-mechanical" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
                 <div class="premium-card p-6 border-l-8 border-sky-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Electrical</p><h4 id="val-cat-electrical" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
                 <div class="premium-card p-6 border-l-8 border-emerald-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Plumbing</p><h4 id="val-cat-plumbing" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
@@ -233,7 +232,7 @@
             <div class="premium-card overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm uppercase">
-                        <thead class="bg-slate-50 font-black border-b text-[10px] text-slate-500">
+                        <thead class="bg-slate-50 font-black border-b text-[10px] text-slate-500 text-center">
                             <tr><th class="p-6">Kategori</th><th class="p-6">Nama Material</th><th class="p-6">Merk / Tipe</th><th class="p-6 text-center">Stok</th><th class="p-6 text-right">Harga Satuan</th><th class="p-6 text-right">Subtotal Nilai</th></tr>
                         </thead>
                         <tbody id="valuation-table-body" class="divide-y font-bold text-slate-700"></tbody>
@@ -242,30 +241,30 @@
             </div>
         </div>
 
+        <!-- BARANG KELUAR -->
+        <div id="view-issue" class="view-section">
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Pencatatan Barang Keluar</h2>
+            <div class="relative w-full max-w-md mb-10 mx-auto md:mx-0">
+                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="issueSearch" onkeyup="window.handleIssueSearch(this.value)" placeholder="Cari material..." class="w-full bg-white border border-slate-200 rounded-2xl px-12 py-3.5 text-xs font-bold shadow-sm focus:border-blue-500 outline-none uppercase">
+            </div>
+            <div id="issue-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
         <!-- PEMINJAMAN -->
         <div id="view-loan" class="view-section">
             <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Peminjaman Berjalan</h2>
             <div class="premium-card overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm uppercase">
-                        <thead class="bg-slate-50 font-black border-b text-[10px] text-slate-500">
+                        <thead class="bg-slate-50 font-black border-b text-[10px] text-slate-500 text-center">
                             <tr><th class="p-6">PIC Peminjam</th><th class="p-6">Material</th><th class="p-6">Tipe (Merk)</th><th class="p-6 text-center">Jumlah</th><th class="p-6">Waktu / Estimasi</th><th class="p-6 text-right">Aksi</th></tr>
                         </thead>
-                        <tbody id="loan-table-body" class="divide-y font-bold text-slate-700"></tbody>
+                        <tbody id="loan-table-body" class="divide-y font-bold text-slate-700 text-center"></tbody>
                     </table>
                 </div>
                 <div id="loan-empty-state" class="p-20 text-center hidden"><p class="text-slate-400 text-xs font-black italic uppercase">Semua barang telah dikembalikan</p></div>
             </div>
-        </div>
-
-        <!-- ISSUE (BARANG KELUAR) -->
-        <div id="view-issue" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Pencatatan Barang Keluar</h2>
-            <div class="relative w-full max-w-md mb-10">
-                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="issueSearch" onkeyup="window.handleIssueSearch(this.value)" placeholder="Cari material..." class="w-full bg-white border border-slate-200 rounded-2xl px-12 py-3.5 text-xs font-bold shadow-sm focus:border-blue-500 outline-none uppercase">
-            </div>
-            <div id="issue-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </main>
 
@@ -277,8 +276,8 @@
                 <h3 id="confirmTitle" class="text-lg font-black uppercase mb-2 text-slate-800">Konfirmasi</h3>
                 <p id="confirmMessage" class="text-xs text-slate-500 font-bold mb-8 leading-relaxed">Apakah Anda yakin?</p>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="window.closeConfirmModal()" class="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase hover:bg-slate-200 transition-all">Batal</button>
-                    <button id="confirmActionButton" class="py-4 bg-[#004a99] text-white rounded-2xl font-black text-[10px] uppercase shadow-xl hover:opacity-90 transition-all">Ya, Proses</button>
+                    <button onclick="window.closeConfirmModal()" class="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase hover:bg-slate-200">Batal</button>
+                    <button id="confirmActionButton" class="py-4 bg-[#004a99] text-white rounded-2xl font-black text-[10px] uppercase shadow-xl hover:opacity-90">Ya, Proses</button>
                 </div>
             </div>
         </div>
@@ -332,25 +331,29 @@
         let issueSearchQuery = "";
         let mainChart = null;
 
-        /** Utilities **/
-        window.showToast = (m, e = false) => { 
+        /** Utilities - Declared as regular functions for hoisting **/
+        window.showToast = function(m, e = false) { 
             const t = document.getElementById('toast'); if (!t) return;
             t.querySelector('span').innerText = m; 
             t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 text-white px-10 py-5 rounded-[2rem] text-[10px] font-black tracking-[0.4em] uppercase transition-all duration-500 z-[300] shadow-2xl pointer-events-none border border-white/10 flex items-center gap-4 ${e ? 'bg-red-600' : 'bg-slate-900'}`; 
             t.style.opacity = '1'; setTimeout(() => { t.style.opacity = '0'; }, 3000); 
         };
 
-        const cleanNum = (val) => {
+        function cleanNum(val) {
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return val;
             let str = String(val).replace(/Rp/gi, '').replace(/\s/g, '');
-            if (str.includes('.') && str.includes(',')) str = str.replace(/\./g, '').replace(/,/g, '.');
-            else if (str.includes(',')) str = str.replace(/,/g, '.');
-            else if (str.includes('.') && str.split('.').pop().length === 3) str = str.replace(/\./g, '');
+            if (str.includes('.') && str.includes(',')) {
+                str = str.replace(/\./g, '').replace(/,/g, '.');
+            } else if (str.includes(',')) {
+                str = str.replace(/,/g, '.');
+            } else if (str.includes('.') && str.split('.').pop().length === 3) {
+                str = str.replace(/\./g, '');
+            }
             let n = parseFloat(str); return isNaN(n) ? 0 : n;
-        };
+        }
 
-        const findColKey = (obj, targets) => {
+        function findColKey(obj, targets) {
             if (!obj) return null;
             const keys = Object.keys(obj);
             for (let t of targets) {
@@ -358,21 +361,40 @@
                 if (found) return found;
             }
             return null;
+        }
+
+        function detectCat(name, sheetName = "") {
+            const s = (name + " " + sheetName).toUpperCase();
+            if (s.includes("ELEC")) return "ELECTRICAL";
+            if (s.includes("PLUM")) return "PLUMBING";
+            if (s.includes("MECH")) return "MECHANICAL";
+            return "MECHANICAL";
+        }
+
+        function refreshLucide() { if (window.lucide) lucide.createIcons(); }
+
+        /** Global UI Actions **/
+        window.closeConfirmModal = () => document.getElementById('confirmModal').classList.add('hidden');
+        window.openConfirmModal = (t, m, i, c, a) => { 
+            document.getElementById('confirmTitle').innerText = t; 
+            document.getElementById('confirmMessage').innerText = m; 
+            document.getElementById('confirmIcon').setAttribute('data-lucide', i); 
+            document.getElementById('confirmIconContainer').className = `w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${c}`; 
+            const btn = document.getElementById('confirmActionButton'); 
+            btn.onclick = async () => { btn.disabled = true; await a(); btn.disabled = false; window.closeConfirmModal(); }; 
+            document.getElementById('confirmModal').classList.remove('hidden'); 
+            refreshLucide();
         };
 
-        /** Global UI Refresh (GitHub/Realtime Fix) **/
-        const refreshLucide = () => { if (window.lucide) lucide.createIcons(); };
-
-        /** Main Actions **/
         window.deleteLog = (id) => {
-            window.openConfirmModal("Hapus Log", "Log ini akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => {
+            window.openConfirmModal("Hapus Log", "Hapus riwayat transaksi ini?", "trash-2", "bg-red-50 text-red-600", async () => {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id));
                 window.showToast("DATA DIHAPUS");
             });
         };
 
         window.deleteMaterial = (name, type) => {
-            window.openConfirmModal("Hapus Material", `Hapus seluruh histori stok ${name}?`, "trash-2", "bg-red-50 text-red-600", async () => {
+            window.openConfirmModal("Hapus Stok", `Hapus seluruh stok ${name}?`, "trash-2", "bg-red-50 text-red-600", async () => {
                 const toDelete = inventory.filter(i => i.name === name && i.type === type);
                 const batch = writeBatch(db);
                 toDelete.forEach(item => batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', item.id)));
@@ -384,9 +406,9 @@
         window.returnItem = (id) => {
             const it = inventory.find(i => i.id === id);
             if (!it) return;
-            window.openConfirmModal("Kembalikan Stok", `Konfirmasi pengembalian material ${it.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => {
+            window.openConfirmModal("Kembalikan Stok", `Kembalikan material ${it.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => {
                 const now = new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short' });
-                const logDetail = `PENGEMBALIAN DARI ${it.picBorrow} PADA ${now}. CATATAN: ${it.notesBorrow || '-'}`;
+                const logDetail = `PENGEMBALIAN DARI ${it.picBorrow} PADA ${now}.`;
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { ...it, status: 'MASUK', subStatus: 'PENGEMBALIAN', notesInstall: logDetail, createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) });
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id), { subStatus: 'SELESAI' });
                 window.showToast("DITERIMA");
@@ -411,6 +433,7 @@
             });
         };
 
+        /** Rendering Engine **/
         window.renderAll = () => {
             const summary = {};
             inventory.forEach(i => {
@@ -421,39 +444,44 @@
                 summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty);
             });
             const stock = Object.values(summary).filter(s => s.q !== 0);
+            
             const valCats = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
             stock.forEach(it => { if (it.q > 0) valCats[it.c] += (it.q * it.p); });
             const grandTotal = Object.values(valCats).reduce((a, b) => a + b, 0);
 
-            // Dashboard
-            document.getElementById('count-total-items').innerText = stock.length;
-            document.getElementById('count-low-stock').innerText = stock.filter(s => s.q > 0 && s.q < 5).length;
-            document.getElementById('count-active-loans').innerText = inventory.filter(i => i.subStatus === 'PEMINJAMAN').length;
-            document.getElementById('total-asset-value').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-            document.getElementById('grand-total-budget').innerText = `RP ${grandTotal.toLocaleString('id-ID')}`;
-            document.getElementById('val-cat-mechanical').innerText = `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`;
-            document.getElementById('val-cat-electrical').innerText = `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`;
-            document.getElementById('val-cat-plumbing').innerText = `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`;
+            // UI Stats
+            const updateEl = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+            updateEl('count-total-items', stock.length);
+            updateEl('count-low-stock', stock.filter(s => s.q > 0 && s.q < 5).length);
+            updateEl('count-active-loans', inventory.filter(i => i.subStatus === 'PEMINJAMAN').length);
+            updateEl('total-asset-value', `Rp ${grandTotal.toLocaleString('id-ID')}`);
+            updateEl('grand-total-budget', `RP ${grandTotal.toLocaleString('id-ID')}`);
+            updateEl('val-cat-mechanical', `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`);
+            updateEl('val-cat-electrical', `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`);
+            updateEl('val-cat-plumbing', `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`);
 
+            // Charts
             const ctx = document.getElementById('main-inventory-chart')?.getContext('2d');
             if (ctx) {
                 if (mainChart) mainChart.destroy();
                 mainChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'], datasets: [{ data: [valCats.MECHANICAL, valCats.ELECTRICAL, valCats.PLUMBING], backgroundColor: ['#f97316', '#0ea5e9', '#10b981'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
             }
 
+            // Logs
             const rec = document.getElementById('recent-logs-container'), full = document.getElementById('full-log-container');
             if (rec && full) {
                 rec.innerHTML = ''; full.innerHTML = '';
                 inventory.forEach((i, idx) => {
                     let d = i.notesInstall || i.notesBorrow || '-';
-                    if (i.subStatus === 'PROYEK') d = `PIC: ${i.picInstall} | LOKASI: ${i.notesInstall}`;
+                    if (i.subStatus === 'PROYEK') d = `PIC: ${i.picInstall} | UNIT: ${i.notesInstall}`;
                     if (i.subStatus === 'PEMINJAMAN') d = `PIC: ${i.picBorrow} | EST: ${i.dateReturn || '-'}`;
-                    const card = `<div class="premium-card p-5 border-l-8 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white"><div class="flex justify-between items-start"><div class="flex-1 pr-4"><div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black">${i.subStatus || 'LOG'}</span><h4 class="text-[10px] font-black truncate">${i.name}</h4></div><p class="text-[9px] font-bold text-slate-400 mb-2 uppercase">${i.qty} ${i.unit} • ${i.timestamp}</p><div class="bg-slate-50 p-2 rounded-xl border italic text-[9px] text-slate-600 font-bold leading-relaxed">${d}</div></div><button onclick="window.deleteLog('${i.id}')" class="p-2 text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
+                    const card = `<div class="premium-card p-5 border-l-8 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white"><div class="flex justify-between items-start"><div class="flex-1 pr-4"><div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black">${i.subStatus || 'LOG'}</span><h4 class="text-[10px] font-black truncate">${i.name}</h4></div><p class="text-[9px] font-bold text-slate-400 mb-2 uppercase">${i.qty} ${i.unit} • ${i.timestamp}</p><div class="bg-slate-50 p-2 rounded-xl border italic text-[9px] text-slate-600 font-bold leading-relaxed">${d}</div></div><button onclick="window.deleteLog('${i.id}')" class="p-2 text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2"></i></button></div></div>`;
                     if (idx < 10) rec.innerHTML += card;
                     if (!searchQuery || i.name.includes(searchQuery.toUpperCase())) full.innerHTML += card;
                 });
             }
 
+            // Stock categories
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const list = document.getElementById(`stock-list-${c}`);
                 const items = stock.filter(s => s.c === c);
@@ -466,6 +494,7 @@
                 }
             });
 
+            // Issue cards
             const iGrid = document.getElementById('issue-grid-container'); 
             if (iGrid) {
                 iGrid.innerHTML = '';
@@ -476,64 +505,67 @@
                 });
             }
 
+            // Loan table
             const lBody = document.getElementById('loan-table-body'), loans = inventory.filter(i => i.subStatus === 'PEMINJAMAN');
             if (lBody) {
                 lBody.innerHTML = ''; document.getElementById('loan-empty-state').classList.toggle('hidden', loans.length > 0);
                 loans.forEach(ln => { 
                     const overdue = ln.dateReturn && new Date(ln.dateReturn) < new Date();
-                    lBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-xs text-blue-900 font-black">${ln.picBorrow}</td><td class="p-6 text-[10px] font-black">${ln.name}</td><td class="p-6 text-[9px] text-slate-400 font-bold">${ln.type}</td><td class="p-6 text-center text-xs font-black">${ln.qty}</td><td class="p-6"><p class="text-[9px] font-bold">P: ${ln.dateBorrow || ln.timestamp}</p><p class="${overdue ? 'text-red-500' : 'text-emerald-500'} font-black text-[9px]">E: ${ln.dateReturn || '-'}</p></td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i data-lucide="check"></i></button></td></tr>`; 
+                    lBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-xs text-blue-900 font-black">${ln.picBorrow}</td><td class="p-6 text-[10px] font-black">${ln.name}</td><td class="p-6 text-[9px] text-slate-400 font-bold">${ln.type}</td><td class="p-6 text-center text-xs font-black">${ln.qty}</td><td class="p-6"><p class="text-[9px] font-bold">P: ${ln.dateBorrow || ln.timestamp}</p><p class="${overdue ? 'text-red-500' : 'text-emerald-500'} font-black text-[9px]">E: ${ln.dateReturn || '-'}</p></td><td class="p-6 text-[9px] text-slate-400 max-w-xs truncate font-medium text-center">${ln.notesBorrow || '-'}</td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i data-lucide="check"></i></button></td></tr>`; 
                 });
             }
 
+            // Valuation table
             const vBody = document.getElementById('valuation-table-body'); 
             if (vBody) {
                 vBody.innerHTML = '';
                 stock.filter(s => s.q > 0).forEach(it => { 
-                    vBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-[10px] text-slate-400 font-bold">${it.c}</td><td class="p-6 text-[10px] font-black">${it.n}</td><td class="p-6 text-[9px] font-bold text-slate-400">${it.t}</td><td class="p-6 text-center text-xs font-black">${it.qty || it.q}</td><td class="p-6 text-right text-xs font-bold text-slate-400">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-xs font-black text-blue-600">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; 
+                    vBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase text-center"><td class="p-6 text-[10px] text-slate-400 font-bold">${it.c}</td><td class="p-6 text-[10px] font-black">${it.n}</td><td class="p-6 text-[9px] font-bold text-slate-400">${it.t}</td><td class="p-6 text-center text-xs font-black">${it.q}</td><td class="p-6 text-right text-xs font-bold text-slate-400">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-xs font-black text-blue-600">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; 
                 });
             }
             refreshLucide();
         };
 
-        /** Impor Logic **/
+        /** Impor Processing **/
         window.importExcelGeneral = async (e) => {
             const f = e.target.files[0]; if (!f) return;
             const reader = new FileReader(); reader.onload = async (ev) => {
-                const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
-                let count = 0;
-                for (const sn of wb.SheetNames) {
-                    const ws = wb.Sheets[sn];
-                    const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
-                    let hIdx = -1;
-                    for (let i = 0; i < Math.min(rawData.length, 50); i++) {
-                        if (rawData[i].some(c => {
-                            let s = String(c).toUpperCase();
-                            return s.includes("NAMA") || s.includes("DESCRIPTION") || s.includes("BARANG");
-                        })) { hIdx = i; break; }
-                    }
-                    if (hIdx === -1) continue;
-                    const rows = XLSX.utils.sheet_to_json(ws, { range: hIdx });
-                    for (const row of rows) {
-                        const nameK = findColKey(row, ['Nama Barang', 'Description', 'NAMA', 'Material']);
-                        const volK = findColKey(row, ['VOL', 'Qty', 'Quantity']);
-                        if (row[nameK] && cleanNum(row[volK]) > 0) {
-                            let cat = detectCat(row[nameK], sn);
-                            const merk = String(row[findColKey(row, ['Merk', 'Brand'])] || "").trim();
-                            const tipe = String(row[findColKey(row, ['Tipe', 'Type'])] || "").trim();
-                            const combinedType = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
+                try {
+                    const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+                    let count = 0;
+                    for (const sn of wb.SheetNames) {
+                        const ws = wb.Sheets[sn];
+                        const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                        let hIdx = -1;
+                        for (let i = 0; i < Math.min(rawData.length, 50); i++) {
+                            if (rawData[i].some(c => {
+                                let s = String(c).toUpperCase();
+                                return s.includes("NAMA") || s.includes("DESCRIPTION") || s.includes("BARANG");
+                            })) { hIdx = i; break; }
+                        }
+                        if (hIdx === -1) continue;
+                        const rows = XLSX.utils.sheet_to_json(ws, { range: hIdx });
+                        for (const row of rows) {
+                            const nameK = findColKey(row, ['Nama Barang', 'Description', 'NAMA', 'Material']);
+                            const volK = findColKey(row, ['VOL', 'Qty', 'Quantity']);
+                            if (row[nameK] && cleanNum(row[volK]) > 0) {
+                                let cat = detectCat(row[nameK], sn);
+                                const m = String(row[findColKey(row, ['Merk', 'Brand'])] || "").trim();
+                                const t = String(row[findColKey(row, ['Tipe', 'Type'])] || "").trim();
+                                const combined = (m && t) ? `${m} / ${t}` : (m || t || "-");
 
-                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
-                                name: String(row[nameK]).toUpperCase().trim(), 
-                                category: cat, type: combinedType.toUpperCase(), 
-                                qty: cleanNum(row[volK]), unit: String(row[findColKey(row, ['SAT', 'Unit'])] || "PCS").toUpperCase(), 
-                                price: cleanNum(row[findColKey(row, ['HARGA', 'PRICE'])]), status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), 
-                                timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
-                            });
-                            count++;
+                                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
+                                    name: String(row[nameK]).toUpperCase().trim(), category: cat, type: combined.toUpperCase(), 
+                                    qty: cleanNum(row[volK]), unit: String(row[findColKey(row, ['SAT', 'Unit'])] || "PCS").toUpperCase(), 
+                                    price: cleanNum(row[findColKey(row, ['HARGA', 'PRICE'])]), status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), 
+                                    timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
+                                });
+                                count++;
+                            }
                         }
                     }
-                }
-                window.showToast(`${count} DATA DIIMPOR`);
+                    window.showToast(`${count} DATA DIIMPOR`);
+                } catch (err) { window.showToast("GAGAL IMPOR", true); }
             }; reader.readAsArrayBuffer(f);
         };
 
@@ -555,19 +587,18 @@
                     for (const row of rows) {
                         const textK = findColKey(row, ['Short Text', 'Description', 'Material Description']);
                         const qtyK = findColKey(row, ['Quantity requested', 'Quantity']);
-                        const prPriceK = findColKey(row, ['Valuation Price', 'Price']);
+                        const priceK = findColKey(row, ['Valuation Price', 'Price']);
                         if (row[textK] && cleanNum(row[qtyK]) > 0) {
                             const p = String(row[textK]).split(';');
-                            // SAP: MERK;NAMA;TIPE
                             const merk = (p[0] || "").trim();
                             const nama = (p[1] || p[0] || "TANPA NAMA").trim();
                             const tipe = (p[2] || "").trim();
-                            const combinedType = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
+                            const combined = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
 
                             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
-                                name: nama.toUpperCase(), category: detectCat(row[textK]), type: combinedType.toUpperCase(), 
+                                name: nama.toUpperCase(), category: detectCat(row[textK]), type: combined.toUpperCase(), 
                                 qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['Unit'])] || "PCS").replace("EA", "PCS"), 
-                                price: cleanNum(row[prPriceK]), status: 'MASUK', subStatus: 'IMPOR SAP', 
+                                price: cleanNum(row[priceK]), status: 'MASUK', subStatus: 'IMPOR SAP', 
                                 notesInstall: `SAP PR: ${row[findColKey(row, ['Purchase Requisition'])] || '-'}`, 
                                 createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
                             });
@@ -579,7 +610,7 @@
             }; reader.readAsArrayBuffer(f);
         };
 
-        /** Handlers **/
+        /** Event Handlers **/
         window.handleSearch = (q) => { searchQuery = q; window.renderAll(); };
         window.handleIssueSearch = (q) => { issueSearchQuery = q; window.renderAll(); };
         window.openIssueModal = (it) => { 
@@ -595,19 +626,9 @@
             refreshLucide();
         };
         window.closeIssueModal = () => document.getElementById('issueModal').classList.add('hidden');
-        window.toggleModalSubPanels = () => { 
-            const v = document.getElementById('modalSubStatus').value; 
-            document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); 
-            document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); 
-        };
+        window.toggleModalSubPanels = () => { const v = document.getElementById('modalSubStatus').value; document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); };
 
-        window.clearAllData = () => { 
-            window.openConfirmModal("RESET DATABASE", "Hapus semua data riwayat dan stok?", "alert-triangle", "bg-red-50 text-red-600", async () => { 
-                const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); 
-                const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); 
-                await b.commit(); window.showToast("DATABASE BERSIH", true); 
-            }); 
-        };
+        window.clearAllData = () => { window.openConfirmModal("RESET DATABASE", "Hapus semua data riwayat dan stok?", "alert-triangle", "bg-red-50 text-red-600", async () => { const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); window.showToast("DATABASE BERSIH", true); }); };
 
         document.getElementById('inventoryForm').onsubmit = async (e) => {
             e.preventDefault();
@@ -623,6 +644,21 @@
             const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('itemType').value, qty: Number(document.getElementById('modalQty').value), unit: document.getElementById('modalUnit').value, price: Number(document.getElementById('modalPrice').value) || 0, status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase(), dateBorrow: document.getElementById('modalDateBorrow').value, dateReturn: document.getElementById('modalDateReturn').value, notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase(), picInstall: document.getElementById('modalPicInstall').value.toUpperCase(), notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase(), createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) };
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
             window.closeIssueModal(); window.showToast("PENGELUARAN TERCATAT"); window.switchView('dashboard');
+        };
+
+        window.exportData = (fmt) => {
+            if (!inventory.length) return window.showToast("Data kosong", true);
+            const head = ["WAKTU", "KATEGORI", "MATERIAL", "TIPE", "QTY", "UNIT", "STATUS", "KET"];
+            const rows = inventory.map(i => [i.timestamp, i.category, i.name, i.type, i.qty, i.unit, i.status, (i.notesInstall || i.notesBorrow || '-')]);
+            if (fmt === 'xlsx') {
+                const ws = XLSX.utils.aoa_to_sheet([head, ...rows]), wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Laporan"); XLSX.writeFile(wb, `PELINDO_REPORT_${Date.now()}.xlsx`);
+            } else {
+                const { jsPDF } = window.jspdf; const docP = new jsPDF('landscape');
+                docP.setFontSize(14); docP.text("LAPORAN INVENTARIS WORKSHOP T2", 14, 15);
+                docP.autoTable({ head: [head], body: rows, startY: 20, theme: 'grid', styles: { fontSize: 8 } });
+                docP.save(`PELINDO_REPORT_${Date.now()}.pdf`);
+            }
         };
 
         setInterval(() => { const n = new Date(); const tE = document.getElementById('current-time-display'), dE = document.getElementById('current-date-display'); if (tE) tE.innerText = n.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); if (dE) dE.innerText = n.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); }, 1000);
