@@ -105,6 +105,10 @@
             <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <button onclick="window.toggleMenu(true)" class="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                    <!-- LOGO INSTANSI DI HEADER -->
+                    <div class="bg-white p-1 rounded-xl shadow-sm h-10 w-10 flex items-center justify-center">
+                        <img src="https://www.pelindo.co.id/logo_pelindo_single.png" alt="Pelindo" class="max-h-full">
+                    </div>
                     <div class="hidden md:block border-l border-white/20 pl-6"><h1 class="text-sm font-black tracking-tight leading-none uppercase">PT PELINDO PETIKEMAS NEW MAKASSAR</h1><p class="text-[9px] font-bold opacity-60 tracking-[0.2em] mt-1.5 uppercase">T2 Workshop Management</p></div>
                 </div>
                 <div class="flex gap-2">
@@ -446,14 +450,14 @@
             const grandTotal = Object.values(valCats).reduce((a, b) => a + b, 0);
 
             // Dashboard
-            document.getElementById('count-total-items').innerText = stock.length;
-            document.getElementById('count-low-stock').innerText = stock.filter(s => s.q > 0 && s.q < 5).length;
-            document.getElementById('count-active-loans').innerText = inventory.filter(i => i.subStatus === 'PEMINJAMAN').length;
-            document.getElementById('total-asset-value').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-            document.getElementById('grand-total-budget').innerText = `RP ${grandTotal.toLocaleString('id-ID')}`;
-            document.getElementById('val-cat-mechanical').innerText = `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`;
-            document.getElementById('val-cat-electrical').innerText = `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`;
-            document.getElementById('val-cat-plumbing').innerText = `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`;
+            if(document.getElementById('count-total-items')) document.getElementById('count-total-items').innerText = stock.length;
+            if(document.getElementById('count-low-stock')) document.getElementById('count-low-stock').innerText = stock.filter(s => s.q > 0 && s.q < 5).length;
+            if(document.getElementById('count-active-loans')) document.getElementById('count-active-loans').innerText = inventory.filter(i => i.subStatus === 'PEMINJAMAN').length;
+            if(document.getElementById('total-asset-value')) document.getElementById('total-asset-value').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            if(document.getElementById('grand-total-budget')) document.getElementById('grand-total-budget').innerText = `RP ${grandTotal.toLocaleString('id-ID')}`;
+            if(document.getElementById('val-cat-mechanical')) document.getElementById('val-cat-mechanical').innerText = `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`;
+            if(document.getElementById('val-cat-electrical')) document.getElementById('val-cat-electrical').innerText = `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`;
+            if(document.getElementById('val-cat-plumbing')) document.getElementById('val-cat-plumbing').innerText = `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`;
 
             const ctx = document.getElementById('main-inventory-chart')?.getContext('2d');
             if (ctx) {
@@ -628,7 +632,7 @@
         document.getElementById('issueFormAction').onsubmit = async (e) => {
             e.preventDefault();
             const sub = document.getElementById('modalSubStatus').value;
-            const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('modalItemType').value, qty: Number(document.getElementById('modalQty').value), unit: document.getElementById('modalUnit').value, price: Number(document.getElementById('price').value) || 0, status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase(), dateBorrow: document.getElementById('modalDateBorrow').value, dateReturn: document.getElementById('modalDateReturn').value, notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase(), picInstall: document.getElementById('modalPicInstall').value.toUpperCase(), notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase(), createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) };
+            const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('modalItemType').value, qty: Number(document.getElementById('modalQty').value), unit: document.getElementById('modalUnit').value, price: Number(document.getElementById('modalPrice').value) || 0, status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase(), dateBorrow: document.getElementById('modalDateBorrow').value, dateReturn: document.getElementById('modalDateReturn').value, notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase(), picInstall: document.getElementById('modalPicInstall').value.toUpperCase(), notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase(), createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) };
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
             window.closeIssueModal(); window.showToast("DICATAT"); window.switchView('dashboard');
         };
@@ -637,5 +641,6 @@
 
         initApp();
     </script>
+    <div id="toast" style="opacity:0"><span></span></div>
 </body>
 </html>
