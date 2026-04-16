@@ -95,7 +95,7 @@
         </nav>
 
         <div class="p-8 border-t border-slate-100 text-center">
-            <p class="text-[9px] font-bold text-slate-400 uppercase">PT Pelindo Petikemas © 2026</p>
+            <p class="text-[9px] font-bold text-slate-400">PT PELINDO PETIKEMAS © 2026</p>
         </div>
     </aside>
 
@@ -164,7 +164,7 @@
 
         <!-- STOK -->
         <div id="view-stock" class="view-section">
-            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8 text-center md:text-left">Stok Aktual Workshop</h2>
+            <h2 class="text-xs font-black tracking-[0.4em] text-slate-400 uppercase mb-8">Stok Aktual Workshop</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="space-y-4">
                     <div class="flex items-center justify-between border-l-4 border-orange-500 pl-4 mb-6"><span class="font-black text-slate-800 text-sm uppercase">Mechanical</span><span class="text-[10px] font-black bg-orange-50 text-orange-600 px-3 py-1 rounded-lg" id="badge-count-MECHANICAL">0</span></div>
@@ -189,11 +189,11 @@
                     <div class="flex gap-2">
                         <div class="bg-white border p-1 rounded-2xl flex items-center shadow-sm">
                             <input type="file" id="importExcel" accept=".xlsx, .xls, .csv" class="hidden" onchange="window.importExcelGeneral(event)">
-                            <label for="importExcel" class="cursor-pointer flex items-center gap-2 px-6 py-2.5 text-[10px] font-black text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all uppercase"><i data-lucide="file-spreadsheet"></i> Impor Excel</label>
+                            <label for="importExcel" class="cursor-pointer flex items-center gap-2 px-6 py-2.5 text-[10px] font-black text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all uppercase"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Impor Excel</label>
                         </div>
                         <div class="bg-white border p-1 rounded-2xl flex items-center shadow-sm">
                             <input type="file" id="importSAP" accept=".xlsx, .xls, .csv" class="hidden" onchange="window.importSAPData(event)">
-                            <label for="importSAP" class="cursor-pointer flex items-center gap-2 px-6 py-2.5 text-[10px] font-black text-blue-600 hover:bg-blue-50 rounded-xl transition-all uppercase"><i data-lucide="refresh-cw"></i> Impor SAP PR</label>
+                            <label for="importSAP" class="cursor-pointer flex items-center gap-2 px-6 py-2.5 text-[10px] font-black text-blue-600 hover:bg-blue-50 rounded-xl transition-all uppercase"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Impor SAP PR</label>
                         </div>
                     </div>
                 </div>
@@ -205,7 +205,7 @@
                     <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Nama Material</label><input type="text" id="itemName" class="form-input-pld" required placeholder="Nama Lengkap Material..."></div>
                     <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Merk / Tipe Spesifikasi</label><input type="text" id="itemType" class="form-input-pld" placeholder="Contoh: Tekiro / 10 Inch..."></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Qty Awal</label><input type="number" id="qty" class="form-input-pld" required min="1" value="1"></div>
+                        <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Qty</label><input type="number" id="qty" class="form-input-pld" required min="1" value="1"></div>
                         <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1 uppercase">Harga Satuan (Rp)</label><input type="number" id="price" class="form-input-pld" value="0"></div>
                     </div>
                     <button type="submit" class="w-full bg-[#004a99] text-white py-5 rounded-2xl font-black text-xs uppercase shadow-xl hover:opacity-90 transition-all">Simpan Material Ke database</button>
@@ -220,13 +220,13 @@
             <div class="bg-gradient-to-br from-[#004a99] to-[#00aeef] p-12 rounded-[2rem] text-white flex flex-col items-center justify-center mb-8 shadow-2xl relative overflow-hidden text-center">
                 <i data-lucide="trending-up" class="absolute -right-10 -bottom-10 w-64 h-64 opacity-10"></i>
                 <p class="text-[10px] font-black opacity-70 tracking-[0.6em] mb-4 uppercase">Total Nilai Estimasi Stok</p>
-                <h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black italic tracking-tighter">RP 0</h3>
+                <h3 id="grand-total-budget" class="text-5xl font-black italic tracking-tighter">RP 0</h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-center md:text-left">
-                <div class="premium-card p-6 border-l-8 border-orange-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Mechanical</p><h4 id="val-cat-mechanical" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
-                <div class="premium-card p-6 border-l-8 border-sky-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Electrical</p><h4 id="val-cat-electrical" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
-                <div class="premium-card p-6 border-l-8 border-emerald-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Plumbing</p><h4 id="val-cat-plumbing" class="text-lg font-black text-slate-800 italic">RP 0</h4></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="premium-card p-6 border-l-8 border-orange-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest text-center md:text-left">Total Mechanical</p><h4 id="val-cat-mechanical" class="text-lg font-black text-slate-800 italic text-center md:text-left">RP 0</h4></div>
+                <div class="premium-card p-6 border-l-8 border-sky-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest text-center md:text-left">Total Electrical</p><h4 id="val-cat-electrical" class="text-lg font-black text-slate-800 italic text-center md:text-left">RP 0</h4></div>
+                <div class="premium-card p-6 border-l-8 border-emerald-500 stat-card-gradient"><p class="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest text-center md:text-left">Total Plumbing</p><h4 id="val-cat-plumbing" class="text-lg font-black text-slate-800 italic text-center md:text-left">RP 0</h4></div>
             </div>
 
             <div class="premium-card overflow-hidden">
@@ -317,12 +317,13 @@
         <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i><span>BERHASIL</span>
     </div>
 
+    <!-- Logic Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pld-inventory-v2-main';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pld-mnp-v2-main';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "", authDomain: `${appId}.firebaseapp.com`, projectId: appId };
         
         let db, auth, user;
@@ -331,7 +332,7 @@
         let issueSearchQuery = "";
         let mainChart = null;
 
-        /** Utilities - Declared as regular functions for hoisting **/
+        /** Utilities - Global Access **/
         window.showToast = function(m, e = false) { 
             const t = document.getElementById('toast'); if (!t) return;
             t.querySelector('span').innerText = m; 
@@ -343,13 +344,10 @@
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return val;
             let str = String(val).replace(/Rp/gi, '').replace(/\s/g, '');
-            if (str.includes('.') && str.includes(',')) {
-                str = str.replace(/\./g, '').replace(/,/g, '.');
-            } else if (str.includes(',')) {
-                str = str.replace(/,/g, '.');
-            } else if (str.includes('.') && str.split('.').pop().length === 3) {
-                str = str.replace(/\./g, '');
-            }
+            // Handle European (Indonesian) format 1.000,00 vs standard 1,000.00
+            if (str.includes('.') && str.includes(',')) str = str.replace(/\./g, '').replace(/,/g, '.');
+            else if (str.includes(',')) str = str.replace(/,/g, '.');
+            else if (str.includes('.') && str.split('.').pop().length === 3) str = str.replace(/\./g, '');
             let n = parseFloat(str); return isNaN(n) ? 0 : n;
         }
 
@@ -387,14 +385,14 @@
         };
 
         window.deleteLog = (id) => {
-            window.openConfirmModal("Hapus Log", "Hapus riwayat transaksi ini?", "trash-2", "bg-red-50 text-red-600", async () => {
+            window.openConfirmModal("Hapus Log", "Log ini akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id));
                 window.showToast("DATA DIHAPUS");
             });
         };
 
         window.deleteMaterial = (name, type) => {
-            window.openConfirmModal("Hapus Stok", `Hapus seluruh stok ${name}?`, "trash-2", "bg-red-50 text-red-600", async () => {
+            window.openConfirmModal("Hapus Stok", `Hapus seluruh histori stok ${name}?`, "trash-2", "bg-red-50 text-red-600", async () => {
                 const toDelete = inventory.filter(i => i.name === name && i.type === type);
                 const batch = writeBatch(db);
                 toDelete.forEach(item => batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', item.id)));
@@ -406,12 +404,12 @@
         window.returnItem = (id) => {
             const it = inventory.find(i => i.id === id);
             if (!it) return;
-            window.openConfirmModal("Kembalikan Stok", `Kembalikan material ${it.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => {
+            window.openConfirmModal("Kembalikan Stok", `Konfirmasi pengembalian material ${it.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => {
                 const now = new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short' });
                 const logDetail = `PENGEMBALIAN DARI ${it.picBorrow} PADA ${now}.`;
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { ...it, status: 'MASUK', subStatus: 'PENGEMBALIAN', notesInstall: logDetail, createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) });
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id), { subStatus: 'SELESAI' });
-                window.showToast("DITERIMA");
+                window.showToast("BARANG KEMBALI");
             });
         };
 
@@ -433,7 +431,6 @@
             });
         };
 
-        /** Rendering Engine **/
         window.renderAll = () => {
             const summary = {};
             inventory.forEach(i => {
@@ -449,39 +446,36 @@
             stock.forEach(it => { if (it.q > 0) valCats[it.c] += (it.q * it.p); });
             const grandTotal = Object.values(valCats).reduce((a, b) => a + b, 0);
 
-            // UI Stats
-            const updateEl = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
-            updateEl('count-total-items', stock.length);
-            updateEl('count-low-stock', stock.filter(s => s.q > 0 && s.q < 5).length);
-            updateEl('count-active-loans', inventory.filter(i => i.subStatus === 'PEMINJAMAN').length);
-            updateEl('total-asset-value', `Rp ${grandTotal.toLocaleString('id-ID')}`);
-            updateEl('grand-total-budget', `RP ${grandTotal.toLocaleString('id-ID')}`);
-            updateEl('val-cat-mechanical', `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`);
-            updateEl('val-cat-electrical', `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`);
-            updateEl('val-cat-plumbing', `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`);
+            // Dashboard
+            const safeUpdate = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            safeUpdate('count-total-items', stock.length);
+            safeUpdate('count-low-stock', stock.filter(s => s.q > 0 && s.q < 5).length);
+            safeUpdate('count-active-loans', inventory.filter(i => i.subStatus === 'PEMINJAMAN').length);
+            safeUpdate('total-asset-value', `Rp ${grandTotal.toLocaleString('id-ID')}`);
+            safeUpdate('grand-total-budget', `RP ${grandTotal.toLocaleString('id-ID')}`);
+            safeUpdate('val-cat-mechanical', `RP ${valCats.MECHANICAL.toLocaleString('id-ID')}`);
+            safeUpdate('val-cat-electrical', `RP ${valCats.ELECTRICAL.toLocaleString('id-ID')}`);
+            safeUpdate('val-cat-plumbing', `RP ${valCats.PLUMBING.toLocaleString('id-ID')}`);
 
-            // Charts
             const ctx = document.getElementById('main-inventory-chart')?.getContext('2d');
             if (ctx) {
                 if (mainChart) mainChart.destroy();
                 mainChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'], datasets: [{ data: [valCats.MECHANICAL, valCats.ELECTRICAL, valCats.PLUMBING], backgroundColor: ['#f97316', '#0ea5e9', '#10b981'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
             }
 
-            // Logs
             const rec = document.getElementById('recent-logs-container'), full = document.getElementById('full-log-container');
             if (rec && full) {
                 rec.innerHTML = ''; full.innerHTML = '';
                 inventory.forEach((i, idx) => {
                     let d = i.notesInstall || i.notesBorrow || '-';
-                    if (i.subStatus === 'PROYEK') d = `PIC: ${i.picInstall} | UNIT: ${i.notesInstall}`;
+                    if (i.subStatus === 'PROYEK') d = `PIC: ${i.picInstall} | LOKASI: ${i.notesInstall}`;
                     if (i.subStatus === 'PEMINJAMAN') d = `PIC: ${i.picBorrow} | EST: ${i.dateReturn || '-'}`;
-                    const card = `<div class="premium-card p-5 border-l-8 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white"><div class="flex justify-between items-start"><div class="flex-1 pr-4"><div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black">${i.subStatus || 'LOG'}</span><h4 class="text-[10px] font-black truncate">${i.name}</h4></div><p class="text-[9px] font-bold text-slate-400 mb-2 uppercase">${i.qty} ${i.unit} • ${i.timestamp}</p><div class="bg-slate-50 p-2 rounded-xl border italic text-[9px] text-slate-600 font-bold leading-relaxed">${d}</div></div><button onclick="window.deleteLog('${i.id}')" class="p-2 text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2"></i></button></div></div>`;
+                    const card = `<div class="premium-card p-5 border-l-8 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white"><div class="flex justify-between items-start"><div class="flex-1 pr-4"><div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black">${i.subStatus || 'LOG'}</span><h4 class="text-[10px] font-black truncate">${i.name}</h4></div><p class="text-[9px] font-bold text-slate-400 mb-2">${i.qty} ${i.unit} • ${i.timestamp}</p><div class="bg-slate-50 p-2 rounded-xl border italic text-[9px] text-slate-600 font-bold leading-relaxed">${d}</div></div><button onclick="window.deleteLog('${i.id}')" class="p-2 text-slate-200 hover:text-red-500 transition-all"><i data-lucide="trash-2"></i></button></div></div>`;
                     if (idx < 10) rec.innerHTML += card;
                     if (!searchQuery || i.name.includes(searchQuery.toUpperCase())) full.innerHTML += card;
                 });
             }
 
-            // Stock categories
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const list = document.getElementById(`stock-list-${c}`);
                 const items = stock.filter(s => s.c === c);
@@ -494,28 +488,26 @@
                 }
             });
 
-            // Issue cards
             const iGrid = document.getElementById('issue-grid-container'); 
             if (iGrid) {
                 iGrid.innerHTML = '';
                 stock.filter(s => s.q > 0).forEach(it => {
                     if (issueSearchQuery && !it.n.includes(issueSearchQuery.toUpperCase())) return;
                     let theme = it.c === "ELECTRICAL" ? "border-sky-500 bg-sky-50/30" : (it.c === "PLUMBING" ? "border-emerald-500 bg-emerald-50/30" : "border-orange-500 bg-orange-50/30");
-                    iGrid.innerHTML += `<div onclick="window.openIssueModal(JSON.parse(this.dataset.item))" data-item="${JSON.stringify(it).replace(/"/g, '&quot;')}" class="premium-card p-6 border-t-4 ${theme} cursor-pointer hover:scale-[1.03] transition-all"><div class="flex justify-between mb-4"><span class="text-[8px] font-black px-2 py-1 bg-white rounded-md border text-slate-400 uppercase">${it.c}</span><span class="text-xl font-black uppercase">${it.q} <small class="text-[10px] text-slate-400 font-bold">${it.u}</small></span></div><h4 class="text-[11px] font-black truncate mb-1 uppercase">${it.n}</h4><p class="text-[8px] text-slate-500 italic font-bold truncate uppercase">${it.t}</p></div>`;
+                    const itData = JSON.stringify(it).replace(/"/g, '&quot;');
+                    iGrid.innerHTML += `<div onclick="window.openIssueModal(JSON.parse(this.dataset.item))" data-item="${itData}" class="premium-card p-6 border-t-4 ${theme} cursor-pointer hover:scale-[1.03] transition-all"><div class="flex justify-between mb-4"><span class="text-[8px] font-black px-2 py-1 bg-white rounded-md border text-slate-400 uppercase">${it.c}</span><span class="text-xl font-black uppercase">${it.q} <small class="text-[10px] text-slate-400 font-bold">${it.u}</small></span></div><h4 class="text-[11px] font-black truncate mb-1 uppercase">${it.n}</h4><p class="text-[8px] text-slate-500 italic font-bold truncate uppercase">${it.t}</p></div>`;
                 });
             }
 
-            // Loan table
             const lBody = document.getElementById('loan-table-body'), loans = inventory.filter(i => i.subStatus === 'PEMINJAMAN');
             if (lBody) {
                 lBody.innerHTML = ''; document.getElementById('loan-empty-state').classList.toggle('hidden', loans.length > 0);
                 loans.forEach(ln => { 
-                    const overdue = ln.dateReturn && new Date(ln.dateReturn) < new Date();
-                    lBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-xs text-blue-900 font-black">${ln.picBorrow}</td><td class="p-6 text-[10px] font-black">${ln.name}</td><td class="p-6 text-[9px] text-slate-400 font-bold">${ln.type}</td><td class="p-6 text-center text-xs font-black">${ln.qty}</td><td class="p-6"><p class="text-[9px] font-bold">P: ${ln.dateBorrow || ln.timestamp}</p><p class="${overdue ? 'text-red-500' : 'text-emerald-500'} font-black text-[9px]">E: ${ln.dateReturn || '-'}</p></td><td class="p-6 text-[9px] text-slate-400 max-w-xs truncate font-medium text-center">${ln.notesBorrow || '-'}</td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i data-lucide="check"></i></button></td></tr>`; 
+                    const isOver = ln.dateReturn && new Date(ln.dateReturn) < new Date();
+                    lBody.innerHTML += `<tr class="hover:bg-slate-50 transition-all uppercase"><td class="p-6 text-xs text-blue-900 font-black">${ln.picBorrow}</td><td class="p-6 text-[10px] font-black">${ln.name}</td><td class="p-6 text-[9px] text-slate-400 font-bold">${ln.type}</td><td class="p-6 text-center text-xs font-black">${ln.qty}</td><td class="p-6"><p class="text-[9px] font-bold">P: ${ln.dateBorrow || ln.timestamp}</p><p class="${isOver ? 'text-red-500' : 'text-emerald-500'} font-black text-[9px]">E: ${ln.dateReturn || '-'}</p></td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i data-lucide="check"></i></button></td></tr>`; 
                 });
             }
 
-            // Valuation table
             const vBody = document.getElementById('valuation-table-body'); 
             if (vBody) {
                 vBody.innerHTML = '';
@@ -535,28 +527,25 @@
                     let count = 0;
                     for (const sn of wb.SheetNames) {
                         const ws = wb.Sheets[sn];
-                        const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
                         let hIdx = -1;
-                        for (let i = 0; i < Math.min(rawData.length, 50); i++) {
-                            if (rawData[i].some(c => {
-                                let s = String(c).toUpperCase();
-                                return s.includes("NAMA") || s.includes("DESCRIPTION") || s.includes("BARANG");
-                            })) { hIdx = i; break; }
+                        for (let i = 0; i < Math.min(data.length, 50); i++) {
+                            if (data[i].some(c => String(c).toUpperCase().includes("NAMA") || String(c).toUpperCase().includes("DESCRIPTION"))) { hIdx = i; break; }
                         }
                         if (hIdx === -1) continue;
                         const rows = XLSX.utils.sheet_to_json(ws, { range: hIdx });
                         for (const row of rows) {
-                            const nameK = findColKey(row, ['Nama Barang', 'Description', 'NAMA', 'Material']);
-                            const volK = findColKey(row, ['VOL', 'Qty', 'Quantity']);
-                            if (row[nameK] && cleanNum(row[volK]) > 0) {
+                            const nameK = findColKey(row, ['Nama Barang', 'Description', 'NAMA']);
+                            const qtyK = findColKey(row, ['VOL', 'Qty', 'Quantity']);
+                            if (row[nameK] && cleanNum(row[qtyK]) > 0) {
                                 let cat = detectCat(row[nameK], sn);
-                                const m = String(row[findColKey(row, ['Merk', 'Brand'])] || "").trim();
-                                const t = String(row[findColKey(row, ['Tipe', 'Type'])] || "").trim();
-                                const combined = (m && t) ? `${m} / ${t}` : (m || t || "-");
+                                const merk = String(row[findColKey(row, ['Merk', 'Brand'])] || "").trim();
+                                const tipe = String(row[findColKey(row, ['Tipe', 'Type'])] || "").trim();
+                                const combinedType = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
 
                                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
-                                    name: String(row[nameK]).toUpperCase().trim(), category: cat, type: combined.toUpperCase(), 
-                                    qty: cleanNum(row[volK]), unit: String(row[findColKey(row, ['SAT', 'Unit'])] || "PCS").toUpperCase(), 
+                                    name: String(row[nameK]).toUpperCase().trim(), category: cat, type: combinedType.toUpperCase(), 
+                                    qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['SAT', 'Unit'])] || "PCS").toUpperCase(), 
                                     price: cleanNum(row[findColKey(row, ['HARGA', 'PRICE'])]), status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), 
                                     timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
                                 });
@@ -564,8 +553,8 @@
                             }
                         }
                     }
-                    window.showToast(`${count} DATA DIIMPOR`);
-                } catch (err) { window.showToast("GAGAL IMPOR", true); }
+                    window.showToast(`${count} BARANG DIIMPOR`);
+                } catch (err) { window.showToast("GAGAL MEMBACA FILE", true); }
             }; reader.readAsArrayBuffer(f);
         };
 
@@ -575,30 +564,30 @@
                 try {
                     const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
                     const ws = wb.Sheets[wb.SheetNames[0]];
-                    const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
                     let hIdx = -1;
-                    for (let i = 0; i < Math.min(rawData.length, 50); i++) {
-                        if (rawData[i].some(c => String(c).toUpperCase().includes("SHORT TEXT"))) { hIdx = i; break; }
+                    for (let i = 0; i < Math.min(data.length, 50); i++) {
+                        if (data[i].some(c => String(c).toUpperCase().includes("SHORT TEXT"))) { hIdx = i; break; }
                     }
                     if (hIdx === -1) { window.showToast("FORMAT SAP TIDAK COCOK", true); return; }
 
                     const rows = XLSX.utils.sheet_to_json(ws, { range: hIdx });
                     let count = 0;
                     for (const row of rows) {
-                        const textK = findColKey(row, ['Short Text', 'Description', 'Material Description']);
+                        const textK = findColKey(row, ['Short Text', 'Description']);
                         const qtyK = findColKey(row, ['Quantity requested', 'Quantity']);
-                        const priceK = findColKey(row, ['Valuation Price', 'Price']);
                         if (row[textK] && cleanNum(row[qtyK]) > 0) {
                             const p = String(row[textK]).split(';');
-                            const merk = (p[0] || "").trim();
-                            const nama = (p[1] || p[0] || "TANPA NAMA").trim();
-                            const tipe = (p[2] || "").trim();
-                            const combined = (merk && tipe) ? `${merk} / ${tipe}` : (merk || tipe || "-");
+                            // SAP: BRAND;PROD;SPEC
+                            const brand = (p[0] || "").trim();
+                            const prod = (p[1] || p[0] || "TANPA NAMA").trim();
+                            const spec = (p[2] || "").trim();
+                            const combinedSpec = (brand && spec) ? `${brand} / ${spec}` : (brand || spec || "-");
 
                             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
-                                name: nama.toUpperCase(), category: detectCat(row[textK]), type: combined.toUpperCase(), 
-                                qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['Unit'])] || "PCS").replace("EA", "PCS"), 
-                                price: cleanNum(row[priceK]), status: 'MASUK', subStatus: 'IMPOR SAP', 
+                                name: prod.toUpperCase(), category: detectCat(row[textK]), type: combinedSpec.toUpperCase(), 
+                                qty: cleanNum(row[qtyK]), unit: String(row[findColKey(row, ['Unit of Measure', 'Unit'])] || "PCS").replace("EA", "PCS"), 
+                                price: cleanNum(row[findColKey(row, ['Valuation Price', 'Price'])]), status: 'MASUK', subStatus: 'IMPOR SAP', 
                                 notesInstall: `SAP PR: ${row[findColKey(row, ['Purchase Requisition'])] || '-'}`, 
                                 createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
                             });
@@ -610,11 +599,11 @@
             }; reader.readAsArrayBuffer(f);
         };
 
-        /** Event Handlers **/
+        /** Handlers **/
         window.handleSearch = (q) => { searchQuery = q; window.renderAll(); };
         window.handleIssueSearch = (q) => { issueSearchQuery = q; window.renderAll(); };
         window.openIssueModal = (it) => { 
-            document.getElementById('issueModalTitle').innerText = it.n; 
+            document.getElementById('issueModalTitle').innerText = `${it.n} (${it.q} ${it.u})`; 
             document.getElementById('modalItemName').value = it.n; 
             document.getElementById('modalItemType').value = it.t; 
             document.getElementById('modalCategory').value = it.c; 
@@ -623,7 +612,6 @@
             document.getElementById('modalQty').max = it.q; 
             document.getElementById('modalDateBorrow').valueAsDate = new Date(); 
             document.getElementById('issueModal').classList.remove('hidden'); 
-            refreshLucide();
         };
         window.closeIssueModal = () => document.getElementById('issueModal').classList.add('hidden');
         window.toggleModalSubPanels = () => { const v = document.getElementById('modalSubStatus').value; document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); };
@@ -641,7 +629,7 @@
         document.getElementById('issueFormAction').onsubmit = async (e) => {
             e.preventDefault();
             const sub = document.getElementById('modalSubStatus').value;
-            const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('itemType').value, qty: Number(document.getElementById('modalQty').value), unit: document.getElementById('modalUnit').value, price: Number(document.getElementById('modalPrice').value) || 0, status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase(), dateBorrow: document.getElementById('modalDateBorrow').value, dateReturn: document.getElementById('modalDateReturn').value, notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase(), picInstall: document.getElementById('modalPicInstall').value.toUpperCase(), notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase(), createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) };
+            const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('itemType').value, qty: Number(document.getElementById('modalQty').value), unit: document.getElementById('unit').value, price: Number(document.getElementById('price').value) || 0, status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase(), dateBorrow: document.getElementById('modalDateBorrow').value, dateReturn: document.getElementById('modalDateReturn').value, notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase(), picInstall: document.getElementById('modalPicInstall').value.toUpperCase(), notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase(), createdAt: Date.now(), timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) };
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data);
             window.closeIssueModal(); window.showToast("PENGELUARAN TERCATAT"); window.switchView('dashboard');
         };
