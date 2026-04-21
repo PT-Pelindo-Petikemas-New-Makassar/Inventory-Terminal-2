@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#004a99">
     <title>PT PELINDO PETIKEMAS - WORKSHOP T2</title>
     
-    <!-- Libraries from CDN -->
+    <!-- Libraries dari CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -27,36 +27,44 @@
             background-color: var(--pld-bg); 
             color: #0f172a; 
             text-transform: uppercase; 
-            font-size: 13px; 
+            font-size: 12px; 
+            overflow-x: hidden;
         }
 
         .header-gradient { 
             background: linear-gradient(135deg, #004a99 0%, #002d5d 100%); 
         }
 
+        /* Sidebar Bergerak */
         #sidebar-menu { 
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 200; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 200;
+            left: -100%;
         }
         
         #sidebar-menu.open { 
-            transform: translateX(0); 
+            left: 0;
         }
 
         .sidebar-overlay { 
-            display: none; 
+            position: fixed;
+            inset: 0;
             background: rgba(15, 23, 42, 0.6); 
             backdrop-filter: blur(4px); 
             z-index: 150; 
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
         }
         
         .sidebar-overlay.active { 
-            display: block; 
+            opacity: 1;
+            visibility: visible;
         }
 
         .premium-card { 
             background: white;
-            border-radius: 1.5rem;
+            border-radius: 1.25rem;
             border: 1px solid #f1f5f9;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
             transition: all 0.3s ease;
@@ -71,8 +79,8 @@
             width: 100%; 
             background-color: #f8fafc; 
             border: 1px solid #e2e8f0; 
-            border-radius: 1rem; 
-            padding: 0.875rem 1.25rem; 
+            border-radius: 0.875rem; 
+            padding: 0.75rem 1rem; 
             font-size: 0.875rem; 
             font-weight: 700; 
             outline: none; 
@@ -83,8 +91,7 @@
         .form-input-pld:focus {
             border-color: var(--pld-blue);
             background-color: white;
-            ring: 2px;
-            ring-color: rgba(0, 74, 153, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 74, 153, 0.1);
         }
 
         .view-section { display: none; }
@@ -100,9 +107,9 @@
             align-items: center;
             gap: 1rem;
             width: 100%;
-            padding: 1rem 1.5rem;
+            padding: 0.875rem 1.25rem;
             color: #64748b;
-            border-radius: 1rem;
+            border-radius: 0.875rem;
             font-weight: 700;
             transition: all 0.2s;
             text-align: left;
@@ -119,23 +126,6 @@
             border-left: 4px solid var(--pld-blue);
         }
 
-        .adjust-btn { 
-            width: 2.25rem; 
-            height: 2.25rem; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 0.75rem; 
-            background-color: #f1f5f9; 
-            color: #475569;
-            transition: all 0.2s;
-        }
-
-        .adjust-btn:hover {
-            background-color: var(--pld-blue);
-            color: white;
-        }
-
         #app-loader { 
             position: fixed; 
             inset: 0; 
@@ -148,7 +138,7 @@
             gap: 1.5rem;
         }
 
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 
@@ -189,19 +179,6 @@
                 setTimeout(() => loader.style.display = 'none', 500);
             }
         };
-
-        window.showLoaderError = function(msg) {
-            const status = document.getElementById('loader-status');
-            const spinner = document.querySelector('#app-loader .animate-spin');
-            if (status) {
-                status.innerText = msg;
-                status.classList.add('text-red-600');
-            }
-            if (spinner) {
-                spinner.classList.remove('animate-spin');
-                spinner.classList.add('border-red-600');
-            }
-        };
     </script>
 </head>
 <body class="antialiased">
@@ -215,13 +192,19 @@
         </div>
     </div>
 
-    <div id="sidebar-overlay" onclick="window.toggleMenu(false)" class="sidebar-overlay fixed inset-0"></div>
+    <!-- Overlay Sidebar -->
+    <div id="sidebar-overlay" onclick="window.toggleMenu(false)" class="sidebar-overlay"></div>
     
-    <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl flex flex-col border-r border-slate-100 -translate-x-full md:translate-x-0">
-        <div class="p-8 header-gradient text-white">
-            <h2 class="font-extrabold text-xl tracking-tight leading-tight uppercase">PELINDO</h2>
-            <h3 class="font-bold text-[10px] opacity-80 tracking-widest uppercase">INVENTORY SYSTEM</h3>
-            <p class="text-[8px] opacity-60 font-medium uppercase tracking-[0.2em] mt-2">Terminal 2 Workshop</p>
+    <!-- Sidebar -->
+    <aside id="sidebar-menu" class="fixed inset-y-0 w-72 bg-white shadow-2xl flex flex-col border-r border-slate-100">
+        <div class="p-8 header-gradient text-white flex justify-between items-center">
+            <div>
+                <h2 class="font-extrabold text-xl tracking-tight leading-tight uppercase">PELINDO</h2>
+                <h3 class="font-bold text-[10px] opacity-80 tracking-widest uppercase">INVENTORY SYSTEM</h3>
+            </div>
+            <button onclick="window.toggleMenu(false)" class="p-2 hover:bg-white/10 rounded-lg">
+                <i data-lucide="x" class="w-5 h-5 text-white"></i>
+            </button>
         </div>
         
         <nav class="flex-1 p-4 space-y-1 overflow-y-auto mt-4">
@@ -235,31 +218,40 @@
         </nav>
 
         <div class="p-6 border-t border-slate-50 text-center">
-            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pelindo Petikemas © 2026</p>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Workshop Terminal 2 © 2026</p>
         </div>
     </aside>
 
-    <header class="sticky top-0 z-[100] bg-white border-b border-slate-100 md:ml-72">
+    <!-- Header -->
+    <header class="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <button onclick="window.toggleMenu(true)" class="md:hidden p-2 text-slate-600"><i data-lucide="menu"></i></button>
+                <button onclick="window.toggleMenu(true)" class="p-2.5 bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-100 transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
                 <div class="flex items-center gap-4">
-                    <div class="h-10 w-10 flex items-center justify-center">
+                    <div class="h-9 w-9 flex items-center justify-center">
                         <img src="https://www.pelindo.co.id/logo_pelindo_single.png" alt="Pelindo" class="max-h-full object-contain">
                     </div>
-                    <div>
+                    <div class="hidden sm:block">
                         <h1 class="text-xs font-black text-slate-800 leading-none">PT PELINDO PETIKEMAS</h1>
-                        <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase">Workshop T2 Management System</p>
+                        <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase">Terminal 2 Workshop</p>
                     </div>
                 </div>
             </div>
-            <button onclick="window.exportData('xlsx')" class="hidden sm:flex bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-[10px] transition-all items-center gap-2">
-                <i data-lucide="download" class="w-4 h-4"></i> EXCEL
-            </button>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="window.exportData('xlsx')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-[10px] transition-all flex items-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4"></i> EXCEL
+                </button>
+            </div>
         </div>
     </header>
 
-    <main class="md:ml-72 p-4 md:p-8">
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <!-- VIEW: DASHBOARD -->
         <div id="view-dashboard" class="view-section active-view">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="premium-card p-6 border-l-4 border-blue-600">
@@ -282,7 +274,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div class="premium-card p-6 lg:col-span-2">
-                    <h3 class="font-black text-xs text-slate-800 mb-6 uppercase">Statistik Kategori</h3>
+                    <h3 class="font-black text-xs text-slate-800 mb-6 uppercase">Proporsi Kategori</h3>
                     <div class="h-[250px]"><canvas id="main-inventory-chart"></canvas></div>
                 </div>
                 <div class="premium-card p-6">
@@ -300,34 +292,47 @@
                     </button>
                 </div>
             </div>
-            <div id="full-log-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div id="full-log-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
+        <!-- VIEW: STOK -->
         <div id="view-stock" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest">Data Stok Aktual</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between border-l-4 border-orange-500 pl-4 mb-4"><span class="font-black text-slate-800">Mechanical</span><span class="text-[10px] font-black bg-orange-50 text-orange-600 px-2 py-1 rounded-lg" id="badge-count-MECHANICAL">0</span></div>
+                    <div class="flex items-center justify-between border-l-4 border-orange-500 pl-4 mb-4">
+                        <span class="font-black text-slate-800">Mechanical</span>
+                        <span class="text-[10px] font-black bg-orange-50 text-orange-600 px-2 py-1 rounded-lg" id="badge-count-MECHANICAL">0</span>
+                    </div>
                     <div id="stock-list-MECHANICAL" class="grid gap-3"></div>
                 </div>
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between border-l-4 border-sky-500 pl-4 mb-4"><span class="font-black text-slate-800">Electrical</span><span class="text-[10px] font-black bg-sky-50 text-sky-600 px-2 py-1 rounded-lg" id="badge-count-ELECTRICAL">0</span></div>
+                    <div class="flex items-center justify-between border-l-4 border-sky-500 pl-4 mb-4">
+                        <span class="font-black text-slate-800">Electrical</span>
+                        <span class="text-[10px] font-black bg-sky-50 text-sky-600 px-2 py-1 rounded-lg" id="badge-count-ELECTRICAL">0</span>
+                    </div>
                     <div id="stock-list-ELECTRICAL" class="grid gap-3"></div>
                 </div>
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between border-l-4 border-emerald-500 pl-4 mb-4"><span class="font-black text-slate-800">Plumbing</span><span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg" id="badge-count-PLUMBING">0</span></div>
+                    <div class="flex items-center justify-between border-l-4 border-emerald-500 pl-4 mb-4">
+                        <span class="font-black text-slate-800">Plumbing</span>
+                        <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg" id="badge-count-PLUMBING">0</span>
+                    </div>
                     <div id="stock-list-PLUMBING" class="grid gap-3"></div>
                 </div>
             </div>
         </div>
 
+        <!-- VIEW: INPUT -->
         <div id="view-input" class="view-section">
             <div class="max-w-2xl mx-auto">
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
                     <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Input Penerimaan</h2>
                     <div class="flex gap-2">
                         <input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="window.importExcelGeneral(event)">
-                        <label for="importExcel" class="cursor-pointer bg-white border border-slate-200 px-4 py-2 text-[10px] font-black text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all flex items-center gap-2 uppercase"><i data-lucide="file-spreadsheet"></i> Impor</label>
+                        <label for="importExcel" class="cursor-pointer bg-white border border-slate-200 px-4 py-2 text-[10px] font-black text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all flex items-center gap-2 uppercase">
+                            <i data-lucide="file-spreadsheet"></i> Impor File XLSX
+                        </label>
                     </div>
                 </div>
                 <form id="inventoryForm" class="premium-card p-8 space-y-6 border-t-8 border-blue-900">
@@ -346,6 +351,7 @@
             </div>
         </div>
 
+        <!-- VIEW: ISSUE -->
         <div id="view-issue" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest">Pengeluaran Barang</h2>
             <div class="mb-8">
@@ -354,6 +360,7 @@
             <div id="issue-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
         </div>
 
+        <!-- VIEW: LOAN -->
         <div id="view-loan" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest">Peminjaman Berjalan</h2>
             <div class="premium-card overflow-hidden">
@@ -368,6 +375,7 @@
             </div>
         </div>
 
+        <!-- VIEW: BUDGET -->
         <div id="view-budget" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest">Valuasi Aset Workshop</h2>
             <div class="premium-card p-10 bg-gradient-to-br from-blue-900 to-sky-600 text-white flex flex-col items-center justify-center mb-10 shadow-2xl">
@@ -387,9 +395,9 @@
         </div>
     </main>
 
-    <!-- Modals -->
+    <!-- Modals (Confirm & Issue) -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[500]">
-        <div class="bg-white w-full max-sm rounded-3xl shadow-2xl p-8 text-center animate-fadeIn">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-8 text-center animate-fadeIn">
             <div id="confirmIconContainer" class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-slate-100 text-slate-600"><i id="confirmIcon" data-lucide="alert-circle" class="w-8 h-8"></i></div>
             <h3 id="confirmTitle" class="text-base font-black uppercase mb-1">Konfirmasi</h3>
             <p id="confirmMessage" class="text-[11px] text-slate-500 font-bold mb-6">Apakah Anda yakin?</p>
@@ -401,7 +409,7 @@
     </div>
 
     <div id="issueModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden z-[400]">
-        <div class="bg-white w-full max-lg rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <h3 id="issueModalTitle" class="text-sm font-black uppercase">Keluarkan Barang</h3>
                 <button onclick="window.closeIssueModal()" class="p-1 hover:bg-white/20 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -434,7 +442,6 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // APP CONFIG - UPDATED WITH USER FIREBASE CONFIG
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'inventaris-pelindo-t2';
         
         let firebaseConfig = { 
@@ -465,9 +472,59 @@
         };
 
         const cleanNum = (v) => {
-            if (!v) return 0;
+            if (!v || v === "" || isNaN(v)) return 0;
             if (typeof v === 'number') return v;
             return parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
+        };
+
+        // --- LOGIKA IMPOR FILE ---
+        window.importExcelGeneral = (e) => {
+            const f = e.target.files[0]; 
+            if(!f) return;
+            
+            const r = new FileReader(); 
+            r.onload = async (ev) => {
+                try {
+                    const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+                    const ws = wb.Sheets[wb.SheetNames[0]];
+                    const data = XLSX.utils.sheet_to_json(ws);
+                    
+                    let count = 0;
+                    for(const row of data) {
+                        // Opsi 1: Format Stok List (Nama Barang, VOL, SAT, HARGA SATUAN)
+                        // Opsi 2: Format PR (Short Text, Quantity requested, Unit of Measure, Valuation Price)
+                        
+                        let name = row['Nama Barang'] || row['Short Text'] || row['Nama'] || row['Description'];
+                        let qty = cleanNum(row['VOL'] || row['Quantity requested'] || row['QTY'] || row['Quantity']);
+                        let unit = row['SAT'] || row['Unit of Measure'] || row['SATUAN'] || row['Unit'] || 'PCS';
+                        let price = cleanNum(row['HARGA SATUAN'] || row['Valuation Price'] || row['HARGA'] || row['Price']);
+                        let category = row['KATEGORI'] || row['Material Group'] || 'MECHANICAL';
+                        let type = row['Tipe'] || row['Merk'] || row['Merk/Tipe'] || '-';
+
+                        if(name && qty > 0) {
+                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
+                                name: String(name).toUpperCase().trim(), 
+                                category: category.includes('ELECTRICAL') ? 'ELECTRICAL' : (category.includes('PLUMBING') ? 'PLUMBING' : 'MECHANICAL'), 
+                                type: String(type).toUpperCase(), 
+                                qty: qty, 
+                                unit: String(unit).toUpperCase(), 
+                                price: price,
+                                status: 'MASUK', 
+                                subStatus: 'IMPOR', 
+                                createdAt: Date.now(),
+                                timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})
+                            });
+                            count++;
+                        }
+                    }
+                    window.showToast(`${count} DATA BERHASIL DIIMPOR`);
+                    e.target.value = ''; // Reset input
+                } catch (err) {
+                    console.error(err);
+                    window.showToast("GAGAL MEMBACA FILE", true);
+                }
+            }; 
+            r.readAsArrayBuffer(f);
         };
 
         window.deleteLog = (id) => {
@@ -514,8 +571,8 @@
                 if (mainChart) mainChart.destroy();
                 mainChart = new Chart(ctx, { 
                     type: 'doughnut', 
-                    data: { labels: ['MECH', 'ELEC', 'PLUM'], datasets: [{ data: [valCats.MECHANICAL, valCats.ELECTRICAL, valCats.PLUMBING], backgroundColor: ['#f97316', '#0ea5e9', '#10b981'], borderWidth: 0 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 9, weight: 'bold' } } } } }
+                    data: { labels: ['MECH', 'ELEC', 'PLUM'], datasets: [{ data: [valCats.MECHANICAL, valCats.ELECTRICAL, valCats.PLUMBING], backgroundColor: ['#f97316', '#0ea5e9', '#10b981'], borderWidth: 0, hoverOffset: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } } }
                 });
             }
 
@@ -523,7 +580,7 @@
             if (rec && full) {
                 rec.innerHTML = ''; full.innerHTML = '';
                 inventory.forEach((i, idx) => {
-                    const card = `<div class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white flex justify-between items-center text-[9px]"><div class="truncate pr-4"><p class="font-black">${i.name}</p><p class="text-slate-400">${i.qty} ${i.unit} • ${i.subStatus} • ${i.timestamp}</p></div><button onclick="window.deleteLog('${i.id}')" class="text-slate-200 hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
+                    const card = `<div class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white flex justify-between items-center text-[9px] animate-fadeIn"><div class="truncate pr-4"><p class="font-black text-slate-800">${i.name}</p><p class="text-slate-400 font-bold">${i.qty} ${i.unit} • ${i.subStatus} • ${i.timestamp}</p></div><button onclick="window.deleteLog('${i.id}')" class="text-slate-200 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
                     if (idx < 5) rec.innerHTML += card;
                     if (!searchQuery || i.name.includes(searchQuery.toUpperCase())) full.innerHTML += card;
                 });
@@ -534,9 +591,10 @@
                 const items = stock.filter(s => s.c === c);
                 document.getElementById(`badge-count-${c}`).innerText = items.length;
                 if (list) {
-                    list.innerHTML = ''; items.forEach(it => {
+                    list.innerHTML = ''; 
+                    items.forEach(it => {
                         const nS = it.n.replace(/'/g, "\\'"), tS = it.t.replace(/'/g, "\\'");
-                        list.innerHTML += `<div class="premium-card p-4 border-l-4 ${it.q < 5 ? 'border-red-500' : 'border-slate-100'}"><div class="flex justify-between mb-3"><div><p class="text-[10px] font-black">${it.n}</p><p class="text-[8px] text-slate-400">${it.t}</p></div><span class="text-xs font-black">${it.q} <small class="text-[8px] opacity-40">${it.u}</small></span></div><div class="flex gap-2"><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, -1)" class="adjust-btn"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, 1)" class="adjust-btn"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button></div></div>`;
+                        list.innerHTML += `<div class="premium-card p-4 border-l-4 ${it.q < 5 ? 'border-red-500' : 'border-slate-100'}"><div class="flex justify-between mb-3"><div><p class="text-[10px] font-black text-slate-800">${it.n}</p><p class="text-[8px] text-slate-400 font-bold">${it.t}</p></div><span class="text-xs font-black ${it.q < 5 ? 'text-red-600' : 'text-slate-700'}">${it.q} <small class="text-[8px] opacity-40">${it.u}</small></span></div><div class="flex gap-2"><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, -1)" class="adjust-btn"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, 1)" class="adjust-btn"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button></div></div>`;
                     });
                 }
             });
@@ -546,7 +604,7 @@
                 iGrid.innerHTML = '';
                 stock.filter(s => s.q > 0).forEach(it => {
                     if (issueSearchQuery && !it.n.includes(issueSearchQuery.toUpperCase())) return;
-                    iGrid.innerHTML += `<div onclick="window.openIssueModal(JSON.parse(this.dataset.item))" data-item='${JSON.stringify(it).replace(/'/g, "&apos;")}' class="premium-card p-5 cursor-pointer hover:border-blue-500"><div class="flex justify-between mb-2"><span class="text-[8px] font-black px-2 py-0.5 bg-slate-100 rounded text-slate-400">${it.c}</span><span class="text-sm font-black">${it.q}</span></div><p class="text-[10px] font-black truncate">${it.n}</p></div>`;
+                    iGrid.innerHTML += `<div onclick="window.openIssueModal(JSON.parse(this.dataset.item))" data-item='${JSON.stringify(it).replace(/'/g, "&apos;")}' class="premium-card p-5 cursor-pointer hover:border-blue-500 group transition-all"><div class="flex justify-between mb-2"><span class="text-[8px] font-black px-2 py-0.5 bg-slate-100 rounded text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600">${it.c}</span><span class="text-sm font-black text-slate-800">${it.q}</span></div><p class="text-[10px] font-black truncate text-slate-700">${it.n}</p></div>`;
                 });
             }
 
@@ -570,7 +628,6 @@
 
                 onAuthStateChanged(auth, (u) => {
                     if(u) {
-                        // Using appId for document paths as requested
                         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (s) => {
                             inventory = s.docs.map(d => ({id: d.id, ...d.data()}));
                             inventory.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -578,7 +635,7 @@
                             window.hideLoader();
                         }, (err) => {
                             console.error("Firestore error:", err);
-                            window.showLoaderError("Izin Database Ditolak. Pastikan Security Rules sudah benar.");
+                            window.showLoaderError("Izin Database Ditolak. Periksa Security Rules.");
                         });
                     } else {
                         window.showLoaderError("Gagal Otentikasi");
@@ -586,12 +643,13 @@
                 });
             } catch (err) {
                 console.error("Init error:", err);
-                window.showLoaderError("Gagal menghubungkan ke Firebase. Cek koneksi internet.");
+                window.showLoaderError("Gagal menghubungkan ke Database.");
             }
         };
 
         window.handleSearch = (q) => { searchQuery = q; window.renderAll(); };
         window.handleIssueSearch = (q) => { issueSearchQuery = q; window.renderAll(); };
+        
         window.openIssueModal = (it) => {
             document.getElementById('issueModalTitle').innerText = `${it.n} (${it.q} ${it.u})`;
             document.getElementById('modalItemName').value = it.n;
@@ -615,6 +673,12 @@
             btn.onclick = async () => { btn.disabled = true; await a(); btn.disabled = false; window.closeConfirmModal(); };
             document.getElementById('confirmModal').classList.remove('hidden');
             if(window.lucide) lucide.createIcons();
+        };
+
+        window.toggleModalSubPanels = () => {
+            const v = document.getElementById('modalSubStatus').value;
+            document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN');
+            document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK');
         };
 
         init();
