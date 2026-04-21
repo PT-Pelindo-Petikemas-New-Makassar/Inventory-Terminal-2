@@ -434,21 +434,24 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // APP CONFIG
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pld-inventory-mnp';
+        // APP CONFIG - UPDATED WITH USER FIREBASE CONFIG
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'inventaris-pelindo-t2';
         
-        // PENTING: Masukkan API Key Anda di sini jika dihosting sendiri
         let firebaseConfig = { 
-            apiKey: "", 
-            authDomain: `${appId}.firebaseapp.com`, 
-            projectId: appId 
+            apiKey: "AIzaSyAIwAX6CaRy-PLa_KUhMyl_b5CnNia1DxM",
+            authDomain: "inventaris-pelindo-t2.firebaseapp.com",
+            projectId: "inventaris-pelindo-t2",
+            storageBucket: "inventaris-pelindo-t2.firebasestorage.app",
+            messagingSenderId: "92778704858",
+            appId: "1:92778704858:web:8664db80ccd46ad0d31ae3",
+            measurementId: "G-CXMESTJTXD"
         };
         
         try {
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 firebaseConfig = JSON.parse(__firebase_config);
             }
-        } catch (e) { console.warn("Fallback config"); }
+        } catch (e) { console.warn("Fallback to hardcoded config"); }
         
         let db, auth, inventory = [], mainChart = null;
         let searchQuery = "", issueSearchQuery = "";
@@ -567,6 +570,7 @@
 
                 onAuthStateChanged(auth, (u) => {
                     if(u) {
+                        // Using appId for document paths as requested
                         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (s) => {
                             inventory = s.docs.map(d => ({id: d.id, ...d.data()}));
                             inventory.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -574,7 +578,7 @@
                             window.hideLoader();
                         }, (err) => {
                             console.error("Firestore error:", err);
-                            window.showLoaderError("Izin Database Ditolak (Check Rules)");
+                            window.showLoaderError("Izin Database Ditolak. Pastikan Security Rules sudah benar.");
                         });
                     } else {
                         window.showLoaderError("Gagal Otentikasi");
@@ -582,7 +586,7 @@
                 });
             } catch (err) {
                 console.error("Init error:", err);
-                window.showLoaderError("Konfigurasi Database Salah / API Key Kosong");
+                window.showLoaderError("Gagal menghubungkan ke Firebase. Cek koneksi internet.");
             }
         };
 
