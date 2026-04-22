@@ -35,8 +35,8 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--pld-bg); 
-            background-image: radial-gradient(#e2e8f0 0.8px, transparent 0.8px);
-            background-size: 15px 15px;
+            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
             color: #0f172a; 
             text-transform: uppercase; 
             font-size: 11px; 
@@ -219,10 +219,23 @@
             if (spinner) { spinner.classList.remove('animate-spin'); spinner.classList.add('border-red-600'); }
         };
 
+        // Improved cleanNum for robust price reading
         window.cleanNum = (v) => {
-            if (v === undefined || v === null || v === "" || isNaN(v)) return 0;
+            if (v === undefined || v === null || v === "") return 0;
             if (typeof v === 'number') return v;
-            return parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
+            let s = String(v).trim();
+            // Handle IDN format dots for thousands and comma for decimal
+            if (s.includes('.') && s.includes(',')) {
+                s = s.replace(/\./g, '').replace(',', '.');
+            } else if (s.includes(',') && !s.includes('.')) {
+                s = s.replace(',', '.');
+            }
+            // Remove everything except numbers and a single decimal dot
+            let cleaned = s.replace(/[^0-9.]/g, '');
+            // Prevent multiple dots
+            let parts = cleaned.split('.');
+            if (parts.length > 2) cleaned = parts[0] + '.' + parts.slice(1).join('');
+            return parseFloat(cleaned) || 0;
         };
 
         window.getCategoryStyle = (cat) => {
@@ -414,7 +427,7 @@
             <div id="issue-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- VIEW: LOAN, INPUT, BUDGET (Tetap Sama) -->
+        <!-- VIEW: LOAN, INPUT, BUDGET -->
         <div id="view-loan" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest text-center">Peminjaman Berjalan</h2>
             <div class="premium-card overflow-hidden shadow-lg"><div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-slate-50 font-black border-b text-slate-500 uppercase"><tr><th class="p-6">Peminjam / Catatan</th><th class="p-6">Material</th><th class="p-6 text-center">Jumlah</th><th class="p-6 text-right">Aksi</th></tr></thead><tbody id="loan-table-body" class="divide-y font-bold text-slate-700"></tbody></table></div></div>
@@ -451,9 +464,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, getDocs, writeBatch, query, where, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global variable appId used from environment or default
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'inventaris-pelindo-t2';
-        
         let firebaseConfig = { 
             apiKey: "AIzaSyAIwAX6CaRy-PLa_KUhMyl_b5CnNia1DxM",
             authDomain: "inventaris-pelindo-t2.firebaseapp.com",
@@ -463,8 +474,6 @@
             appId: "1:92778704858:web:8664db80ccd46ad0d31ae3",
             measurementId: "G-CXMESTJTXD"
         };
-        
-        // Parse config from environment if available
         try { if (typeof __firebase_config !== 'undefined' && __firebase_config) { firebaseConfig = JSON.parse(__firebase_config); } } 
         catch (e) { console.warn("Fallback config used"); }
         
@@ -480,7 +489,7 @@
             if (sheet.includes('ELEC')) return 'ELECTRICAL';
             if (sheet.includes('PLUM')) return 'PLUMBING';
             if (catField.includes('ELEC') || catField.includes('99-128')) return 'ELECTRICAL';
-            if (catField.includes('PLUM') || catField.includes('99-900')) return 'PLUMBING';
+            if (catField.includes('PLUM') || catField.includes('PIPA') || catField.includes('99-900')) return 'PLUMBING';
             if (catField.includes('MECH') || catField.includes('99-132')) return 'MECHANICAL';
             return 'MECHANICAL';
         };
@@ -536,16 +545,15 @@
                             if (String(unit).toUpperCase() === 'EA') unit = 'PCS';
 
                             let price = 0;
+                            // Aggressive search for price column
                             for (let key in rowObj) {
-                                const kUpper = key.toUpperCase();
-                                if (kUpper.includes("HARGA SATUAN") || kUpper.includes("VALUATION PRICE") || kUpper.includes("NET PRICE") || kUpper.includes("PRICE")) {
-                                    price = window.cleanNum(rowObj[key]);
-                                    if (price > 0) break;
+                                if (key.includes("HARGA") || key.includes("PRICE") || key.includes("RATE")) {
+                                    let val = window.cleanNum(rowObj[key]);
+                                    if (val > 0) { price = val; break; }
                                 }
                             }
 
                             let category = detectCategory(rowObj, finalName, sheetName);
-                            // Path is strictly /artifacts/{appId}/public/data/{collectionName}
                             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name: String(finalName).toUpperCase().trim(), category: category, type: finalType.toUpperCase(), qty: qty, unit: String(unit).toUpperCase(), price: price, status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) });
                             totalImported++;
                         }
@@ -556,7 +564,13 @@
         };
 
         window.exportStockExcel = () => {
-            const summary = {}; inventory.forEach(i => { const k = `${i.name}|${i.type}`; if (!summary[k]) summary[k] = { 'NAMA MATERIAL': i.name, 'SPESIFIKASI': i.type, 'KATEGORI': i.category, 'STOK': 0, 'SATUAN': i.unit, 'HARGA SATUAN': i.price }; summary[k]['STOK'] += (i.status === 'MASUK' ? i.qty : -i.qty); });
+            const summary = {}; 
+            inventory.forEach(i => { 
+                const k = `${i.name}|${i.type}`; 
+                if (!summary[k]) summary[k] = { 'NAMA MATERIAL': i.name, 'SPESIFIKASI': i.type, 'KATEGORI': i.category, 'STOK': 0, 'SATUAN': i.unit, 'HARGA SATUAN': i.price }; 
+                summary[k]['STOK'] += (i.status === 'MASUK' ? i.qty : -i.qty); 
+                if (window.cleanNum(i.price) > 0) summary[k]['HARGA SATUAN'] = i.price;
+            });
             const data = Object.values(summary).filter(s => s['STOK'] !== 0).map(s => ({ ...s, 'TOTAL NILAI': s['STOK'] * s['HARGA SATUAN'] }));
             const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Stok"); XLSX.writeFile(wb, `Stok_Workshop.xlsx`);
         };
@@ -568,14 +582,20 @@
 
         window.renderAll = () => {
             const summary = {};
-            inventory.forEach(i => { const k = `${i.name}|${i.type}`; if (!summary[k]) summary[k] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: window.cleanNum(i.price) }; summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty); });
+            // Inventory is sorted DESC by createdAt.
+            inventory.forEach(i => { 
+                const k = `${i.name}|${i.type}`; 
+                if (!summary[k]) summary[k] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: 0 }; 
+                summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty); 
+                // Always try to get the newest price available
+                if (summary[k].p === 0 && window.cleanNum(i.price) > 0) summary[k].p = i.price;
+            });
             const stock = Object.values(summary);
             const valCats = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
             const qtyCats = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
             stock.forEach(it => { if(it.q > 0) { valCats[it.c] += (it.q * it.p); qtyCats[it.c] += it.q; } });
             const grandTotal = Object.values(valCats).reduce((a, b) => a + b, 0);
 
-            // UI Updates
             if(document.getElementById('count-total-items')) document.getElementById('count-total-items').innerText = stock.length;
             if(document.getElementById('count-low-stock')) document.getElementById('count-low-stock').innerText = stock.filter(s => s.q < 5).length;
             if(document.getElementById('count-active-loans')) document.getElementById('count-active-loans').innerText = inventory.filter(i => i.subStatus === 'PEMINJAMAN').length;
@@ -584,9 +604,6 @@
             if(document.getElementById('val-mech')) document.getElementById('val-mech').innerText = `Rp ${valCats.MECHANICAL.toLocaleString('id-ID')}`;
             if(document.getElementById('val-elec')) document.getElementById('val-elec').innerText = `Rp ${valCats.ELECTRICAL.toLocaleString('id-ID')}`;
             if(document.getElementById('val-plum')) document.getElementById('val-plum').innerText = `Rp ${valCats.PLUMBING.toLocaleString('id-ID')}`;
-
-            const filterIndicator = document.getElementById('stock-filter-indicator');
-            if (filterIndicator) { if (window.stockFilterMode === 'low') filterIndicator.classList.remove('hidden'); else filterIndicator.classList.add('hidden'); }
 
             const rec = document.getElementById('recent-logs-container'), full = document.getElementById('full-log-container');
             if (rec && full) {
@@ -599,9 +616,7 @@
                     else detailLine += ` • ${i.timestamp}`;
                     const card = `<div class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white flex justify-between items-center text-[9px] animate-fadeIn shadow-sm"><div class="flex items-center gap-3 truncate pr-4"><div class="p-2 rounded-lg ${st.bg} ${st.text}"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i></div><div class="truncate"><p class="font-black text-slate-800">${i.name}</p><p class="text-slate-400 font-bold">${detailLine}</p></div></div><button onclick="window.deleteSingleLog('${i.id}')" class="text-slate-200 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
                     if (idx < 5) rec.innerHTML += card;
-                    const matchSearch = !searchQuery || i.name.includes(searchQuery.toUpperCase());
-                    const matchDate = !window.historyDateFilter || i.dateOnly === window.historyDateFilter;
-                    if (matchSearch && matchDate) full.innerHTML += card;
+                    if ((!searchQuery || i.name.includes(searchQuery.toUpperCase())) && (!window.historyDateFilter || i.dateOnly === window.historyDateFilter)) full.innerHTML += card;
                 });
             }
 
@@ -618,15 +633,23 @@
                         const isLow = it.q < 5;
                         list.innerHTML += `<div class="premium-card p-3 flex flex-col w-[150px] border-t-4 ${it.q <= 0 ? 'border-red-600' : st.border} h-full relative">
                             <button onclick="window.deleteMaterial('${nS}', '${tS}')" class="absolute top-1 right-1 p-1 text-slate-300 hover:text-red-600"><i data-lucide="trash-2" class="w-2.5 h-2.5"></i></button>
-                            <div class="mb-2 h-[32px] flex items-start gap-1"><i data-lucide="${st.icon}" class="${st.text} w-2.5 h-2.5 mt-0.5 flex-shrink-0"></i><div class="truncate flex-1"><p class="text-[9px] font-black text-slate-800 leading-tight line-clamp-2 uppercase">${it.n}</p><p class="text-[7px] text-slate-400 font-bold truncate">${it.t}</p></div></div>
-                            <div class="mb-2"><select onchange="window.updateCategory('${nS}', '${tS}', this.value)" class="w-full text-[7px] font-black bg-slate-50 border-none rounded py-1 px-1 focus:ring-0">${['MECHANICAL','ELECTRICAL','PLUMBING'].map(v => `<option value="${v}" ${it.c === v ? 'selected' : ''}>${v.slice(0,4)}</option>`).join('')}</select></div>
+                            <div class="mb-2 h-[32px] flex items-start gap-1">
+                                <i data-lucide="${st.icon}" class="${st.text} w-2.5 h-2.5 mt-0.5 flex-shrink-0"></i>
+                                <div class="truncate flex-1">
+                                    <p class="text-[9px] font-black text-slate-800 leading-tight line-clamp-2 uppercase">${it.n}</p>
+                                    <p class="text-[7px] text-slate-400 font-bold truncate">${it.t}</p>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <select onchange="window.updateCategory('${nS}', '${tS}', this.value)" class="w-full text-[7px] font-black bg-slate-50 border-none rounded py-1 px-1 focus:ring-0">${['MECHANICAL','ELECTRICAL','PLUMBING'].map(v => `<option value="${v}" ${it.c === v ? 'selected' : ''}>${v.slice(0,4)}</option>`).join('')}</select>
+                            </div>
                             <div class="flex flex-col items-center justify-center py-2 ${isLow ? 'bg-red-50' : 'bg-slate-50/50'} rounded-lg mb-2">
                                 <span class="text-xl font-black ${isLow ? 'text-red-600 animate-pulse' : 'text-slate-700'}">${it.q}</span>
                                 <span class="text-[7px] font-black ${isLow ? 'text-red-400' : 'text-slate-400'} uppercase">${it.q <= 0 ? 'HABIS' : it.u}</span>
                             </div>
                             <div class="flex gap-1 justify-between mt-auto">
                                 <button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, -1, ${it.q})" ${it.q <= 0 ? 'disabled' : ''} class="flex-1 h-7 flex items-center justify-center rounded-lg bg-white border border-slate-100 disabled:opacity-30"><i data-lucide="minus" class="w-3 h-3"></i></button>
-                                <button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, 1, ${it.q})" class="flex-1 h-7 flex items-center justify-center rounded-lg bg-white border border-slate-100"><i data-lucide="plus" class="w-3 h-3"></i></button>
+                                <button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, 1, ${it.q})" class="flex-1 h-7 flex items-center justify-center rounded-lg bg-white border border-slate-100 transition-all"><i data-lucide="plus" class="w-3 h-3"></i></button>
                             </div></div>`;
                     });
                 }
@@ -648,7 +671,6 @@
                 });
             }
 
-            // Tables
             const lBody = document.getElementById('loan-table-body'), vBody = document.getElementById('valuation-table-body');
             if(lBody) { lBody.innerHTML = ''; inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(ln => { const st = window.getCategoryStyle(ln.category); lBody.innerHTML += `<tr class="hover:bg-slate-50 border-b"><td class="p-6"><p class="text-blue-900 font-black">${ln.picBorrow}</p><p class="text-[10px] text-slate-400 italic line-clamp-1">${ln.notesBorrow}</p></td><td class="p-6 font-bold flex items-center gap-2"><i data-lucide="${st.icon}" class="${st.text} w-3.5 h-3.5"></i> ${ln.name}</td><td class="p-6 text-center font-black text-slate-800">${ln.qty}</td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all"><i data-lucide="check-circle" class="w-5 h-5"></i></button></td></tr>`; }); }
             if(vBody) { vBody.innerHTML = ''; stock.filter(s => s.q > 0).forEach(it => { const st = window.getCategoryStyle(it.c); vBody.innerHTML += `<tr class="hover:bg-slate-50 border-b"><td class="p-6 ${st.text} font-bold flex items-center gap-2"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i> ${it.c}</td><td class="p-6 font-black">${it.n}</td><td class="p-6 text-center">${it.q}</td><td class="p-6 text-right font-bold">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-blue-600 font-black">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; }); }
@@ -660,32 +682,23 @@
         const init = async () => {
             try {
                 const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
-                
-                // Auth Rule 3: Auth FIRST and await it
                 const initAuth = async () => {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { 
-                        await signInWithCustomToken(auth, __initial_auth_token); 
-                    } else { 
-                        await signInAnonymously(auth); 
-                    }
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+                    else { await signInAnonymously(auth); }
                 };
-
                 await initAuth();
-
                 try { await enableIndexedDbPersistence(db); } catch (err) { console.warn("Persistence Error:", err.code); }
-
                 onAuthStateChanged(auth, (u) => {
                     user = u;
                     if(u) {
                         window.authReady = true; 
-                        // Start listeners after user is present
                         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (s) => {
                             inventory = s.docs.map(d => ({id: d.id, ...d.data()}));
                             inventory.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
                             window.renderAll();
                             window.hideLoader();
                         }, (err) => {
-                            console.error("Firestore Permission Error:", err);
+                            console.error("Firestore Error:", err);
                             window.showLoaderError("Izin Database Ditolak");
                         });
                     }
@@ -693,11 +706,10 @@
             } catch (err) { console.error("Init error:", err); }
         };
 
-        // --- HANDLERS ---
         window.handleIssueSearch = (v) => { issueSearchQuery = v; window.renderAll(); };
         window.handleDateFilter = (val) => { window.historyDateFilter = val; window.renderAll(); };
         window.resetHistoryFilter = () => { window.historyDateFilter = ''; if(document.getElementById('historyDateInput')) document.getElementById('historyDateInput').value = ''; window.renderAll(); };
-        window.updateCategory = async (name, type, newCat) => { if (!user) return; window.openConfirmModal("Ganti Kategori", `Ubah kategori material ini menjadi ${newCat}?`, "folder-input", "bg-blue-50 text-blue-600", async () => { const logsToUpdate = inventory.filter(i => i.name === name && i.type === type); const b = writeBatch(db); logsToUpdate.forEach(l => { b.update(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id), { category: newCat }); }); await b.commit(); window.showToast("KATEGORI DIPERBARUI"); }); };
+        window.updateCategory = async (name, type, newCat) => { if (!user) return; window.openConfirmModal("Ganti Kategori", `Ubah material ini menjadi ${newCat}?`, "folder-input", "bg-blue-50 text-blue-600", async () => { const logsToUpdate = inventory.filter(i => i.name === name && i.type === type); const b = writeBatch(db); logsToUpdate.forEach(l => { b.update(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id), { category: newCat }); }); await b.commit(); window.showToast("KATEGORI DIPERBARUI"); }); };
         window.deleteSingleLog = (id) => { if (!user) return; window.openConfirmModal("Hapus Log", "Data transaksi akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id)); window.showToast("DIHAPUS"); } catch(e) { window.showToast("GAGAL", true); } }); };
         window.deleteMaterial = (name, type) => { if (!user) return; window.openConfirmModal("HAPUS MATERIAL", `Seluruh data ${name} akan dihapus permanen.`, "alert-triangle", "bg-red-600 text-white", async () => { const logsToDelete = inventory.filter(i => i.name === name && i.type === type); const b = writeBatch(db); logsToDelete.forEach(l => { b.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id)); }); await b.commit(); window.showToast("MATERIAL DIHAPUS"); }); };
         window.adjustStock = async (name, type, cat, unit, price, change, currentQty) => { if (!user) return; if (change < 0 && currentQty <= 0) { window.showToast("STOK HABIS!", true); return; } try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name, type, category: cat, unit, price: window.cleanNum(price), qty: 1, status: change > 0 ? 'MASUK' : 'KELUAR', subStatus: 'ADJUST', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }); } catch(e) { window.showToast("GAGAL", true); } };
@@ -711,7 +723,7 @@
         window.toggleModalSubPanels = () => { const v = document.getElementById('modalSubStatus').value; document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); document.getElementById('modalPicBorrow').required = (v === 'PEMINJAMAN'); document.getElementById('modalDateBorrow').required = (v === 'PEMINJAMAN'); document.getElementById('modalPicInstall').required = (v === 'PROYEK'); };
 
         document.getElementById('inventoryForm').onsubmit = async (e) => { e.preventDefault(); if (!user) return; try { let unit = document.getElementById('unit').value; if (unit === 'EA') unit = 'PCS'; await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(), type: document.getElementById('itemType').value.toUpperCase() || "-", qty: Number(document.getElementById('qty').value), unit: unit, price: Number(document.getElementById('price').value) || 0, status: 'MASUK', subStatus: 'INPUT', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }); e.target.reset(); window.showToast("DISIMPAN"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL SIMPAN", true); } };
-        document.getElementById('issueFormAction').onsubmit = async (e) => { e.preventDefault(); if (!user) return; const reqQty = Number(document.getElementById('modalQty').value); const curStock = Number(document.getElementById('modalCurrentStock').value); if (reqQty > curStock) { window.showToast("STOK TIDAK CUKUP!", true); return; } const sub = document.getElementById('modalSubStatus').value; const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('modalItemType').value, qty: reqQty, unit: document.getElementById('modalUnit').value, price: window.cleanNum(document.getElementById('modalPrice').value), status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase() || "", dateBorrow: document.getElementById('modalDateBorrow').value || "", dateReturn: document.getElementById('modalDateReturn').value || "", notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase() || "", picInstall: document.getElementById('modalPicInstall').value.toUpperCase() || "", notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase() || "", createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data); window.closeIssueModal(); window.showToast(reqQty >= curStock ? "STOK KOSONG!" : "DICATAT"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL", true); } };
+        document.getElementById('issueFormAction').onsubmit = async (e) => { e.preventDefault(); if (!user) return; const reqQty = Number(document.getElementById('modalQty').value); const curStock = Number(document.getElementById('modalCurrentStock').value); if (reqQty > curStock) { window.showToast("STOK TIDAK CUKUP!", true); return; } const sub = document.getElementById('modalSubStatus').value; const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('itemType').value, qty: reqQty, unit: document.getElementById('modalUnit').value, price: window.cleanNum(document.getElementById('modalPrice').value), status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase() || "", dateBorrow: document.getElementById('modalDateBorrow').value || "", dateReturn: document.getElementById('modalDateReturn').value || "", notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase() || "", picInstall: document.getElementById('modalPicInstall').value.toUpperCase() || "", notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase() || "", createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data); window.closeIssueModal(); window.showToast(reqQty >= curStock ? "STOK KOSONG!" : "DICATAT"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL", true); } };
 
         init();
     </script>
