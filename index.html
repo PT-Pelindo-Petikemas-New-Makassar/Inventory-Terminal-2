@@ -430,7 +430,23 @@
         <!-- VIEW: LOAN, INPUT, BUDGET -->
         <div id="view-loan" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest text-center">Peminjaman Berjalan</h2>
-            <div class="premium-card overflow-hidden shadow-lg"><div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-slate-50 font-black border-b text-slate-500 uppercase"><tr><th class="p-6">Peminjam / Catatan</th><th class="p-6">Material</th><th class="p-6 text-center">Jumlah</th><th class="p-6 text-right">Aksi</th></tr></thead><tbody id="loan-table-body" class="divide-y font-bold text-slate-700"></tbody></table></div></div>
+            <div class="premium-card overflow-hidden shadow-lg">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 font-black border-b text-slate-500 uppercase">
+                            <tr>
+                                <th class="p-6">Peminjam / Catatan</th>
+                                <th class="p-6">Material</th>
+                                <th class="p-6 text-center">Jumlah</th>
+                                <th class="p-6 text-center">Tgl Pinjam</th>
+                                <th class="p-6 text-center">Estimasi Kembali</th>
+                                <th class="p-6 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loan-table-body" class="divide-y font-bold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div id="view-input" class="view-section">
@@ -485,12 +501,37 @@
             const catField = String(row['KATEGORI'] || row['MATERIAL GROUP'] || row['CATEGORY'] || row['GRUP'] || '').toUpperCase();
             const itemName = String(name || '').toUpperCase();
             const sheet = String(sheetName).toUpperCase();
-            if (sheet.includes('MECH')) return 'MECHANICAL';
+
+            // --- 1. KEYWORD DETECTION (HIGHEST PRIORITY) ---
+            // Electrical Keywords (Ditingkatkan untuk item elektrik & otomotif elektrik)
+            const elecKeywords = [
+                'ACCU', 'ECU', 'BATTERY', 'BATERE', 'BATERAI', 'KABEL', 'CABLE', 'LAMPU', 'LED', 
+                'MCB', 'BREAKER', 'PANEL', 'CONTACTOR', 'RELAY', 'SWITCH', 'HUB', 'ROUTER', 
+                'SFP', 'POE', 'CONNECTOR', 'SOCKET', 'FUSE', 'ISOLASI', 'NYY', 'NYM', 'NYA', 
+                'ELECTRICAL', 'MCCB', 'CONDUIT', 'RJ45', 'PATCH CORD', 'ALTERNATOR', 
+                'STARTER MOTOR', 'SENSOR', 'SOLENOID', 'COIL', 'IGNITION'
+            ];
+            if (elecKeywords.some(k => itemName.includes(k))) return 'ELECTRICAL';
+
+            // Plumbing Keywords
+            const plumKeywords = [
+                'PIPA', 'PVC', 'ELBOW', 'TEE', 'KRAN', 'TAP', 'GALVANIS', 'BALL VALVE', 'GATE VALVE', 
+                'FLANGE', 'GASKET', 'WATER', 'DRAT', 'SOCKET PIPA', 'SHOWER', 'PLUMBING', 'SDLT', 
+                'V-RING', 'SEAL TAPE', 'PIPING', 'SDR', 'PN10', 'PN16', 'REDUCER', 'STUB END'
+            ];
+            if (plumKeywords.some(k => itemName.includes(k))) return 'PLUMBING';
+
+            // --- 2. SAP CODES DETECTION ---
+            if (catField.includes('99-128') || catField.includes('99-120')) return 'ELECTRICAL';
+            if (catField.includes('99-900') || catField.includes('99-400')) return 'PLUMBING';
+            if (catField.includes('99-132') || catField.includes('99-130')) return 'MECHANICAL';
+
+            // --- 3. SHEET NAME DETECTION ---
             if (sheet.includes('ELEC')) return 'ELECTRICAL';
             if (sheet.includes('PLUM')) return 'PLUMBING';
-            if (catField.includes('ELEC') || catField.includes('99-128')) return 'ELECTRICAL';
-            if (catField.includes('PLUM') || catField.includes('PIPA') || catField.includes('99-900')) return 'PLUMBING';
-            if (catField.includes('MECH') || catField.includes('99-132')) return 'MECHANICAL';
+            if (sheet.includes('MECH')) return 'MECHANICAL';
+
+            // Default
             return 'MECHANICAL';
         };
 
@@ -526,6 +567,13 @@
                             let textRaw = rowObj['SHORT TEXT'] || rowObj['SERVICE DESCRIPTION'] || rowObj['NAMA BARANG'] || rowObj['DESCRIPTION'] || rowObj['NAMA'] || "";
                             if (String(textRaw).trim() === "" || String(textRaw).toUpperCase().includes("NAMA BARANG")) continue;
 
+                            // --- FILTER JASA & SATUAN AU (SKIP) ---
+                            let unit = String(rowObj['SAT'] || rowObj['UNIT OF MEASURE'] || rowObj['UNIT'] || rowObj['SATUAN'] || 'PCS').toUpperCase().trim();
+                            if (unit === 'AU') continue;
+
+                            const serviceKeywords = ['JASA', 'SERVICE', 'PEMASANGAN', 'PEKERJAAN', 'REPAIR', 'MAINTENANCE', 'BIAYA', 'ONGKOS', 'RENTAL', 'SEWA', 'OVERHAUL'];
+                            if (serviceKeywords.some(k => textRaw.toUpperCase().includes(k))) continue;
+
                             let finalName = "", finalType = "";
                             if (String(textRaw).includes(";")) {
                                 const parts = String(textRaw).split(";").map(p => p.trim());
@@ -541,11 +589,9 @@
                             let qty = window.cleanNum(rowObj['VOL'] || rowObj['QUANTITY REQUESTED'] || rowObj['QUANTITY'] || rowObj['QTY'] || rowObj['AMOUNT']);
                             if (qty <= 0) continue;
 
-                            let unit = rowObj['SAT'] || rowObj['UNIT OF MEASURE'] || rowObj['UNIT'] || rowObj['SATUAN'] || 'PCS';
-                            if (String(unit).toUpperCase() === 'EA') unit = 'PCS';
+                            if (unit === 'EA') unit = 'PCS';
 
                             let price = 0;
-                            // Aggressive search for price column
                             for (let key in rowObj) {
                                 if (key.includes("HARGA") || key.includes("PRICE") || key.includes("RATE")) {
                                     let val = window.cleanNum(rowObj[key]);
@@ -554,11 +600,11 @@
                             }
 
                             let category = detectCategory(rowObj, finalName, sheetName);
-                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name: String(finalName).toUpperCase().trim(), category: category, type: finalType.toUpperCase(), qty: qty, unit: String(unit).toUpperCase(), price: price, status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) });
+                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name: String(finalName).toUpperCase().trim(), category: category, type: finalType.toUpperCase(), qty: qty, unit: unit, price: price, status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) });
                             totalImported++;
                         }
                     }
-                    window.showToast(`${totalImported} DATA BERHASIL DIIMPOR`); e.target.value = ''; 
+                    window.showToast(`${totalImported} MATERIAL BERHASIL DIIMPOR`); e.target.value = ''; 
                 } catch (err) { window.showToast("GAGAL IMPOR", true); }
             }; r.readAsArrayBuffer(f);
         };
@@ -582,12 +628,10 @@
 
         window.renderAll = () => {
             const summary = {};
-            // Inventory is sorted DESC by createdAt.
             inventory.forEach(i => { 
                 const k = `${i.name}|${i.type}`; 
                 if (!summary[k]) summary[k] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: 0 }; 
                 summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty); 
-                // Always try to get the newest price available
                 if (summary[k].p === 0 && window.cleanNum(i.price) > 0) summary[k].p = i.price;
             });
             const stock = Object.values(summary);
@@ -620,7 +664,6 @@
                 });
             }
 
-            // Square Stock Grid (STOK MENIPIS WARNA MERAH)
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const list = document.getElementById(`stock-list-${c}`);
                 const items = stock.filter(s => s.c === c && (window.stockFilterMode === 'all' || s.q < 5));
@@ -655,7 +698,6 @@
                 }
             });
 
-            // Issue Grid
             const iGrid = document.getElementById('issue-grid-container');
             if(iGrid) {
                 iGrid.innerHTML = '';
@@ -672,7 +714,30 @@
             }
 
             const lBody = document.getElementById('loan-table-body'), vBody = document.getElementById('valuation-table-body');
-            if(lBody) { lBody.innerHTML = ''; inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(ln => { const st = window.getCategoryStyle(ln.category); lBody.innerHTML += `<tr class="hover:bg-slate-50 border-b"><td class="p-6"><p class="text-blue-900 font-black">${ln.picBorrow}</p><p class="text-[10px] text-slate-400 italic line-clamp-1">${ln.notesBorrow}</p></td><td class="p-6 font-bold flex items-center gap-2"><i data-lucide="${st.icon}" class="${st.text} w-3.5 h-3.5"></i> ${ln.name}</td><td class="p-6 text-center font-black text-slate-800">${ln.qty}</td><td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all"><i data-lucide="check-circle" class="w-5 h-5"></i></button></td></tr>`; }); }
+            if(lBody) { 
+                lBody.innerHTML = ''; 
+                inventory.filter(i => i.subStatus === 'PEMINJAMAN').forEach(ln => { 
+                    const st = window.getCategoryStyle(ln.category); 
+                    lBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-6">
+                            <p class="text-blue-900 font-black">${ln.picBorrow}</p>
+                            <p class="text-[10px] text-slate-400 italic line-clamp-1">${ln.notesBorrow || '-'}</p>
+                        </td>
+                        <td class="p-6 font-bold flex items-center gap-2">
+                            <i data-lucide="${st.icon}" class="${st.text} w-3.5 h-3.5"></i> ${ln.name}
+                        </td>
+                        <td class="p-6 text-center font-black text-slate-800">${ln.qty}</td>
+                        <td class="p-6 text-center font-bold text-slate-600">${ln.dateBorrow || '-'}</td>
+                        <td class="p-6 text-center font-bold text-orange-600">${ln.dateReturn || '-'}</td>
+                        <td class="p-6 text-right">
+                            <button onclick="window.returnItem('${ln.id}')" class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                            </button>
+                        </td>
+                    </tr>`; 
+                }); 
+            }
             if(vBody) { vBody.innerHTML = ''; stock.filter(s => s.q > 0).forEach(it => { const st = window.getCategoryStyle(it.c); vBody.innerHTML += `<tr class="hover:bg-slate-50 border-b"><td class="p-6 ${st.text} font-bold flex items-center gap-2"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i> ${it.c}</td><td class="p-6 font-black">${it.n}</td><td class="p-6 text-center">${it.q}</td><td class="p-6 text-right font-bold">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-blue-600 font-black">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; }); }
             if(window.lucide) lucide.createIcons();
             const ctxDash = document.getElementById('main-inventory-chart')?.getContext('2d');
