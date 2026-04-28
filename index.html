@@ -137,6 +137,7 @@
             border-left: 4px solid var(--pld-blue);
         }
 
+        /* NEW LOADER ANIMATIONS */
         #app-loader { 
             position: fixed; 
             inset: 0; 
@@ -146,7 +147,39 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            gap: 1.5rem;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .logo-pulse {
+            animation: pulse-custom 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-custom {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .loading-bar-container {
+            width: 200px;
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .loading-bar-fill {
+            height: 100%;
+            background: var(--pld-blue);
+            width: 30%;
+            animation: loading-progress 2s infinite ease-in-out;
+            border-radius: 10px;
+        }
+
+        @keyframes loading-progress {
+            0% { width: 0%; transform: translateX(-100%); }
+            50% { width: 100%; transform: translateX(0); }
+            100% { width: 0%; transform: translateX(100%); }
         }
 
         ::-webkit-scrollbar { width: 4px; }
@@ -208,31 +241,26 @@
             const loader = document.getElementById('app-loader');
             if (loader) {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+                loader.style.transform = 'translateY(-20px)';
+                setTimeout(() => loader.style.display = 'none', 800);
             }
         };
 
         window.showLoaderError = function(msg) {
             const status = document.getElementById('loader-status');
-            const spinner = document.querySelector('#app-loader .animate-spin');
             if (status) { status.innerText = msg; status.classList.add('text-red-600'); }
-            if (spinner) { spinner.classList.remove('animate-spin'); spinner.classList.add('border-red-600'); }
         };
 
-        // Improved cleanNum for robust price reading
         window.cleanNum = (v) => {
             if (v === undefined || v === null || v === "") return 0;
             if (typeof v === 'number') return v;
             let s = String(v).trim();
-            // Handle IDN format dots for thousands and comma for decimal
             if (s.includes('.') && s.includes(',')) {
                 s = s.replace(/\./g, '').replace(',', '.');
             } else if (s.includes(',') && !s.includes('.')) {
                 s = s.replace(',', '.');
             }
-            // Remove everything except numbers and a single decimal dot
             let cleaned = s.replace(/[^0-9.]/g, '');
-            // Prevent multiple dots
             let parts = cleaned.split('.');
             if (parts.length > 2) cleaned = parts[0] + '.' + parts.slice(1).join('');
             return parseFloat(cleaned) || 0;
@@ -255,12 +283,20 @@
 </head>
 <body class="antialiased">
 
-    <!-- Loader -->
+    <!-- Screen Loader Premium -->
     <div id="app-loader">
-        <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-700 rounded-full animate-spin"></div>
-        <div class="text-center px-4">
-            <p class="text-[10px] font-black text-slate-800 tracking-[0.3em] uppercase">PELINDO WORKSHOP</p>
-            <p id="loader-status" class="text-[8px] font-bold text-slate-400 tracking-[0.2em] mt-2 uppercase">Menghubungkan Database...</p>
+        <div class="relative flex flex-col items-center">
+            <div class="w-24 h-24 p-4 bg-white rounded-3xl shadow-xl logo-pulse mb-6 flex items-center justify-center">
+                <img src="logo pelindo.jpg" alt="Pelindo" class="max-w-full max-h-full object-contain" onerror="this.src='https://www.pelindo.co.id/logo_pelindo_single.png'">
+            </div>
+            <div class="text-center">
+                <h2 class="text-xs font-black text-slate-800 tracking-[0.4em] uppercase mb-1">Pelindo Workshop</h2>
+                <p class="text-[8px] font-bold text-slate-400 tracking-[0.2em] uppercase">Terminal 2 New Makassar</p>
+            </div>
+            <div class="loading-bar-container">
+                <div class="loading-bar-fill"></div>
+            </div>
+            <p id="loader-status" class="mt-4 text-[9px] font-black text-slate-500 tracking-widest animate-pulse uppercase">Memulai Aplikasi...</p>
         </div>
     </div>
 
@@ -427,7 +463,7 @@
             <div id="issue-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- VIEW: LOAN, INPUT, BUDGET -->
+        <!-- VIEW: LOAN -->
         <div id="view-loan" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest text-center">Peminjaman Berjalan</h2>
             <div class="premium-card overflow-hidden shadow-lg">
@@ -449,30 +485,121 @@
             </div>
         </div>
 
+        <!-- VIEW: INPUT -->
         <div id="view-input" class="view-section">
             <div class="max-w-2xl mx-auto">
-                <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4"><h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Input Stok Masuk</h2><input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="window.importExcelGeneral(event)"><label for="importExcel" class="cursor-pointer bg-blue-900 border border-blue-900 px-4 py-2.5 text-[10px] font-black text-white hover:opacity-90 rounded-xl shadow-lg flex items-center gap-2 uppercase transition-all"><i data-lucide="file-spreadsheet"></i> Impor XLSX (Multi-Sheet)</label></div>
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Input Stok Masuk</h2>
+                    <input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="window.importExcelGeneral(event)">
+                    <label for="importExcel" class="cursor-pointer bg-blue-900 border border-blue-900 px-4 py-2.5 text-[10px] font-black text-white hover:opacity-90 rounded-xl shadow-lg flex items-center gap-2 uppercase transition-all">
+                        <i data-lucide="file-spreadsheet"></i> Impor XLSX (Multi-Sheet)
+                    </label>
+                </div>
                 <form id="inventoryForm" class="premium-card p-8 space-y-6 border-t-[10px] border-blue-900 shadow-2xl">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1">Kategori</label><select id="category" class="form-input-pld"><option value="ELECTRICAL">Electrical</option><option value="MECHANICAL">Mechanical</option><option value="PLUMBING">Plumbing</option></select></div><div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1">Satuan</label><select id="unit" class="form-input-pld"><option value="PCS">PCS</option><option value="SET">SET</option><option value="MTR">MTR</option><option value="ROL">ROL</option><option value="BTG">BTG</option><option value="PACK">PACK</option></select></div></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1">Nama Material</label><input type="text" id="itemName" class="form-input-pld" required placeholder="NAMA BARANG..."></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1">Spesifikasi (Merk & Tipe)</label><input type="text" id="itemType" class="form-input-pld" placeholder="CONTOH: TEKIRO 8 INCH..."></div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1">Qty Awal</label><input type="number" id="qty" class="form-input-pld" required min="1" value="1"></div><div class="space-y-2"><label class="text-[10px] font-black text-slate-400 ml-1">Harga (RP)</label><input type="number" id="price" class="form-input-pld" value="0"></div></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 ml-1">Kategori</label>
+                            <select id="category" class="form-input-pld">
+                                <option value="ELECTRICAL">Electrical</option>
+                                <option value="MECHANICAL">Mechanical</option>
+                                <option value="PLUMBING">Plumbing</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 ml-1">Satuan</label>
+                            <input type="text" id="unit" list="unit-list" class="form-input-pld" placeholder="PILIH/KETIK SATUAN..." required>
+                            <datalist id="unit-list">
+                                <option value="PCS">
+                                <option value="SET">
+                                <option value="MTR">
+                                <option value="ROL">
+                                <option value="BTG">
+                                <option value="PACK">
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 ml-1">Nama Material</label>
+                        <input type="text" id="itemName" class="form-input-pld" required placeholder="NAMA BARANG...">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 ml-1">Spesifikasi (Merk & Tipe)</label>
+                        <input type="text" id="itemType" class="form-input-pld" placeholder="CONTOH: TEKIRO 8 INCH...">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 ml-1">Qty Awal</label>
+                            <input type="number" id="qty" class="form-input-pld" required min="1" value="1">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 ml-1">Harga (RP)</label>
+                            <input type="number" id="price" class="form-input-pld" value="0">
+                        </div>
+                    </div>
                     <button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black text-xs uppercase shadow-xl hover:opacity-90 transition-all">Simpan ke Database</button>
                 </form>
             </div>
         </div>
 
+        <!-- VIEW: BUDGET -->
         <div id="view-budget" class="view-section">
             <h2 class="text-xs font-black text-slate-400 uppercase mb-8 tracking-widest text-center">Laporan Valuasi Aset</h2>
-            <div class="premium-card p-12 bg-gradient-to-br from-blue-900 to-indigo-700 text-white flex flex-col items-center justify-center mb-8 shadow-2xl relative overflow-hidden"><div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div><p class="text-[10px] font-black opacity-70 tracking-widest mb-3 uppercase">Total Nilai Asset Workshop T2</p><h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black tracking-tight">RP 0</h3></div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="premium-card p-6 border-l-4 border-orange-500 flex items-center justify-between"><div><p class="text-[9px] font-black text-slate-400 mb-1">MECHANICAL</p><p id="val-mech" class="text-lg font-black text-slate-800">Rp 0</p></div><i data-lucide="settings" class="text-orange-200 w-10 h-10"></i></div><div class="premium-card p-6 border-l-4 border-sky-500 flex items-center justify-between"><div><p class="text-[9px] font-black text-slate-400 mb-1">ELECTRICAL</p><p id="val-elec" class="text-lg font-black text-slate-800">Rp 0</p></div><i data-lucide="zap" class="text-sky-200 w-10 h-10"></i></div><div class="premium-card p-6 border-l-4 border-emerald-500 flex items-center justify-between"><div><p class="text-[9px] font-black text-slate-400 mb-1">PLUMBING</p><p id="val-plum" class="text-lg font-black text-slate-800">Rp 0</p></div><i data-lucide="droplets" class="text-emerald-200 w-10 h-10"></i></div></div>
-            <div class="premium-card overflow-hidden shadow-xl"><div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-slate-50 font-black border-b text-slate-500 uppercase"><tr><th class="p-6">Kategori</th><th class="p-6">Material</th><th class="p-6 text-center">Stok</th><th class="p-6 text-right">Harga Satuan</th><th class="p-6 text-right">Subtotal</th></tr></thead><tbody id="valuation-table-body" class="divide-y font-bold text-slate-700"></tbody></table></div></div>
+            <div class="premium-card p-12 bg-gradient-to-br from-blue-900 to-indigo-700 text-white flex flex-col items-center justify-center mb-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <p class="text-[10px] font-black opacity-70 tracking-widest mb-3 uppercase">Total Nilai Asset Workshop T2</p>
+                <h3 id="grand-total-budget" class="text-4xl md:text-6xl font-black tracking-tight">RP 0</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="premium-card p-6 border-l-4 border-orange-500 flex items-center justify-between">
+                    <div><p class="text-[9px] font-black text-slate-400 mb-1">MECHANICAL</p><p id="val-mech" class="text-lg font-black text-slate-800">Rp 0</p></div>
+                    <i data-lucide="settings" class="text-orange-200 w-10 h-10"></i>
+                </div>
+                <div class="premium-card p-6 border-l-4 border-sky-500 flex items-center justify-between">
+                    <div><p class="text-[9px] font-black text-slate-400 mb-1">ELECTRICAL</p><p id="val-elec" class="text-lg font-black text-slate-800">Rp 0</p></div>
+                    <i data-lucide="zap" class="text-sky-200 w-10 h-10"></i>
+                </div>
+                <div class="premium-card p-6 border-l-4 border-emerald-500 flex items-center justify-between">
+                    <div><p class="text-[9px] font-black text-slate-400 mb-1">PLUMBING</p><p id="val-plum" class="text-lg font-black text-slate-800">Rp 0</p></div>
+                    <i data-lucide="droplets" class="text-emerald-200 w-10 h-10"></i>
+                </div>
+            </div>
+            <div class="premium-card overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 font-black border-b text-slate-500 uppercase">
+                            <tr>
+                                <th class="p-6">Kategori</th>
+                                <th class="p-6">Material</th>
+                                <th class="p-6 text-center">Stok</th>
+                                <th class="p-6 text-right">Harga Satuan</th>
+                                <th class="p-6 text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="valuation-table-body" class="divide-y font-bold text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </main>
 
     <!-- Modals -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[500]"><div class="bg-white w-full max-sm rounded-3xl shadow-2xl p-8 text-center animate-fadeIn"><div id="confirmIconContainer" class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-slate-100 text-slate-600"><i id="confirmIcon" data-lucide="alert-circle" class="w-8 h-8"></i></div><h3 id="confirmTitle" class="text-base font-black uppercase mb-1">Konfirmasi</h3><p id="confirmMessage" class="text-[11px] text-slate-500 font-bold mb-6">Apakah Anda yakin?</p><div class="grid grid-cols-2 gap-3"><button onclick="window.closeConfirmModal()" class="py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase">Batal</button><button id="confirmActionButton" class="py-3 bg-blue-900 text-white rounded-xl font-black text-[10px] uppercase shadow-lg">Lanjutkan</button></div></div></div>
-    <div id="issueModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden z-[400]"><div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"><div class="bg-blue-900 p-6 text-white flex justify-between items-center"><h3 id="issueModalTitle" class="text-sm font-black uppercase">Keluarkan Barang</h3><button onclick="window.closeIssueModal()" class="p-1 hover:bg-white/20 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button></div><form id="issueFormAction" class="p-8 space-y-4"><input type="hidden" id="modalItemName"><input type="hidden" id="modalItemType"><input type="hidden" id="modalCategory"><input type="hidden" id="modalUnit"><input type="hidden" id="modalPrice"><input type="hidden" id="modalCurrentStock"><div class="grid grid-cols-2 gap-4"><div class="space-y-1"><label class="text-[9px] font-black text-slate-400">Qty Keluar</label><input type="number" id="modalQty" class="form-input-pld" required min="1"></div><div class="space-y-1"><label class="text-[9px] font-black text-slate-400">Tujuan</label><select id="modalSubStatus" onchange="window.toggleModalSubPanels()" class="form-input-pld"><option value="PEMINJAMAN">Pinjam</option><option value="PROYEK">Pakai (Proyek)</option></select></div></div><div id="modalPanelPeminjaman" class="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">PIC Peminjam</label><input type="text" id="modalPicBorrow" class="form-input-pld" placeholder="NAMA LENGKAP..."></div><div class="grid grid-cols-2 gap-3"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Tgl Pinjam</label><input type="date" id="modalDateBorrow" class="form-input-pld"></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Estimasi Kembali</label><input type="date" id="modalDateReturn" class="form-input-pld"></div></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Catatan Peminjaman</label><textarea id="modalNotesBorrow" class="form-input-pld h-16 resize-none" placeholder="CATATAN TAMBAHAN..."></textarea></div></div><div id="modalPanelInstalasi" class="hidden space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">PIC Teknisi</label><input type="text" id="modalPicInstall" class="form-input-pld" placeholder="NAMA TEKNISI..."></div><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">Catatan Pekerjaan</label><textarea id="modalNotesInstall" class="form-input-pld h-20 resize-none" placeholder="DETAIL PEKERJAAN..."></textarea></div></div><button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg mt-4">Proses Pengeluaran</button></form></div></div>
+    
+    <div id="issueModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden z-[400]"><div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"><div class="bg-blue-900 p-6 text-white flex justify-between items-center"><h3 id="issueModalTitle" class="text-sm font-black uppercase">Keluarkan Barang</h3><button onclick="window.closeIssueModal()" class="p-1 hover:bg-white/20 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button></div><form id="issueFormAction" class="p-8 space-y-4"><input type="hidden" id="modalItemName"><input type="hidden" id="modalItemType"><input type="hidden" id="modalCategory"><input type="hidden" id="modalUnit"><input type="hidden" id="modalPrice"><input type="hidden" id="modalCurrentStock"><div class="grid grid-cols-2 gap-4"><div class="space-y-1"><div class="flex justify-between items-center"><label class="text-[9px] font-black text-slate-400">Qty Keluar</label><span id="modalStockLabel" class="text-[9px] font-black text-red-500">Stok: 0</span></div><input type="number" id="modalQty" class="form-input-pld" required min="1"></div><div class="space-y-1"><label class="text-[9px] font-black text-slate-400">Tujuan</label><select id="modalSubStatus" onchange="window.toggleModalSubPanels()" class="form-input-pld"><option value="PEMINJAMAN">Pinjam</option><option value="PROYEK">Pakai (Proyek)</option></select></div></div><div id="modalPanelPeminjaman" class="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">PIC Peminjam</label><input type="text" id="modalPicBorrow" class="form-input-pld" placeholder="NAMA LENGKAP..."></div><div class="grid grid-cols-2 gap-3"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Tgl Pinjam</label><input type="date" id="modalDateBorrow" class="form-input-pld"></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Estimasi Kembali</label><input type="date" id="modalDateReturn" class="form-input-pld"></div></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Catatan Peminjaman</label><textarea id="modalNotesBorrow" class="form-input-pld h-16 resize-none" placeholder="CATATAN TAMBAHAN..."></textarea></div></div><div id="modalPanelInstalasi" class="hidden space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">PIC Teknisi</label><input type="text" id="modalPicInstall" class="form-input-pld" placeholder="NAMA TEKNISI..."></div><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">Catatan Pekerjaan</label><textarea id="modalNotesInstall" class="form-input-pld h-20 resize-none" placeholder="DETAIL PEKERJAAN..."></textarea></div></div><button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg mt-4">Proses Pengeluaran</button></form></div></div>
+
+    <!-- Modal Detail Log -->
+    <div id="detailLogModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[450]">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
+            <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
+                <h3 class="text-sm font-black uppercase tracking-widest">Detail Transaksi</h3>
+                <button onclick="window.closeDetailLogModal()" class="p-1 hover:bg-white/20 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="detailLogContent" class="p-8 space-y-6"></div>
+            <div class="p-6 bg-slate-50 border-t flex justify-end">
+                <button onclick="window.closeDetailLogModal()" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-black text-[10px] uppercase">Tutup</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Logic -->
     <script type="module">
@@ -497,41 +624,31 @@
         let searchQuery = "", issueSearchQuery = "";
         let user = null;
 
+        // ANIMATION HELPER
+        const updateStatusText = (text) => {
+            const el = document.getElementById('loader-status');
+            if(el) el.innerText = text;
+        };
+
         const detectCategory = (row, name, sheetName = "") => {
-            const catField = String(row['KATEGORI'] || row['MATERIAL GROUP'] || row['CATEGORY'] || row['GRUP'] || '').toUpperCase();
             const itemName = String(name || '').toUpperCase();
+            const catField = String(row['KATEGORI'] || row['MATERIAL GROUP'] || row['CATEGORY'] || row['GRUP'] || '').toUpperCase();
             const sheet = String(sheetName).toUpperCase();
 
-            // --- 1. KEYWORD DETECTION (HIGHEST PRIORITY) ---
-            // Electrical Keywords (Ditingkatkan untuk item elektrik & otomotif elektrik)
-            const elecKeywords = [
-                'ACCU', 'ECU', 'BATTERY', 'BATERE', 'BATERAI', 'KABEL', 'CABLE', 'LAMPU', 'LED', 
-                'MCB', 'BREAKER', 'PANEL', 'CONTACTOR', 'RELAY', 'SWITCH', 'HUB', 'ROUTER', 
-                'SFP', 'POE', 'CONNECTOR', 'SOCKET', 'FUSE', 'ISOLASI', 'NYY', 'NYM', 'NYA', 
-                'ELECTRICAL', 'MCCB', 'CONDUIT', 'RJ45', 'PATCH CORD', 'ALTERNATOR', 
-                'STARTER MOTOR', 'SENSOR', 'SOLENOID', 'COIL', 'IGNITION'
-            ];
+            const elecKeywords = ['ACCU', 'ECU', 'BATTERY', 'BATERE', 'BATERAI', 'KABEL', 'CABLE', 'LAMPU', 'LED', 'MCB', 'BREAKER', 'PANEL', 'CONTACTOR', 'RELAY', 'SWITCH', 'HUB', 'ROUTER', 'SFP', 'POE', 'CONNECTOR', 'SOCKET', 'FUSE', 'ISOLASI', 'NYY', 'NYM', 'NYA', 'ELECTRICAL', 'MCCB', 'CONDUIT', 'RJ45', 'PATCH CORD', 'ALTERNATOR', 'STARTER MOTOR', 'SENSOR', 'SOLENOID', 'COIL', 'IGNITION'];
             if (elecKeywords.some(k => itemName.includes(k))) return 'ELECTRICAL';
 
-            // Plumbing Keywords
-            const plumKeywords = [
-                'PIPA', 'PVC', 'ELBOW', 'TEE', 'KRAN', 'TAP', 'GALVANIS', 'BALL VALVE', 'GATE VALVE', 
-                'FLANGE', 'GASKET', 'WATER', 'DRAT', 'SOCKET PIPA', 'SHOWER', 'PLUMBING', 'SDLT', 
-                'V-RING', 'SEAL TAPE', 'PIPING', 'SDR', 'PN10', 'PN16', 'REDUCER', 'STUB END'
-            ];
+            const plumKeywords = ['PIPA', 'PVC', 'ELBOW', 'TEE', 'KRAN', 'TAP', 'GALVANIS', 'BALL VALVE', 'GATE VALVE', 'FLANGE', 'GASKET', 'WATER', 'DRAT', 'SOCKET PIPA', 'SHOWER', 'PLUMBING', 'SDLT', 'V-RING', 'SEAL TAPE', 'PIPING', 'SDR', 'PN10', 'PN16', 'REDUCER', 'STUB END'];
             if (plumKeywords.some(k => itemName.includes(k))) return 'PLUMBING';
 
-            // --- 2. SAP CODES DETECTION ---
             if (catField.includes('99-128') || catField.includes('99-120')) return 'ELECTRICAL';
             if (catField.includes('99-900') || catField.includes('99-400')) return 'PLUMBING';
             if (catField.includes('99-132') || catField.includes('99-130')) return 'MECHANICAL';
 
-            // --- 3. SHEET NAME DETECTION ---
             if (sheet.includes('ELEC')) return 'ELECTRICAL';
             if (sheet.includes('PLUM')) return 'PLUMBING';
             if (sheet.includes('MECH')) return 'MECHANICAL';
 
-            // Default
             return 'MECHANICAL';
         };
 
@@ -567,7 +684,6 @@
                             let textRaw = rowObj['SHORT TEXT'] || rowObj['SERVICE DESCRIPTION'] || rowObj['NAMA BARANG'] || rowObj['DESCRIPTION'] || rowObj['NAMA'] || "";
                             if (String(textRaw).trim() === "" || String(textRaw).toUpperCase().includes("NAMA BARANG")) continue;
 
-                            // --- FILTER JASA & SATUAN AU (SKIP) ---
                             let unit = String(rowObj['SAT'] || rowObj['UNIT OF MEASURE'] || rowObj['UNIT'] || rowObj['SATUAN'] || 'PCS').toUpperCase().trim();
                             if (unit === 'AU') continue;
 
@@ -588,7 +704,6 @@
 
                             let qty = window.cleanNum(rowObj['VOL'] || rowObj['QUANTITY REQUESTED'] || rowObj['QUANTITY'] || rowObj['QTY'] || rowObj['AMOUNT']);
                             if (qty <= 0) continue;
-
                             if (unit === 'EA') unit = 'PCS';
 
                             let price = 0;
@@ -628,12 +743,26 @@
 
         window.renderAll = () => {
             const summary = {};
+            const uniqueUnits = new Set(['PCS', 'SET', 'MTR', 'ROL', 'BTG', 'PACK']);
+
             inventory.forEach(i => { 
                 const k = `${i.name}|${i.type}`; 
                 if (!summary[k]) summary[k] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: 0 }; 
                 summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty); 
                 if (summary[k].p === 0 && window.cleanNum(i.price) > 0) summary[k].p = i.price;
+                if (i.unit) uniqueUnits.add(i.unit.toUpperCase());
             });
+
+            const unitList = document.getElementById('unit-list');
+            if (unitList) {
+                unitList.innerHTML = '';
+                Array.from(uniqueUnits).sort().forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u;
+                    unitList.appendChild(opt);
+                });
+            }
+
             const stock = Object.values(summary);
             const valCats = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
             const qtyCats = { MECHANICAL: 0, ELECTRICAL: 0, PLUMBING: 0 };
@@ -658,7 +787,8 @@
                     if (i.subStatus === 'PEMINJAMAN') detailLine += ` • PIC: ${i.picBorrow}`;
                     else if (i.subStatus === 'PROYEK') detailLine += ` • PIC: ${i.picInstall}`;
                     else detailLine += ` • ${i.timestamp}`;
-                    const card = `<div class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white flex justify-between items-center text-[9px] animate-fadeIn shadow-sm"><div class="flex items-center gap-3 truncate pr-4"><div class="p-2 rounded-lg ${st.bg} ${st.text}"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i></div><div class="truncate"><p class="font-black text-slate-800">${i.name}</p><p class="text-slate-400 font-bold">${detailLine}</p></div></div><button onclick="window.deleteSingleLog('${i.id}')" class="text-slate-200 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
+                    
+                    const card = `<div onclick="window.openLogDetail('${i.id}')" class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white flex justify-between items-center text-[9px] animate-fadeIn shadow-sm cursor-pointer hover:bg-slate-50 active:scale-[0.98] transition-all"><div class="flex items-center gap-3 truncate pr-4"><div class="p-2 rounded-lg ${st.bg} ${st.text}"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i></div><div class="truncate"><p class="font-black text-slate-800">${i.name}</p><p class="text-slate-400 font-bold">${detailLine}</p></div></div><button onclick="event.stopPropagation(); window.deleteSingleLog('${i.id}')" class="text-slate-200 hover:text-red-500 transition-colors p-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
                     if (idx < 5) rec.innerHTML += card;
                     if ((!searchQuery || i.name.includes(searchQuery.toUpperCase())) && (!window.historyDateFilter || i.dateOnly === window.historyDateFilter)) full.innerHTML += card;
                 });
@@ -730,15 +860,11 @@
                         <td class="p-6 text-center font-black text-slate-800">${ln.qty}</td>
                         <td class="p-6 text-center font-bold text-slate-600">${ln.dateBorrow || '-'}</td>
                         <td class="p-6 text-center font-bold text-orange-600">${ln.dateReturn || '-'}</td>
-                        <td class="p-6 text-right">
-                            <button onclick="window.returnItem('${ln.id}')" class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all">
-                                <i data-lucide="check-circle" class="w-5 h-5"></i>
-                            </button>
-                        </td>
+                        <td class="p-6 text-right"><button onclick="window.returnItem('${ln.id}')" class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all"><i data-lucide="check-circle" class="w-5 h-5"></i></button></td>
                     </tr>`; 
                 }); 
             }
-            if(vBody) { vBody.innerHTML = ''; stock.filter(s => s.q > 0).forEach(it => { const st = window.getCategoryStyle(it.c); vBody.innerHTML += `<tr class="hover:bg-slate-50 border-b"><td class="p-6 ${st.text} font-bold flex items-center gap-2"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i> ${it.c}</td><td class="p-6 font-black">${it.n}</td><td class="p-6 text-center">${it.q}</td><td class="p-6 text-right font-bold">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-blue-600 font-black">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; }); }
+            if(vBody) { vBody.innerHTML = ''; stock.filter(s => s.q > 0).forEach(it => { const st = window.getCategoryStyle(it.c); vBody.innerHTML += `<tr class="hover:bg-slate-50 border-b"><td class="p-6 ${st.text} font-bold flex items-center gap-2"><i data-lucide="${st.icon}" class="${st.text} w-3.5 h-3.5"></i> ${it.c}</td><td class="p-6 font-black">${it.n}</td><td class="p-6 text-center">${it.q}</td><td class="p-6 text-right font-bold">Rp ${it.p.toLocaleString('id-ID')}</td><td class="p-6 text-right text-blue-600 font-black">Rp ${(it.q * it.p).toLocaleString('id-ID')}</td></tr>`; }); }
             if(window.lucide) lucide.createIcons();
             const ctxDash = document.getElementById('main-inventory-chart')?.getContext('2d');
             if (ctxDash) { if (mainChart) mainChart.destroy(); mainChart = new Chart(ctxDash, { type: 'doughnut', data: { labels: ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'], datasets: [{ data: [qtyCats.MECHANICAL, qtyCats.ELECTRICAL, qtyCats.PLUMBING], backgroundColor: ['#f97316', '#0ea5e9', '#10b981'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } }); }
@@ -746,49 +872,261 @@
 
         const init = async () => {
             try {
+                updateStatusText("Menyiapkan Lingkungan...");
                 const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
+                
                 const initAuth = async () => {
+                    updateStatusText("Mengautentikasi Sesi...");
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
                     else { await signInAnonymously(auth); }
                 };
+                
                 await initAuth();
+                updateStatusText("Menghubungkan Database...");
+                
                 try { await enableIndexedDbPersistence(db); } catch (err) { console.warn("Persistence Error:", err.code); }
+                
                 onAuthStateChanged(auth, (u) => {
                     user = u;
                     if(u) {
                         window.authReady = true; 
                         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (s) => {
+                            updateStatusText("Sinkronisasi Data Material...");
                             inventory = s.docs.map(d => ({id: d.id, ...d.data()}));
                             inventory.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
                             window.renderAll();
-                            window.hideLoader();
+                            
+                            // Beri jeda sedikit agar transisi terasa halus
+                            setTimeout(() => {
+                                updateStatusText("Dashboard Siap");
+                                window.hideLoader();
+                            }, 500);
+
                         }, (err) => {
                             console.error("Firestore Error:", err);
                             window.showLoaderError("Izin Database Ditolak");
                         });
                     }
                 });
-            } catch (err) { console.error("Init error:", err); }
+
+                const qtyInput = document.getElementById('modalQty');
+                if (qtyInput) {
+                    qtyInput.addEventListener('input', (e) => {
+                        const max = Number(document.getElementById('modalCurrentStock').value);
+                        if (Number(e.target.value) > max) {
+                            e.target.value = max;
+                            window.showToast(`MAKSIMAL KELUAR: ${max}`, true);
+                        }
+                    });
+                }
+            } catch (err) { 
+                console.error("Init error:", err); 
+                updateStatusText("Gagal Memuat Database");
+            }
         };
 
+        window.openLogDetail = (id) => {
+            const log = inventory.find(i => i.id === id);
+            if (!log) return;
+            const content = document.getElementById('detailLogContent');
+            const st = window.getCategoryStyle(log.category);
+            
+            let extraInfo = '';
+            if (log.subStatus === 'PEMINJAMAN') {
+                extraInfo = `
+                    <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                        <p class="text-[8px] font-black text-orange-400 mb-1">PIC PEMINJAM</p>
+                        <p class="text-[11px] font-black text-slate-800 uppercase">${log.picBorrow || '-'}</p>
+                        <div class="grid grid-cols-2 gap-4 mt-3">
+                            <div><p class="text-[8px] font-black text-orange-400 mb-1">TGL PINJAM</p><p class="text-[10px] font-bold text-slate-700">${log.dateBorrow || '-'}</p></div>
+                            <div><p class="text-[8px] font-black text-orange-400 mb-1">ESTIMASI KEMBALI</p><p class="text-[10px] font-bold text-slate-700">${log.dateReturn || '-'}</p></div>
+                        </div>
+                        <div class="mt-3"><p class="text-[8px] font-black text-orange-400 mb-1">CATATAN</p><p class="text-[10px] font-bold text-slate-600 italic">${log.notesBorrow || 'Tidak ada catatan'}</p></div>
+                    </div>
+                `;
+            } else if (log.subStatus === 'PROYEK') {
+                extraInfo = `
+                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                        <p class="text-[8px] font-black text-blue-400 mb-1">PIC TEKNISI</p>
+                        <p class="text-[11px] font-black text-slate-800 uppercase">${log.picInstall || '-'}</p>
+                        <div class="mt-3"><p class="text-[8px] font-black text-blue-400 mb-1">CATATAN PEKERJAAN</p><p class="text-[10px] font-bold text-slate-600 italic">${log.notesInstall || 'Tidak ada catatan'}</p></div>
+                    </div>
+                `;
+            } else if (log.subStatus === 'ADJUST') {
+                if (log.prevCat && log.newCat) {
+                    extraInfo = `
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <p class="text-[8px] font-black text-slate-400 mb-2 italic text-center uppercase tracking-widest">Penyesuaian Kategori Material</p>
+                            <div class="flex items-center justify-around">
+                                <div class="text-center"><p class="text-[8px] font-bold text-slate-400 mb-1 uppercase">SEBELUM</p><p class="text-[10px] font-black text-slate-400">${log.prevCat}</p></div>
+                                <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i>
+                                <div class="text-center"><p class="text-[8px] font-bold text-slate-900 mb-1 uppercase">SESUDAH</p><p class="text-[10px] font-black text-blue-900">${log.newCat}</p></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    extraInfo = `
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <p class="text-[8px] font-black text-slate-400 mb-2 italic text-center uppercase tracking-widest">Penyesuaian Kuantitas (Qty)</p>
+                            <div class="flex items-center justify-around">
+                                <div class="text-center"><p class="text-[8px] font-bold text-slate-400 mb-1 uppercase">SEBELUM</p><p class="text-xl font-black text-slate-400">${log.prevQty ?? '?'}</p></div>
+                                <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i>
+                                <div class="text-center"><p class="text-[8px] font-bold text-slate-900 mb-1 uppercase">SESUDAH</p><p class="text-xl font-black text-blue-900">${log.newQty ?? '?'}</p></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            content.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="p-4 rounded-2xl ${st.bg} ${st.text} shadow-sm"><i data-lucide="${st.icon}" class="w-6 h-6"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[8px] font-black ${st.text} tracking-widest mb-1">${log.category}</p>
+                        <p class="text-xs font-black text-slate-800 uppercase leading-tight">${log.name}</p>
+                        <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-wider">${log.type}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="premium-card p-4 border-l-4 ${log.status === 'MASUK' || log.status === 'INFO' ? 'border-emerald-500' : 'border-red-500'}">
+                        <p class="text-[8px] font-black text-slate-400 mb-1">STATUS</p>
+                        <p class="text-[10px] font-black ${log.status === 'MASUK' ? 'text-emerald-600' : (log.status === 'INFO' ? 'text-blue-600' : 'text-red-600')} uppercase">${log.status} (${log.subStatus})</p>
+                    </div>
+                    <div class="premium-card p-4 border-l-4 border-blue-500">
+                        <p class="text-[8px] font-black text-slate-400 mb-1">KUANTITAS</p>
+                        <p class="text-[10px] font-black text-slate-800">${log.qty} ${log.unit}</p>
+                    </div>
+                </div>
+
+                ${extraInfo}
+
+                <div class="flex items-center gap-2 text-slate-400 border-t border-dashed pt-4">
+                    <i data-lucide="clock" class="w-3 h-3"></i>
+                    <p class="text-[8px] font-bold uppercase tracking-widest">${log.timestamp}</p>
+                </div>
+            `;
+            
+            document.getElementById('detailLogModal').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.closeDetailLogModal = () => document.getElementById('detailLogModal').classList.add('hidden');
         window.handleIssueSearch = (v) => { issueSearchQuery = v; window.renderAll(); };
         window.handleDateFilter = (val) => { window.historyDateFilter = val; window.renderAll(); };
         window.resetHistoryFilter = () => { window.historyDateFilter = ''; if(document.getElementById('historyDateInput')) document.getElementById('historyDateInput').value = ''; window.renderAll(); };
-        window.updateCategory = async (name, type, newCat) => { if (!user) return; window.openConfirmModal("Ganti Kategori", `Ubah material ini menjadi ${newCat}?`, "folder-input", "bg-blue-50 text-blue-600", async () => { const logsToUpdate = inventory.filter(i => i.name === name && i.type === type); const b = writeBatch(db); logsToUpdate.forEach(l => { b.update(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id), { category: newCat }); }); await b.commit(); window.showToast("KATEGORI DIPERBARUI"); }); };
+        
+        window.updateCategory = async (name, type, newCat) => { 
+            if (!user) return; 
+            const currentItem = inventory.filter(i => i.name === name && i.type === type).sort((a,b) => b.createdAt - a.createdAt)[0];
+            const oldCat = currentItem ? currentItem.category : 'UNKNOWN';
+
+            window.openConfirmModal("Ganti Kategori", `Ubah material ini menjadi ${newCat}?`, "folder-input", "bg-blue-50 text-blue-600", async () => { 
+                try {
+                    const logsToUpdate = inventory.filter(i => i.name === name && i.type === type); 
+                    const b = writeBatch(db); 
+                    logsToUpdate.forEach(l => { 
+                        b.update(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id), { category: newCat }); 
+                    }); 
+                    
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
+                        name, type, category: newCat, unit: currentItem ? currentItem.unit : 'PCS',
+                        qty: 0, status: 'INFO', subStatus: 'ADJUST',
+                        prevCat: oldCat, newCat: newCat,
+                        createdAt: Date.now(),
+                        dateOnly: new Date().toISOString().split('T')[0],
+                        timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                    });
+
+                    await b.commit(); 
+                    window.showToast("KATEGORI DIPERBARUI & DICATAT"); 
+                } catch(e) {
+                    window.showToast("GAGAL UPDATE", true);
+                }
+            }); 
+        };
+
         window.deleteSingleLog = (id) => { if (!user) return; window.openConfirmModal("Hapus Log", "Data transaksi akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id)); window.showToast("DIHAPUS"); } catch(e) { window.showToast("GAGAL", true); } }); };
         window.deleteMaterial = (name, type) => { if (!user) return; window.openConfirmModal("HAPUS MATERIAL", `Seluruh data ${name} akan dihapus permanen.`, "alert-triangle", "bg-red-600 text-white", async () => { const logsToDelete = inventory.filter(i => i.name === name && i.type === type); const b = writeBatch(db); logsToDelete.forEach(l => { b.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id)); }); await b.commit(); window.showToast("MATERIAL DIHAPUS"); }); };
-        window.adjustStock = async (name, type, cat, unit, price, change, currentQty) => { if (!user) return; if (change < 0 && currentQty <= 0) { window.showToast("STOK HABIS!", true); return; } try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name, type, category: cat, unit, price: window.cleanNum(price), qty: 1, status: change > 0 ? 'MASUK' : 'KELUAR', subStatus: 'ADJUST', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }); } catch(e) { window.showToast("GAGAL", true); } };
+        
+        window.adjustStock = async (name, type, cat, unit, price, change, currentQty) => { 
+            if (!user) return; 
+            if (change < 0 && currentQty <= 0) { window.showToast("STOK HABIS!", true); return; } 
+            try { 
+                const newQtyVal = currentQty + change;
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
+                    name, type, category: cat, unit, price: window.cleanNum(price), qty: 1, 
+                    prevQty: currentQty, newQty: newQtyVal,
+                    status: change > 0 ? 'MASUK' : 'KELUAR', 
+                    subStatus: 'ADJUST', 
+                    createdAt: Date.now(), 
+                    dateOnly: new Date().toISOString().split('T')[0], 
+                    timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
+                }); 
+            } catch(e) { window.showToast("GAGAL", true); } 
+        };
+
         window.returnItem = (id) => { if (!user) return; const item = inventory.find(i => i.id === id); if (!item) return; window.openConfirmModal("Pengembalian", `Kembalikan ${item.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => { try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { ...item, status: 'MASUK', subStatus: 'PENGEMBALIAN', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }); await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id), { subStatus: 'SELESAI' }); window.showToast("DITERIMA"); } catch(e) { window.showToast("GAGAL", true); } }); };
         window.clearAllLogs = () => { if (!user) return; window.openConfirmModal("RESET LOG", "Hapus semua riwayat transaksi?", "history", "bg-orange-50 text-orange-600", async () => { try { const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); window.showToast("LOG BERSIH"); } catch(e) { window.showToast("GAGAL", true); } }); };
         window.handleSearch = (q) => { searchQuery = q; window.renderAll(); };
-        window.openIssueModal = (it) => { document.getElementById('issueModalTitle').innerText = `${it.n} (${it.q} ${it.u})`; document.getElementById('modalItemName').value = it.n; document.getElementById('modalItemType').value = it.t; document.getElementById('modalCategory').value = it.c; document.getElementById('modalUnit').value = it.u; document.getElementById('modalPrice').value = it.p; document.getElementById('modalCurrentStock').value = it.q; document.getElementById('modalQty').max = it.q; document.getElementById('modalQty').value = 1; document.getElementById('issueModal').classList.remove('hidden'); };
+        window.openIssueModal = (it) => { 
+            document.getElementById('issueModalTitle').innerText = `${it.n} (${it.q} ${it.u})`; 
+            document.getElementById('modalItemName').value = it.n; 
+            document.getElementById('modalItemType').value = it.t; 
+            document.getElementById('modalCategory').value = it.c; 
+            document.getElementById('modalUnit').value = it.u; 
+            document.getElementById('modalPrice').value = it.p; 
+            document.getElementById('modalCurrentStock').value = it.q; 
+            document.getElementById('modalStockLabel').innerText = `Stok: ${it.q} ${it.u}`;
+            const qtyInp = document.getElementById('modalQty');
+            qtyInp.max = it.q; 
+            qtyInp.value = 1; 
+            document.getElementById('issueModal').classList.remove('hidden'); 
+        };
         window.closeIssueModal = () => document.getElementById('issueModal').classList.add('hidden');
         window.closeConfirmModal = () => document.getElementById('confirmModal').classList.add('hidden');
         window.openConfirmModal = (t, m, i, c, a) => { document.getElementById('confirmTitle').innerText = t; document.getElementById('confirmMessage').innerText = m; document.getElementById('confirmIcon').setAttribute('data-lucide', i); document.getElementById('confirmIconContainer').className = `w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${c}`; const btn = document.getElementById('confirmActionButton'); btn.onclick = async () => { btn.disabled = true; try { await a(); } finally { btn.disabled = false; window.closeConfirmModal(); } }; document.getElementById('confirmModal').classList.remove('hidden'); if(window.lucide) lucide.createIcons(); };
         window.toggleModalSubPanels = () => { const v = document.getElementById('modalSubStatus').value; document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); document.getElementById('modalPicBorrow').required = (v === 'PEMINJAMAN'); document.getElementById('modalDateBorrow').required = (v === 'PEMINJAMAN'); document.getElementById('modalPicInstall').required = (v === 'PROYEK'); };
 
-        document.getElementById('inventoryForm').onsubmit = async (e) => { e.preventDefault(); if (!user) return; try { let unit = document.getElementById('unit').value; if (unit === 'EA') unit = 'PCS'; await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(), type: document.getElementById('itemType').value.toUpperCase() || "-", qty: Number(document.getElementById('qty').value), unit: unit, price: Number(document.getElementById('price').value) || 0, status: 'MASUK', subStatus: 'INPUT', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }); e.target.reset(); window.showToast("DISIMPAN"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL SIMPAN", true); } };
-        document.getElementById('issueFormAction').onsubmit = async (e) => { e.preventDefault(); if (!user) return; const reqQty = Number(document.getElementById('modalQty').value); const curStock = Number(document.getElementById('modalCurrentStock').value); if (reqQty > curStock) { window.showToast("STOK TIDAK CUKUP!", true); return; } const sub = document.getElementById('modalSubStatus').value; const data = { category: document.getElementById('modalCategory').value, name: document.getElementById('modalItemName').value, type: document.getElementById('itemType').value, qty: reqQty, unit: document.getElementById('modalUnit').value, price: window.cleanNum(document.getElementById('modalPrice').value), status: 'KELUAR', subStatus: sub, picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase() || "", dateBorrow: document.getElementById('modalDateBorrow').value || "", dateReturn: document.getElementById('modalDateReturn').value || "", notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase() || "", picInstall: document.getElementById('modalPicInstall').value.toUpperCase() || "", notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase() || "", createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data); window.closeIssueModal(); window.showToast(reqQty >= curStock ? "STOK KOSONG!" : "DICATAT"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL", true); } };
+        document.getElementById('inventoryForm').onsubmit = async (e) => { e.preventDefault(); if (!user) return; try { let unitVal = document.getElementById('unit').value.toUpperCase().trim(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(), type: document.getElementById('itemType').value.toUpperCase() || "-", qty: Number(document.getElementById('qty').value), unit: unitVal, price: Number(document.getElementById('price').value) || 0, status: 'MASUK', subStatus: 'INPUT', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }); e.target.reset(); window.showToast("DISIMPAN"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL SIMPAN", true); } };
+        document.getElementById('issueFormAction').onsubmit = async (e) => { 
+            e.preventDefault(); 
+            if (!user) return; 
+            const reqQty = Number(document.getElementById('modalQty').value); 
+            const curStock = Number(document.getElementById('modalCurrentStock').value); 
+            if (reqQty > curStock) { 
+                window.showToast("STOK TIDAK CUKUP!", true); 
+                return; 
+            } 
+            const sub = document.getElementById('modalSubStatus').value; 
+            const data = { 
+                category: document.getElementById('modalCategory').value, 
+                name: document.getElementById('modalItemName').value, 
+                type: document.getElementById('itemType').value, 
+                qty: reqQty, 
+                unit: document.getElementById('modalUnit').value, 
+                price: window.cleanNum(document.getElementById('modalPrice').value), 
+                status: 'KELUAR', 
+                subStatus: sub, 
+                picBorrow: document.getElementById('modalPicBorrow').value.toUpperCase() || "", 
+                dateBorrow: document.getElementById('modalDateBorrow').value || "", 
+                dateReturn: document.getElementById('modalDateReturn').value || "", 
+                notesBorrow: document.getElementById('modalNotesBorrow').value.toUpperCase() || "", 
+                picInstall: document.getElementById('modalPicInstall').value.toUpperCase() || "", 
+                notesInstall: document.getElementById('modalNotesInstall').value.toUpperCase() || "", 
+                createdAt: Date.now(), 
+                dateOnly: new Date().toISOString().split('T')[0], 
+                timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) 
+            }; 
+            try { 
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data); 
+                window.closeIssueModal(); 
+                window.showToast(reqQty >= curStock ? "STOK KOSONG!" : "DICATAT"); 
+                window.switchView('dashboard'); 
+            } catch (err) { 
+                window.showToast("GAGAL", true); 
+            } 
+        };
 
         init();
     </script>
