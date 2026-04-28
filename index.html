@@ -137,7 +137,6 @@
             border-left: 4px solid var(--pld-blue);
         }
 
-        /* NEW LOADER ANIMATIONS */
         #app-loader { 
             position: fixed; 
             inset: 0; 
@@ -536,7 +535,7 @@
                             <input type="number" id="price" class="form-input-pld" value="0">
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black text-xs uppercase shadow-xl hover:opacity-90 transition-all">Simpan ke Database</button>
+                    <button type="submit" id="submitInputButton" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black text-xs uppercase shadow-xl hover:opacity-90 transition-all">Simpan ke Database</button>
                 </form>
             </div>
         </div>
@@ -585,7 +584,7 @@
     <!-- Modals -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[500]"><div class="bg-white w-full max-sm rounded-3xl shadow-2xl p-8 text-center animate-fadeIn"><div id="confirmIconContainer" class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-slate-100 text-slate-600"><i id="confirmIcon" data-lucide="alert-circle" class="w-8 h-8"></i></div><h3 id="confirmTitle" class="text-base font-black uppercase mb-1">Konfirmasi</h3><p id="confirmMessage" class="text-[11px] text-slate-500 font-bold mb-6">Apakah Anda yakin?</p><div class="grid grid-cols-2 gap-3"><button onclick="window.closeConfirmModal()" class="py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase">Batal</button><button id="confirmActionButton" class="py-3 bg-blue-900 text-white rounded-xl font-black text-[10px] uppercase shadow-lg">Lanjutkan</button></div></div></div>
     
-    <div id="issueModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden z-[400]"><div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"><div class="bg-blue-900 p-6 text-white flex justify-between items-center"><h3 id="issueModalTitle" class="text-sm font-black uppercase">Keluarkan Barang</h3><button onclick="window.closeIssueModal()" class="p-1 hover:bg-white/20 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button></div><form id="issueFormAction" class="p-8 space-y-4"><input type="hidden" id="modalItemName"><input type="hidden" id="modalItemType"><input type="hidden" id="modalCategory"><input type="hidden" id="modalUnit"><input type="hidden" id="modalPrice"><input type="hidden" id="modalCurrentStock"><div class="grid grid-cols-2 gap-4"><div class="space-y-1"><div class="flex justify-between items-center"><label class="text-[9px] font-black text-slate-400">Qty Keluar</label><span id="modalStockLabel" class="text-[9px] font-black text-red-500">Stok: 0</span></div><input type="number" id="modalQty" class="form-input-pld" required min="1"></div><div class="space-y-1"><label class="text-[9px] font-black text-slate-400">Tujuan</label><select id="modalSubStatus" onchange="window.toggleModalSubPanels()" class="form-input-pld"><option value="PEMINJAMAN">Pinjam</option><option value="PROYEK">Pakai (Proyek)</option></select></div></div><div id="modalPanelPeminjaman" class="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">PIC Peminjam</label><input type="text" id="modalPicBorrow" class="form-input-pld" placeholder="NAMA LENGKAP..."></div><div class="grid grid-cols-2 gap-3"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Tgl Pinjam</label><input type="date" id="modalDateBorrow" class="form-input-pld"></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Estimasi Kembali</label><input type="date" id="modalDateReturn" class="form-input-pld"></div></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Catatan Peminjaman</label><textarea id="modalNotesBorrow" class="form-input-pld h-16 resize-none" placeholder="CATATAN TAMBAHAN..."></textarea></div></div><div id="modalPanelInstalasi" class="hidden space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">PIC Teknisi</label><input type="text" id="modalPicInstall" class="form-input-pld" placeholder="NAMA TEKNISI..."></div><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">Catatan Pekerjaan</label><textarea id="modalNotesInstall" class="form-input-pld h-20 resize-none" placeholder="DETAIL PEKERJAAN..."></textarea></div></div><button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg mt-4">Proses Pengeluaran</button></form></div></div>
+    <div id="issueModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden z-[400]"><div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"><div class="bg-blue-900 p-6 text-white flex justify-between items-center"><h3 id="issueModalTitle" class="text-sm font-black uppercase">Keluarkan Barang</h3><button onclick="window.closeIssueModal()" class="p-1 hover:bg-white/20 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button></div><form id="issueFormAction" class="p-8 space-y-4"><input type="hidden" id="modalItemName"><input type="hidden" id="modalItemType"><input type="hidden" id="modalCategory"><input type="hidden" id="modalUnit"><input type="hidden" id="modalPrice"><input type="hidden" id="modalCurrentStock"><div class="grid grid-cols-2 gap-4"><div class="space-y-1"><div class="flex justify-between items-center"><label class="text-[9px] font-black text-slate-400">Qty Keluar</label><span id="modalStockLabel" class="text-[9px] font-black text-red-500">Stok: 0</span></div><input type="number" id="modalQty" class="form-input-pld" required min="1"></div><div class="space-y-1"><label class="text-[9px] font-black text-slate-400">Tujuan</label><select id="modalSubStatus" onchange="window.toggleModalSubPanels()" class="form-input-pld"><option value="PEMINJAMAN">Pinjam</option><option value="PROYEK">Pakai (Proyek)</option></select></div></div><div id="modalPanelPeminjaman" class="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">PIC Peminjam</label><input type="text" id="modalPicBorrow" class="form-input-pld" placeholder="NAMA LENGKAP..."></div><div class="grid grid-cols-2 gap-3"><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Tgl Pinjam</label><input type="date" id="modalDateBorrow" class="form-input-pld"></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Estimasi Kembali</label><input type="date" id="modalDateReturn" class="form-input-pld"></div></div><div class="space-y-1"><label class="text-[9px] font-black text-orange-600">Catatan Peminjaman</label><textarea id="modalNotesBorrow" class="form-input-pld h-16 resize-none" placeholder="CATATAN TAMBAHAN..."></textarea></div></div><div id="modalPanelInstalasi" class="hidden space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">PIC Teknisi</label><input type="text" id="modalPicInstall" class="form-input-pld" placeholder="NAMA TEKNISI..."></div><div class="space-y-1"><label class="text-[9px] font-black text-blue-600">Catatan Pekerjaan</label><textarea id="modalNotesInstall" class="form-input-pld h-20 resize-none" placeholder="DETAIL PEKERJAAN..."></textarea></div></div><button type="submit" id="submitIssueButton" class="w-full bg-blue-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg mt-4">Proses Pengeluaran</button></form></div></div>
 
     <!-- Modal Detail Log -->
     <div id="detailLogModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[450]">
@@ -624,7 +623,6 @@
         let searchQuery = "", issueSearchQuery = "";
         let user = null;
 
-        // ANIMATION HELPER
         const updateStatusText = (text) => {
             const el = document.getElementById('loader-status');
             if(el) el.innerText = text;
@@ -788,7 +786,7 @@
                     else if (i.subStatus === 'PROYEK') detailLine += ` • PIC: ${i.picInstall}`;
                     else detailLine += ` • ${i.timestamp}`;
                     
-                    const card = `<div onclick="window.openLogDetail('${i.id}')" class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : 'border-red-500'} bg-white flex justify-between items-center text-[9px] animate-fadeIn shadow-sm cursor-pointer hover:bg-slate-50 active:scale-[0.98] transition-all"><div class="flex items-center gap-3 truncate pr-4"><div class="p-2 rounded-lg ${st.bg} ${st.text}"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i></div><div class="truncate"><p class="font-black text-slate-800">${i.name}</p><p class="text-slate-400 font-bold">${detailLine}</p></div></div><button onclick="event.stopPropagation(); window.deleteSingleLog('${i.id}')" class="text-slate-200 hover:text-red-500 transition-colors p-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
+                    const card = `<div onclick="window.openLogDetail('${i.id}')" class="premium-card p-4 border-l-4 ${i.status === 'MASUK' ? 'border-emerald-500' : (i.status === 'INFO' ? 'border-sky-500' : 'border-red-500')} bg-white flex justify-between items-center text-[9px] animate-fadeIn shadow-sm cursor-pointer hover:bg-slate-50 active:scale-[0.98] transition-all"><div class="flex items-center gap-3 truncate pr-4"><div class="p-2 rounded-lg ${st.bg} ${st.text}"><i data-lucide="${st.icon}" class="w-3.5 h-3.5"></i></div><div class="truncate"><p class="font-black text-slate-800">${i.name}</p><p class="text-slate-400 font-bold">${detailLine}</p></div></div><button onclick="event.stopPropagation(); window.deleteSingleLog('${i.id}')" class="text-slate-200 hover:text-red-500 transition-colors p-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>`;
                     if (idx < 5) rec.innerHTML += card;
                     if ((!searchQuery || i.name.includes(searchQuery.toUpperCase())) && (!window.historyDateFilter || i.dateOnly === window.historyDateFilter)) full.innerHTML += card;
                 });
@@ -896,7 +894,6 @@
                             inventory.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
                             window.renderAll();
                             
-                            // Beri jeda sedikit agar transisi terasa halus
                             setTimeout(() => {
                                 updateStatusText("Dashboard Siap");
                                 window.hideLoader();
@@ -1029,7 +1026,7 @@
                         b.update(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id), { category: newCat }); 
                     }); 
                     
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
+                    addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
                         name, type, category: newCat, unit: currentItem ? currentItem.unit : 'PCS',
                         qty: 0, status: 'INFO', subStatus: 'ADJUST',
                         prevCat: oldCat, newCat: newCat,
@@ -1038,7 +1035,7 @@
                         timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                     });
 
-                    await b.commit(); 
+                    b.commit(); 
                     window.showToast("KATEGORI DIPERBARUI & DICATAT"); 
                 } catch(e) {
                     window.showToast("GAGAL UPDATE", true);
@@ -1046,15 +1043,31 @@
             }); 
         };
 
-        window.deleteSingleLog = (id) => { if (!user) return; window.openConfirmModal("Hapus Log", "Data transaksi akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id)); window.showToast("DIHAPUS"); } catch(e) { window.showToast("GAGAL", true); } }); };
-        window.deleteMaterial = (name, type) => { if (!user) return; window.openConfirmModal("HAPUS MATERIAL", `Seluruh data ${name} akan dihapus permanen.`, "alert-triangle", "bg-red-600 text-white", async () => { const logsToDelete = inventory.filter(i => i.name === name && i.type === type); const b = writeBatch(db); logsToDelete.forEach(l => { b.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id)); }); await b.commit(); window.showToast("MATERIAL DIHAPUS"); }); };
+        window.deleteSingleLog = (id) => { 
+            if (!user) return; 
+            window.openConfirmModal("Hapus Log", "Data transaksi akan dihapus permanen.", "trash-2", "bg-red-50 text-red-600", async () => { 
+                deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id)); 
+                window.showToast("TRANSAKSI DIHAPUS"); 
+            }); 
+        };
+
+        window.deleteMaterial = (name, type) => { 
+            if (!user) return; 
+            window.openConfirmModal("HAPUS MATERIAL", `Seluruh data ${name} akan dihapus permanen.`, "alert-triangle", "bg-red-600 text-white", async () => { 
+                const logsToDelete = inventory.filter(i => i.name === name && i.type === type); 
+                const b = writeBatch(db); 
+                logsToDelete.forEach(l => { b.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id)); }); 
+                b.commit(); 
+                window.showToast("MATERIAL DIHAPUS"); 
+            }); 
+        };
         
         window.adjustStock = async (name, type, cat, unit, price, change, currentQty) => { 
             if (!user) return; 
             if (change < 0 && currentQty <= 0) { window.showToast("STOK HABIS!", true); return; } 
             try { 
                 const newQtyVal = currentQty + change;
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
+                addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
                     name, type, category: cat, unit, price: window.cleanNum(price), qty: 1, 
                     prevQty: currentQty, newQty: newQtyVal,
                     status: change > 0 ? 'MASUK' : 'KELUAR', 
@@ -1063,11 +1076,25 @@
                     dateOnly: new Date().toISOString().split('T')[0], 
                     timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) 
                 }); 
+                window.showToast(change > 0 ? "STOK DITAMBAH" : "STOK DIKURANGI");
             } catch(e) { window.showToast("GAGAL", true); } 
         };
 
-        window.returnItem = (id) => { if (!user) return; const item = inventory.find(i => i.id === id); if (!item) return; window.openConfirmModal("Pengembalian", `Kembalikan ${item.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => { try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { ...item, status: 'MASUK', subStatus: 'PENGEMBALIAN', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }); await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id), { subStatus: 'SELESAI' }); window.showToast("DITERIMA"); } catch(e) { window.showToast("GAGAL", true); } }); };
-        window.clearAllLogs = () => { if (!user) return; window.openConfirmModal("RESET LOG", "Hapus semua riwayat transaksi?", "history", "bg-orange-50 text-orange-600", async () => { try { const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); window.showToast("LOG BERSIH"); } catch(e) { window.showToast("GAGAL", true); } }); };
+        window.returnItem = (id) => { if (!user) return; const item = inventory.find(i => i.id === id); if (!item) return; window.openConfirmModal("Pengembalian", `Kembalikan ${item.name}?`, "check-circle", "bg-emerald-50 text-emerald-600", async () => { try { addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { ...item, status: 'MASUK', subStatus: 'PENGEMBALIAN', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }); updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', id), { subStatus: 'SELESAI' }); window.showToast("BARANG DIKEMBALIKAN"); } catch(e) { window.showToast("GAGAL", true); } }); };
+        
+        window.clearAllLogs = () => { 
+            if (!user) return; 
+            window.openConfirmModal("RESET LOG", "Hapus semua riwayat transaksi? Ini tidak bisa dibatalkan.", "history", "bg-orange-50 text-orange-600", async () => { 
+                try { 
+                    const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); 
+                    const b = writeBatch(db); 
+                    s.docs.forEach(d => b.delete(d.ref)); 
+                    b.commit(); 
+                    window.showToast("RIWAYAT SEDANG DIBERSIHKAN"); 
+                } catch(e) { window.showToast("GAGAL RESET", true); } 
+            }); 
+        };
+
         window.handleSearch = (q) => { searchQuery = q; window.renderAll(); };
         window.openIssueModal = (it) => { 
             document.getElementById('issueModalTitle').innerText = `${it.n} (${it.q} ${it.u})`; 
@@ -1085,19 +1112,65 @@
         };
         window.closeIssueModal = () => document.getElementById('issueModal').classList.add('hidden');
         window.closeConfirmModal = () => document.getElementById('confirmModal').classList.add('hidden');
-        window.openConfirmModal = (t, m, i, c, a) => { document.getElementById('confirmTitle').innerText = t; document.getElementById('confirmMessage').innerText = m; document.getElementById('confirmIcon').setAttribute('data-lucide', i); document.getElementById('confirmIconContainer').className = `w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${c}`; const btn = document.getElementById('confirmActionButton'); btn.onclick = async () => { btn.disabled = true; try { await a(); } finally { btn.disabled = false; window.closeConfirmModal(); } }; document.getElementById('confirmModal').classList.remove('hidden'); if(window.lucide) lucide.createIcons(); };
+        window.openConfirmModal = (t, m, i, c, a) => { 
+            document.getElementById('confirmTitle').innerText = t; 
+            document.getElementById('confirmMessage').innerText = m; 
+            document.getElementById('confirmIcon').setAttribute('data-lucide', i); 
+            document.getElementById('confirmIconContainer').className = `w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${c}`; 
+            const btn = document.getElementById('confirmActionButton'); 
+            btn.onclick = async () => { 
+                btn.disabled = true; 
+                try { 
+                    await a(); 
+                } finally { 
+                    btn.disabled = false; 
+                    window.closeConfirmModal(); 
+                } 
+            }; 
+            document.getElementById('confirmModal').classList.remove('hidden'); 
+            if(window.lucide) lucide.createIcons(); 
+        };
+        
         window.toggleModalSubPanels = () => { const v = document.getElementById('modalSubStatus').value; document.getElementById('modalPanelPeminjaman').classList.toggle('hidden', v !== 'PEMINJAMAN'); document.getElementById('modalPanelInstalasi').classList.toggle('hidden', v !== 'PROYEK'); document.getElementById('modalPicBorrow').required = (v === 'PEMINJAMAN'); document.getElementById('modalDateBorrow').required = (v === 'PEMINJAMAN'); document.getElementById('modalPicInstall').required = (v === 'PROYEK'); };
 
-        document.getElementById('inventoryForm').onsubmit = async (e) => { e.preventDefault(); if (!user) return; try { let unitVal = document.getElementById('unit').value.toUpperCase().trim(); await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(), type: document.getElementById('itemType').value.toUpperCase() || "-", qty: Number(document.getElementById('qty').value), unit: unitVal, price: Number(document.getElementById('price').value) || 0, status: 'MASUK', subStatus: 'INPUT', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }); e.target.reset(); window.showToast("DISIMPAN"); window.switchView('dashboard'); } catch (err) { window.showToast("GAGAL SIMPAN", true); } };
+        document.getElementById('inventoryForm').onsubmit = async (e) => { 
+            e.preventDefault(); 
+            if (!user) return; 
+            const btn = document.getElementById('submitInputButton');
+            const originalText = btn.innerText;
+            
+            try { 
+                btn.disabled = true;
+                btn.innerText = "MEMPROSES...";
+                
+                let unitVal = document.getElementById('unit').value.toUpperCase().trim(); 
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(), type: document.getElementById('itemType').value.toUpperCase() || "-", qty: Number(document.getElementById('qty').value), unit: unitVal, price: Number(document.getElementById('price').value) || 0, status: 'MASUK', subStatus: 'INPUT', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }); 
+                
+                e.target.reset(); 
+                window.showToast("DISIMPAN"); 
+                window.switchView('dashboard'); 
+            } catch (err) { 
+                window.showToast("GAGAL SIMPAN", true); 
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        };
+
         document.getElementById('issueFormAction').onsubmit = async (e) => { 
             e.preventDefault(); 
             if (!user) return; 
+            
+            const btn = document.getElementById('submitIssueButton');
+            const originalText = btn.innerText;
             const reqQty = Number(document.getElementById('modalQty').value); 
             const curStock = Number(document.getElementById('modalCurrentStock').value); 
+            
             if (reqQty > curStock) { 
                 window.showToast("STOK TIDAK CUKUP!", true); 
                 return; 
             } 
+            
             const sub = document.getElementById('modalSubStatus').value; 
             const data = { 
                 category: document.getElementById('modalCategory').value, 
@@ -1118,14 +1191,22 @@
                 dateOnly: new Date().toISOString().split('T')[0], 
                 timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) 
             }; 
+            
             try { 
+                btn.disabled = true;
+                btn.innerText = "MEMPROSES...";
+                
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), data); 
+                
                 window.closeIssueModal(); 
-                window.showToast(reqQty >= curStock ? "STOK KOSONG!" : "DICATAT"); 
+                window.showToast("DICATAT"); 
                 window.switchView('dashboard'); 
             } catch (err) { 
-                window.showToast("GAGAL", true); 
-            } 
+                window.showToast("GAGAL MENCATAT", true); 
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         };
 
         init();
