@@ -688,16 +688,16 @@
                             const serviceKeywords = ['JASA', 'SERVICE', 'PEMASANGAN', 'PEKERJAAN', 'REPAIR', 'MAINTENANCE', 'BIAYA', 'ONGKOS', 'RENTAL', 'SEWA', 'OVERHAUL'];
                             if (serviceKeywords.some(k => textRaw.toUpperCase().includes(k))) continue;
 
-                            let finalName = "", finalType = "";
+                            let finalName = String(textRaw).toUpperCase().trim();
+                            let finalType = "";
                             if (String(textRaw).includes(";")) {
                                 const parts = String(textRaw).split(";").map(p => p.trim());
                                 let brandPart = parts[0] || "", namePart = parts[1] || brandPart, typePart = parts.slice(2).join(" ") || "";
-                                finalName = namePart; finalType = (brandPart + " " + typePart).trim();
+                                finalName = namePart.toUpperCase(); finalType = (brandPart + " " + typePart).toUpperCase().trim();
                             } else {
-                                finalName = String(textRaw);
                                 let merkFile = String(rowObj['MERK'] || rowObj['BRAND'] || "").trim();
                                 let tipeFile = String(rowObj['TIPE'] || rowObj['MODEL'] || "").trim();
-                                finalType = (merkFile + " " + tipeFile).trim() || "-";
+                                finalType = (merkFile + " " + tipeFile).toUpperCase().trim() || "-";
                             }
 
                             let qty = window.cleanNum(rowObj['VOL'] || rowObj['QUANTITY REQUESTED'] || rowObj['QUANTITY'] || rowObj['QTY'] || rowObj['AMOUNT']);
@@ -713,7 +713,7 @@
                             }
 
                             let category = detectCategory(rowObj, finalName, sheetName);
-                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name: String(finalName).toUpperCase().trim(), category: category, type: finalType.toUpperCase(), qty: qty, unit: unit, price: price, status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) });
+                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { name: finalName, category: category, type: finalType, qty: qty, unit: unit, price: price, status: 'MASUK', subStatus: 'IMPOR', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) });
                             totalImported++;
                         }
                     }
@@ -730,7 +730,7 @@
                 summary[k]['STOK'] += (i.status === 'MASUK' ? i.qty : -i.qty); 
                 if (window.cleanNum(i.price) > 0) summary[k]['HARGA SATUAN'] = i.price;
             });
-            const data = Object.values(summary).filter(s => s['STOK'] !== 0).map(s => ({ ...s, 'TOTAL NILAI': s['STOK'] * s['HARGA SATUAN'] }));
+            const data = Object.values(summary).filter(s => s['STOK'] > 0).map(s => ({ ...s, 'TOTAL NILAI': s['STOK'] * s['HARGA SATUAN'] }));
             const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Stok"); XLSX.writeFile(wb, `Stok_Workshop.xlsx`);
         };
 
@@ -743,12 +743,29 @@
             const summary = {};
             const uniqueUnits = new Set(['PCS', 'SET', 'MTR', 'ROL', 'BTG', 'PACK']);
 
-            inventory.forEach(i => { 
-                const k = `${i.name}|${i.type}`; 
-                if (!summary[k]) summary[k] = { n: i.name, t: i.type, q: 0, u: i.unit, c: i.category, p: 0 }; 
-                summary[k].q += (i.status === 'MASUK' ? i.qty : -i.qty); 
-                if (summary[k].p === 0 && window.cleanNum(i.price) > 0) summary[k].p = i.price;
+            // Sorting by date ensures oldest first to calculate stock properly
+            const sortedInventory = [...inventory].sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+            sortedInventory.forEach(i => { 
+                const itemName = String(i.name).toUpperCase().trim();
+                const itemType = String(i.type || "-").toUpperCase().trim();
+                const k = `${itemName}|${itemType}`; 
+                
+                if (!summary[k]) summary[k] = { n: itemName, t: itemType, q: 0, u: i.unit, c: i.category, p: 0 }; 
+                
+                if (i.status === 'MASUK') {
+                    summary[k].q += Number(i.qty);
+                } else if (i.status === 'KELUAR') {
+                    summary[k].q -= Number(i.qty);
+                }
+                
+                if (window.cleanNum(i.price) > 0) summary[k].p = i.price;
                 if (i.unit) uniqueUnits.add(i.unit.toUpperCase());
+            });
+
+            // Safeguard: Ensure Stock is never displayed as negative
+            Object.keys(summary).forEach(key => {
+                summary[key].q = Math.max(0, summary[key].q);
             });
 
             const unitList = document.getElementById('unit-list');
@@ -767,8 +784,8 @@
             stock.forEach(it => { if(it.q > 0) { valCats[it.c] += (it.q * it.p); qtyCats[it.c] += it.q; } });
             const grandTotal = Object.values(valCats).reduce((a, b) => a + b, 0);
 
-            if(document.getElementById('count-total-items')) document.getElementById('count-total-items').innerText = stock.length;
-            if(document.getElementById('count-low-stock')) document.getElementById('count-low-stock').innerText = stock.filter(s => s.q < 5).length;
+            if(document.getElementById('count-total-items')) document.getElementById('count-total-items').innerText = stock.filter(s => s.q > 0).length;
+            if(document.getElementById('count-low-stock')) document.getElementById('count-low-stock').innerText = stock.filter(s => s.q > 0 && s.q < 5).length;
             if(document.getElementById('count-active-loans')) document.getElementById('count-active-loans').innerText = inventory.filter(i => i.subStatus === 'PEMINJAMAN').length;
             if(document.getElementById('total-asset-value-dash')) document.getElementById('total-asset-value-dash').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
             if(document.getElementById('grand-total-budget')) document.getElementById('grand-total-budget').innerText = `RP ${grandTotal.toLocaleString('id-ID')}`;
@@ -779,7 +796,8 @@
             const rec = document.getElementById('recent-logs-container'), full = document.getElementById('full-log-container');
             if (rec && full) {
                 rec.innerHTML = ''; full.innerHTML = '';
-                inventory.forEach((i, idx) => {
+                // Recent logs shown in desc order
+                [...inventory].sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).forEach((i, idx) => {
                     const st = window.getCategoryStyle(i.category);
                     let detailLine = `${i.qty} ${i.unit} • ${i.subStatus}`;
                     if (i.subStatus === 'PEMINJAMAN') detailLine += ` • PIC: ${i.picBorrow}`;
@@ -794,14 +812,14 @@
 
             ['MECHANICAL', 'ELECTRICAL', 'PLUMBING'].forEach(c => {
                 const list = document.getElementById(`stock-list-${c}`);
-                const items = stock.filter(s => s.c === c && (window.stockFilterMode === 'all' || s.q < 5));
+                const items = stock.filter(s => s.c === c && (window.stockFilterMode === 'all' || (s.q > 0 && s.q < 5)));
                 const st = window.getCategoryStyle(c);
-                if(document.getElementById(`badge-count-${c}`)) document.getElementById(`badge-count-${c}`).innerText = items.length;
+                if(document.getElementById(`badge-count-${c}`)) document.getElementById(`badge-count-${c}`).innerText = items.filter(s => s.q > 0).length;
                 if (list) {
                     list.innerHTML = ''; 
                     items.forEach(it => {
                         const nS = it.n.replace(/'/g, "\\'"), tS = it.t.replace(/'/g, "\\'");
-                        const isLow = it.q < 5;
+                        const isLow = it.q < 5 && it.q > 0;
                         list.innerHTML += `<div class="premium-card p-3 flex flex-col w-[150px] border-t-4 ${it.q <= 0 ? 'border-red-600' : st.border} h-full relative">
                             <button onclick="window.deleteMaterial('${nS}', '${tS}')" class="absolute top-1 right-1 p-1 text-slate-300 hover:text-red-600"><i data-lucide="trash-2" class="w-2.5 h-2.5"></i></button>
                             <div class="mb-2 h-[32px] flex items-start gap-1">
@@ -814,9 +832,9 @@
                             <div class="mb-2">
                                 <select onchange="window.updateCategory('${nS}', '${tS}', this.value)" class="w-full text-[7px] font-black bg-slate-50 border-none rounded py-1 px-1 focus:ring-0">${['MECHANICAL','ELECTRICAL','PLUMBING'].map(v => `<option value="${v}" ${it.c === v ? 'selected' : ''}>${v.slice(0,4)}</option>`).join('')}</select>
                             </div>
-                            <div class="flex flex-col items-center justify-center py-2 ${isLow ? 'bg-red-50' : 'bg-slate-50/50'} rounded-lg mb-2">
-                                <span class="text-xl font-black ${isLow ? 'text-red-600 animate-pulse' : 'text-slate-700'}">${it.q}</span>
-                                <span class="text-[7px] font-black ${isLow ? 'text-red-400' : 'text-slate-400'} uppercase">${it.q <= 0 ? 'HABIS' : it.u}</span>
+                            <div class="flex flex-col items-center justify-center py-2 ${isLow ? 'bg-red-50' : (it.q <= 0 ? 'bg-red-100' : 'bg-slate-50/50')} rounded-lg mb-2">
+                                <span class="text-xl font-black ${it.q <= 0 ? 'text-red-700' : (isLow ? 'text-red-600 animate-pulse' : 'text-slate-700')}">${it.q}</span>
+                                <span class="text-[7px] font-black ${isLow || it.q <= 0 ? 'text-red-400' : 'text-slate-400'} uppercase">${it.q <= 0 ? 'HABIS' : it.u}</span>
                             </div>
                             <div class="flex gap-1 justify-between mt-auto">
                                 <button onclick="window.adjustStock('${nS}', '${tS}', '${it.c}', '${it.u}', ${it.p}, -1, ${it.q})" ${it.q <= 0 ? 'disabled' : ''} class="flex-1 h-7 flex items-center justify-center rounded-lg bg-white border border-slate-100 disabled:opacity-30"><i data-lucide="minus" class="w-3 h-3"></i></button>
@@ -891,7 +909,6 @@
                         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), (s) => {
                             updateStatusText("Sinkronisasi Data Material...");
                             inventory = s.docs.map(d => ({id: d.id, ...d.data()}));
-                            inventory.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
                             window.renderAll();
                             
                             setTimeout(() => {
@@ -909,10 +926,12 @@
                 const qtyInput = document.getElementById('modalQty');
                 if (qtyInput) {
                     qtyInput.addEventListener('input', (e) => {
-                        const max = Number(document.getElementById('modalCurrentStock').value);
-                        if (Number(e.target.value) > max) {
-                            e.target.value = max;
-                            window.showToast(`MAKSIMAL KELUAR: ${max}`, true);
+                        const maxAllowed = Number(document.getElementById('modalCurrentStock').value);
+                        if (Number(e.target.value) > maxAllowed) {
+                            e.target.value = maxAllowed;
+                            window.showToast(`STOK TERBATAS: ${maxAllowed}`, true);
+                        } else if (Number(e.target.value) < 0) {
+                            e.target.value = 0;
                         }
                     });
                 }
@@ -1015,19 +1034,19 @@
         
         window.updateCategory = async (name, type, newCat) => { 
             if (!user) return; 
-            const currentItem = inventory.filter(i => i.name === name && i.type === type).sort((a,b) => b.createdAt - a.createdAt)[0];
+            const currentItem = inventory.filter(i => i.name.toUpperCase() === name.toUpperCase() && (i.type || "-").toUpperCase() === type.toUpperCase()).sort((a,b) => b.createdAt - a.createdAt)[0];
             const oldCat = currentItem ? currentItem.category : 'UNKNOWN';
 
             window.openConfirmModal("Ganti Kategori", `Ubah material ini menjadi ${newCat}?`, "folder-input", "bg-blue-50 text-blue-600", async () => { 
                 try {
-                    const logsToUpdate = inventory.filter(i => i.name === name && i.type === type); 
+                    const logsToUpdate = inventory.filter(i => i.name.toUpperCase() === name.toUpperCase() && (i.type || "-").toUpperCase() === type.toUpperCase()); 
                     const b = writeBatch(db); 
                     logsToUpdate.forEach(l => { 
                         b.update(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id), { category: newCat }); 
                     }); 
                     
                     addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), {
-                        name, type, category: newCat, unit: currentItem ? currentItem.unit : 'PCS',
+                        name: name.toUpperCase(), type: type.toUpperCase(), category: newCat, unit: currentItem ? currentItem.unit : 'PCS',
                         qty: 0, status: 'INFO', subStatus: 'ADJUST',
                         prevCat: oldCat, newCat: newCat,
                         createdAt: Date.now(),
@@ -1036,7 +1055,7 @@
                     });
 
                     b.commit(); 
-                    window.showToast("KATEGORI DIPERBARUI & DICATAT"); 
+                    window.showToast("KATEGORI DIPERBARUI"); 
                 } catch(e) {
                     window.showToast("GAGAL UPDATE", true);
                 }
@@ -1054,7 +1073,7 @@
         window.deleteMaterial = (name, type) => { 
             if (!user) return; 
             window.openConfirmModal("HAPUS MATERIAL", `Seluruh data ${name} akan dihapus permanen.`, "alert-triangle", "bg-red-600 text-white", async () => { 
-                const logsToDelete = inventory.filter(i => i.name === name && i.type === type); 
+                const logsToDelete = inventory.filter(i => i.name.toUpperCase() === name.toUpperCase() && (i.type || "-").toUpperCase() === type.toUpperCase()); 
                 const b = writeBatch(db); 
                 logsToDelete.forEach(l => { b.delete(doc(db, 'artifacts', appId, 'public', 'data', 'inventory_logs', l.id)); }); 
                 b.commit(); 
@@ -1066,9 +1085,9 @@
             if (!user) return; 
             if (change < 0 && currentQty <= 0) { window.showToast("STOK HABIS!", true); return; } 
             try { 
-                const newQtyVal = currentQty + change;
+                const newQtyVal = Number(currentQty) + change;
                 addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
-                    name, type, category: cat, unit, price: window.cleanNum(price), qty: 1, 
+                    name: name.toUpperCase(), type: type.toUpperCase(), category: cat, unit, price: window.cleanNum(price), qty: 1, 
                     prevQty: currentQty, newQty: newQtyVal,
                     status: change > 0 ? 'MASUK' : 'KELUAR', 
                     subStatus: 'ADJUST', 
@@ -1084,13 +1103,13 @@
         
         window.clearAllLogs = () => { 
             if (!user) return; 
-            window.openConfirmModal("RESET LOG", "Hapus semua riwayat transaksi? Ini tidak bisa dibatalkan.", "history", "bg-orange-50 text-orange-600", async () => { 
+            window.openConfirmModal("RESET LOG", "Hapus semua riwayat transaksi?", "history", "bg-orange-50 text-orange-600", async () => { 
                 try { 
                     const s = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs')); 
                     const b = writeBatch(db); 
                     s.docs.forEach(d => b.delete(d.ref)); 
                     b.commit(); 
-                    window.showToast("RIWAYAT SEDANG DIBERSIHKAN"); 
+                    window.showToast("RIWAYAT BERHASIL DIRESET"); 
                 } catch(e) { window.showToast("GAGAL RESET", true); } 
             }); 
         };
@@ -1104,7 +1123,7 @@
             document.getElementById('modalUnit').value = it.u; 
             document.getElementById('modalPrice').value = it.p; 
             document.getElementById('modalCurrentStock').value = it.q; 
-            document.getElementById('modalStockLabel').innerText = `Stok: ${it.q} ${it.u}`;
+            document.getElementById('modalStockLabel').innerText = `Tersedia: ${it.q} ${it.u}`;
             const qtyInp = document.getElementById('modalQty');
             qtyInp.max = it.q; 
             qtyInp.value = 1; 
@@ -1144,7 +1163,19 @@
                 btn.innerText = "MEMPROSES...";
                 
                 let unitVal = document.getElementById('unit').value.toUpperCase().trim(); 
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { category: document.getElementById('category').value, name: document.getElementById('itemName').value.toUpperCase().trim(), type: document.getElementById('itemType').value.toUpperCase() || "-", qty: Number(document.getElementById('qty').value), unit: unitVal, price: Number(document.getElementById('price').value) || 0, status: 'MASUK', subStatus: 'INPUT', createdAt: Date.now(), dateOnly: new Date().toISOString().split('T')[0], timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }); 
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory_logs'), { 
+                    category: document.getElementById('category').value, 
+                    name: document.getElementById('itemName').value.toUpperCase().trim(), 
+                    type: document.getElementById('itemType').value.toUpperCase().trim() || "-", 
+                    qty: Number(document.getElementById('qty').value), 
+                    unit: unitVal, 
+                    price: Number(document.getElementById('price').value) || 0, 
+                    status: 'MASUK', 
+                    subStatus: 'INPUT', 
+                    createdAt: Date.now(), 
+                    dateOnly: new Date().toISOString().split('T')[0], 
+                    timestamp: new Date().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) 
+                }); 
                 
                 e.target.reset(); 
                 window.showToast("DISIMPAN"); 
@@ -1174,8 +1205,8 @@
             const sub = document.getElementById('modalSubStatus').value; 
             const data = { 
                 category: document.getElementById('modalCategory').value, 
-                name: document.getElementById('modalItemName').value, 
-                type: document.getElementById('itemType').value, 
+                name: document.getElementById('modalItemName').value.toUpperCase().trim(), 
+                type: document.getElementById('modalItemType').value.toUpperCase().trim() || "-", 
                 qty: reqQty, 
                 unit: document.getElementById('modalUnit').value, 
                 price: window.cleanNum(document.getElementById('modalPrice').value), 
